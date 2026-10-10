@@ -12,15 +12,15 @@ interface Props {
 
 const { slug, index, locale = "zh", title = "", tilt = false, class: className = "" } = Astro.props;
 const folio = String(index + 1).padStart(2, "0");
-const labels: Record<string, { zh: string; en: string }> = {
-  "customer-service-agent": { zh: "工单 / 路由", en: "Ticket / Route" },
-  "openai-repo": { zh: "样例 / 媒体", en: "Samples / Media" },
-  "amazon-multimodal-rag-assistant": { zh: "图文 / 检索", en: "Frames / Retrieval" },
-  "recommendation-algorithm": { zh: "序列 / 判断", en: "Sequence / Choice" },
-  medllm: { zh: "笔记 / 评估", en: "Notes / Review" },
-  "uchicago-rag-system": { zh: "文档 / 归档", en: "Docs / Archive" }
+const labels: Record<string, { zh: string; en: string; code: string }> = {
+  "customer-service-agent": { zh: "工单路由", en: "Ticket Routing", code: "HANDOFF" },
+  "openai-repo": { zh: "媒体样例", en: "Media Samples", code: "PROMPT" },
+  "amazon-multimodal-rag-assistant": { zh: "图文检索", en: "Image Retrieval", code: "VECTOR" },
+  "recommendation-algorithm": { zh: "序列判断", en: "Sequence Choice", code: "RANK" },
+  medllm: { zh: "医学评估", en: "Medical Review", code: "ALIGN" },
+  "uchicago-rag-system": { zh: "文档归档", en: "Document Archive", code: "CHUNK" }
 };
-const smallLabel = labels[slug]?.[locale] ?? (locale === "en" ? "Study / Notes" : "学习 / 笔记");
+const label = labels[slug] ?? { zh: "学习案例", en: "Study Case", code: "CASE" };
 ---
 
 <div
@@ -31,69 +31,84 @@ const smallLabel = labels[slug]?.[locale] ?? (locale === "en" ? "Study / Notes" 
   style={`view-transition-name: project-${slug};`}
   aria-hidden="true"
 >
+  <div class="artwork-paper artwork-paper-a"></div>
+  <div class="artwork-paper artwork-paper-b"></div>
+  <div class="artwork-paper artwork-paper-c"></div>
   <div class="artwork-meta">
     <span>{folio}</span>
-    <span>{smallLabel}</span>
+    <span>{label[locale]}</span>
   </div>
-  <svg viewBox="0 0 640 420" role="img" aria-label={title}>
-    {slug === "customer-service-agent" && (
-      <>
-        <path class="rule faint" d="M72 72h496M72 120h496M72 168h496M72 216h496M72 264h496M72 312h496" />
-        <path class="ticket paper" d="M96 104h286c10 0 18 8 18 18v176c0 10-8 18-18 18H96c10-18 10-36 0-54c10-18 10-36 0-54c10-18 10-36 0-54c10-16 10-33 0-50Z" />
-        <path class="accent-fill" d="M128 136h70v22h-70z" />
-        <path class="ink" d="M132 196h202M132 236h156M424 142c54 8 86 35 96 81" />
-        <path class="accent" d="M510 216l28 18l-32 10" />
-        <path class="dotline" d="M408 172c-44 16-61 47-52 92" />
-        <circle class="paper" cx="414" cy="286" r="38" />
-      </>
-    )}
-    {slug === "openai-repo" && (
-      <>
-        <path class="dark-block" d="M76 82h488v254H76z" />
-        <path class="paper" d="M114 126h138v164H114zM280 116h86v184h-86zM392 148h134v120H392z" />
-        <path class="accent" d="M112 318c68-48 126-48 194 0s126 48 202 0" />
-        <path class="rule" d="M128 176h98M128 218h74M302 152v118M410 188h94M410 224h54" />
-        <circle class="accent-fill" cx="474" cy="142" r="18" />
-        <path class="faint" d="M96 102l448 212" />
-      </>
-    )}
-    {slug === "amazon-multimodal-rag-assistant" && (
-      <>
-        <path class="paper" d="M92 96h178v212H92zM232 76h178v212H232zM372 116h178v212H372z" />
-        <path class="faint" d="M118 124h126v92H118zM258 104h126v92H258zM398 144h126v92H398z" />
-        <path class="accent-fill" d="M128 246h50v18h-50zM268 226h72v18h-72zM408 266h58v18h-58z" />
-        <path class="ink" d="M164 308c52-72 118-78 198-18s130 32 164-54" />
-        <path class="dotline" d="M122 336h382" />
-      </>
-    )}
-    {slug === "recommendation-algorithm" && (
-      <>
-        <path class="rule faint" d="M92 108h456M92 162h456M92 216h456M92 270h456M92 324h456" />
-        <path class="ink" d="M132 318V110M132 318h390" />
-        <path class="paper" d="M172 242h42v76h-42zM246 196h42v122h-42zM320 220h42v98h-42zM394 146h42v172h-42z" />
-        <circle class="accent-fill" cx="492" cy="178" r="20" />
-        <circle class="paper" cx="494" cy="252" r="13" />
-        <path class="accent" d="M154 146c70 8 127 41 170 100s92 72 148 26" />
-      </>
-    )}
-    {slug === "medllm" && (
-      <>
-        <path class="paper" d="M134 102h300c22 0 40 18 40 40v190H176c-23 0-42-19-42-42z" />
-        <path class="surface" d="M176 82h304c18 0 32 14 32 32v186H206c-17 0-30-13-30-30z" />
-        <path class="rule" d="M216 132h218M216 174h158M216 216h228M216 258h118" />
-        <path class="accent" d="M462 138v86M419 181h86" />
-        <path class="faint" d="M134 290c44-22 88-22 132 0s88 22 132 0s88-22 132 0" />
-      </>
-    )}
-    {slug === "uchicago-rag-system" && (
-      <>
-        <path class="paper" d="M102 132h166l28 34h242v154H102z" />
-        <path class="surface" d="M132 96h150l24 38h190v142H132z" />
-        <path class="paper" d="M170 70h244v246H170z" />
-        <path class="rule" d="M204 122h158M204 164h178M204 206h112M204 248h148" />
-        <path class="accent" d="M432 118l54 54l-54 54M486 172H330" />
-        <path class="dotline" d="M110 346h418" />
-      </>
-    )}
+  <svg viewBox="0 0 720 420" role="img" aria-label={title} preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <pattern id={`weave-${slug}`} width="18" height="18" patternUnits="userSpaceOnUse">
+        <path class="art-faint" d="M0 9h18M9 0v18" />
+      </pattern>
+      <clipPath id={`slice-${slug}`}>
+        <path d="M74 82h572v256H74z" />
+      </clipPath>
+    </defs>
+    <rect class="art-base" x="0" y="0" width="720" height="420" />
+    <rect class="art-weave" x="0" y="0" width="720" height="420" fill={`url(#weave-${slug})`} />
+    <g clip-path={`url(#slice-${slug})`}>
+      {slug === "customer-service-agent" && (
+        <>
+          <path class="art-panel strong" d="M78 96h250l-52 226H26z" />
+          <path class="art-panel muted" d="M284 68h326l58 270H342z" />
+          <path class="art-line broad" d="M138 132c118 36 185 92 202 168s82 72 194 0" />
+          <text class="art-title" x="392" y="230">HAND</text>
+          <text class="art-code" x="112" y="292">BFF → AGENT</text>
+        </>
+      )}
+      {slug === "openai-repo" && (
+        <>
+          <path class="art-panel muted" d="M52 78h220v282H52z" />
+          <path class="art-panel strong" d="M260 34h190v342H260z" />
+          <path class="art-panel pale" d="M440 112h224v176H440z" />
+          <path class="art-line broad" d="M90 308c86-86 168-86 246 0s150 88 258-10" />
+          <text class="art-title" x="108" y="214">MEDIA</text>
+          <text class="art-code" x="478" y="224">TEXT / VISION / VOICE</text>
+        </>
+      )}
+      {slug === "amazon-multimodal-rag-assistant" && (
+        <>
+          <path class="art-panel pale" d="M58 96h172v218H58z" />
+          <path class="art-panel strong" d="M214 58h220v276H214z" />
+          <path class="art-panel muted" d="M412 122h248v190H412z" />
+          <path class="art-line dotted" d="M126 196h448" />
+          <path class="art-line broad" d="M132 288c96-116 210-126 342-28" />
+          <text class="art-title" x="252" y="198">RAG</text>
+          <text class="art-code" x="448" y="266">CLIP + STORE</text>
+        </>
+      )}
+      {slug === "recommendation-algorithm" && (
+        <>
+          <path class="art-panel muted" d="M62 92h596v236H62z" />
+          <path class="art-bars" d="M118 270h56v58h-56zM216 202h56v126h-56zM314 232h56v96h-56zM412 146h56v182h-56zM510 184h56v144h-56z" />
+          <path class="art-line broad" d="M100 154c102 14 158 66 226 112s138 62 258-36" />
+          <text class="art-title" x="98" y="206">RANK</text>
+          <text class="art-code" x="444" y="132">EVALUATE</text>
+        </>
+      )}
+      {slug === "medllm" && (
+        <>
+          <path class="art-panel pale" d="M120 74h410c36 0 64 29 64 64v198H184c-36 0-64-29-64-64z" />
+          <path class="art-panel strong" d="M184 44h340c25 0 46 20 46 46v214H232c-27 0-48-22-48-48z" />
+          <path class="art-line broad" d="M258 148h190M258 198h248M258 248h144" />
+          <text class="art-title" x="250" y="332">QA</text>
+          <text class="art-code" x="424" y="154">ALIGNMENT</text>
+        </>
+      )}
+      {slug === "uchicago-rag-system" && (
+        <>
+          <path class="art-panel muted" d="M88 132h178l34 38h318v166H88z" />
+          <path class="art-panel pale" d="M154 82h382v222H154z" />
+          <path class="art-panel strong" d="M216 52h258v284H216z" />
+          <path class="art-line broad" d="M262 126h148M262 174h186M262 222h120M262 270h158" />
+          <text class="art-title" x="436" y="268">DOC</text>
+          <text class="art-code" x="112" y="364">PDF / HTML</text>
+        </>
+      )}
+    </g>
+    <text class="art-ghost" x="42" y="394">{label.code}</text>
   </svg>
 </div>

@@ -3,6 +3,7 @@ import { matchesQuery } from "@/lib/search";
 import { advanceSpring, springSettled } from "@/lib/motion";
 import { basePath, withBase } from "@/lib/paths";
 import { localizeFragment, localizePath, stripLocale, ui } from "@/i18n";
+import { indexFromOffset, normalizedWheelDelta, stageCardMetrics, targetOffsetForIndex, perspectiveGrid } from "@/lib/stageGeometry";
 
 function setupNotFoundLocale() {
   if (document.documentElement.dataset.notFound !== "true") return;
@@ -420,6 +421,7 @@ function setupGallery() {
         event.preventDefault();
         scrollByCard(event.key === "ArrowLeft" ? -1 : 1);
       }
+
     });
     track.addEventListener("pointerdown", (event) => {
       if (event.pointerType !== "mouse" || event.button !== 0) return;
@@ -469,6 +471,264 @@ function setupGallery() {
     track.addEventListener("scroll", updateIndex, { passive: true });
     if ("ResizeObserver" in window) new ResizeObserver(updateIndex).observe(track);
     updateIndex();
+  });
+}
+
+function setupStageDialogs() {
+  let restoreFocus: HTMLElement | null = null;
+  document.querySelectorAll<HTMLButtonElement>("[data-dialog-open]").forEach((button) => {
+    const dialog = document.getElementById(button.dataset.dialogOpen || "");
+    if (!(dialog instanceof HTMLDialogElement)) return;
+    button.addEventListener("click", () => {
+      restoreFocus = button;
+      if (!dialog.open) dialog.showModal();
+      dialog.querySelector<HTMLElement>("button,a")?.focus();
+    });
+    dialog.addEventListener("close", () => {
+      restoreFocus?.focus();
+      restoreFocus = null;
+    });
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  });
+}
+
+function setupStage() {
+  document.querySelectorAll<HTMLElement>("[data-stage]").forEach((stage) => {
+    const track = stage.querySelector<HTMLElement>("[data-stage-track]");
+    const cards = [...stage.querySelectorAll<HTMLElement>("[data-stage-card]")];
+    const prev = stage.querySelector<HTMLButtonElement>("[data-stage-prev]");
+    const next = stage.querySelector<HTMLButtonElement>("[data-stage-next]");
+    const count = stage.querySelector<HTMLElement>("[data-stage-count]");
+    const canvas = stage.querySelector<HTMLCanvasElement>("[data-stage-canvas]");
+    const modeButtons = [...stage.querySelectorAll<HTMLButtonElement>("[data-stage-mode]")];
+    const indexItems = [...stage.querySelectorAll<HTMLElement>("[data-stage-index-item]")];
+    if (!track || !cards.length) return;
+
+    let metrics = stageCardMetrics(stage.clientWidth || window.innerWidth, stage.clientHeight || window.innerHeight);
+    let position = 0;
+    let target = 0;
+    let velocity = 0;
+    let activePointer: number | null = null;
+    let startX = 0;
+    let startY = 0;
+    let startTarget = 0;
+    let lastX = 0;
+    let lastPointerAt = 0;
+    let dragged = false;
+    let dragEndedAt = -1;
+    let raf = 0;
+    let lastFrame = performance.now();
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mobile = () => window.matchMedia("(max-width: 719px), (pointer: coarse)").matches;
+    const maxOffset = () => targetOffsetForIndex(cards.length - 1, cards.length, metrics);
+    const clampOffset = (value: number) => Math.max(0, Math.min(maxOffset(), value));
+    const currentIndex = () => indexFromOffset(target, cards.length, metrics);
+    const paused = () => document.documentElement.dataset.motion === "paused" || reduced.matches;
+
+    const updateUrl = (idx: number) => {
+      const slug = cards[idx]?.dataset.slug;
+      if (!slug) return;
+      const url = new URL(window.location.href);
+      url.searchParams.set("work", slug);
+      history.replaceState(null, "", url);
+    };
+    const drawFloor = () => {
+      if (!canvas) return;
+      const context = canvas.getContext("2d");
+      if (!context) {
+        console.warn("Learning Atlas stage canvas is unavailable; CSS perspective floor is used.");
+        return;
+      }
+      const box = stage.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.floor(box.width * dpr));
+      canvas.height = Math.max(1, Math.floor(box.height * dpr));
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context.clearRect(0, 0, box.width, box.height);
+      const styles = getComputedStyle(stage);
+      context.strokeStyle = styles.getPropertyValue("--stage-line").trim() || styles.getPropertyValue("--cp-border").trim();
+      for (const segment of perspectiveGrid(box.width, box.height, 15, 9)) {
+        context.beginPath();
+        context.moveTo(segment.x1 + position * -0.018, segment.y1);
+        context.lineTo(segment.x2 + position * -0.06, segment.y2);
+        context.stroke();
+      }
+      context.strokeStyle = styles.getPropertyValue("--stage-line-strong").trim() || styles.getPropertyValue("--cp-border-strong").trim();
+      context.beginPath();
+      context.moveTo(box.width * 0.12, box.height * 0.48);
+      context.lineTo(box.width * 0.88, box.height * 0.48);
+      context.stroke();
+    };
+    const render = () => {
+      stage.dataset.stageMobile = String(mobile());
+      stage.style.setProperty("--stage-card-w", `${metrics.cardWidth.toFixed(2)}px`);
+      stage.style.setProperty("--stage-card-h", `${metrics.cardHeight.toFixed(2)}px`);
+      stage.style.setProperty("--stage-gap", `${metrics.gap.toFixed(2)}px`);
+      if (!mobile()) {
+        cards.forEach((card, idx) => {
+          const relative = idx * (metrics.cardWidth + metrics.gap) - position;
+          const ratio = relative / Math.max(metrics.cardWidth, 1);
+          const abs = Math.abs(ratio);
+          card.style.setProperty("--stage-x", `${relative.toFixed(2)}px`);
+          card.style.setProperty("--stage-z", `${(-Math.min(abs, 2.4) * 88).toFixed(2)}px`);
+          card.style.setProperty("--stage-ry", `${Math.max(-13, Math.min(13, -ratio * 7 - velocity * 0.012)).toFixed(2)}deg`);
+          card.style.setProperty("--stage-opacity", `${Math.max(0.24, 1 - abs * 0.22).toFixed(3)}`);
+        });
+      }
+      const idx = currentIndex();
+      if (count) count.textContent = `${idx + 1}/${cards.length}`;
+      if (prev) prev.disabled = idx === 0;
+      if (next) next.disabled = idx === cards.length - 1;
+      indexItems.forEach((item, itemIndex) => item.toggleAttribute("aria-current", itemIndex === idx));
+      stage.style.setProperty("--stage-camera", `${(position * -0.028).toFixed(2)}px`);
+      stage.style.setProperty("--stage-curve", `${(velocity * 0.01).toFixed(2)}deg`);
+    };
+    const stop = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    };
+    const frame = (now: number) => {
+      const dt = Math.min(0.05, Math.max(0.001, (now - lastFrame) / 1000));
+      lastFrame = now;
+      if (paused()) {
+        position = target;
+        velocity = 0;
+      } else if (!activePointer) {
+        if (Math.abs(velocity) > 0.01) {
+          target = clampOffset(target + velocity * dt * 60);
+          velocity *= Math.pow(0.86, dt * 60);
+        } else {
+          target = targetOffsetForIndex(currentIndex(), cards.length, metrics);
+          updateUrl(currentIndex());
+        }
+        position += (target - position) * Math.min(1, 0.18 * dt * 60);
+      } else {
+        position += (target - position) * Math.min(1, 0.36 * dt * 60);
+      }
+      render();
+      drawFloor();
+      if (Math.abs(target - position) < 0.08 && Math.abs(velocity) < 0.02 && !activePointer) {
+        position = target;
+        render();
+        raf = 0;
+        return;
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    const start = () => {
+      if (!raf && !mobile()) {
+        lastFrame = performance.now();
+        raf = requestAnimationFrame(frame);
+      }
+    };
+    const moveTo = (idx: number) => {
+      target = targetOffsetForIndex(idx, cards.length, metrics);
+      velocity = 0;
+      updateUrl(currentIndex());
+      if (paused()) {
+        position = target;
+        render();
+        drawFloor();
+      } else start();
+    };
+    const resize = () => {
+      stop();
+      const idx = currentIndex();
+      metrics = stageCardMetrics(stage.clientWidth || window.innerWidth, stage.clientHeight || window.innerHeight);
+      target = targetOffsetForIndex(idx, cards.length, metrics);
+      position = target;
+      render();
+      drawFloor();
+    };
+
+    prev?.addEventListener("click", () => moveTo(currentIndex() - 1));
+    next?.addEventListener("click", () => moveTo(currentIndex() + 1));
+    indexItems.forEach((item, idx) => item.addEventListener("click", () => moveTo(idx)));
+    track.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.preventDefault();
+        moveTo(currentIndex() + (event.key === "ArrowLeft" ? -1 : 1));
+      }
+    });
+    track.addEventListener("wheel", (event) => {
+      if (mobile()) return;
+      event.preventDefault();
+      const delta = normalizedWheelDelta(event);
+      target = clampOffset(target + delta * 1.05);
+      velocity += delta * 0.06;
+      start();
+    }, { passive: false });
+    track.addEventListener("pointerdown", (event) => {
+      if (event.pointerType !== "mouse" || event.button !== 0 || mobile()) return;
+      activePointer = event.pointerId;
+      startX = event.clientX;
+      startY = event.clientY;
+      lastX = event.clientX;
+      lastPointerAt = performance.now();
+      startTarget = target;
+      dragged = false;
+      track.dataset.dragging = "true";
+    });
+    track.addEventListener("pointermove", (event) => {
+      if (activePointer !== event.pointerId) return;
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+      if (!dragged && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 12) {
+        activePointer = null;
+        return;
+      }
+      if (!dragged && Math.abs(dx) > 6) {
+        dragged = true;
+        track.setPointerCapture(event.pointerId);
+      }
+      if (!dragged) return;
+      event.preventDefault();
+      const now = performance.now();
+      velocity = ((lastX - event.clientX) / Math.max(8, now - lastPointerAt)) * 16;
+      lastX = event.clientX;
+      lastPointerAt = now;
+      target = clampOffset(startTarget - dx);
+      start();
+    });
+    const finishDrag = () => {
+      if (dragged) dragEndedAt = performance.now();
+      if (activePointer !== null && track.hasPointerCapture(activePointer)) track.releasePointerCapture(activePointer);
+      activePointer = null;
+      delete track.dataset.dragging;
+      start();
+    };
+    track.addEventListener("pointerup", finishDrag);
+    track.addEventListener("pointercancel", finishDrag);
+    track.addEventListener("click", (event) => {
+      if (dragged && performance.now() - dragEndedAt < 350) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }, true);
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const full = button.dataset.stageMode === "full";
+        stage.dataset.stageView = full ? "full" : "featured";
+        modeButtons.forEach((other) => other.setAttribute("aria-pressed", String(other === button)));
+      });
+    });
+    window.addEventListener("resize", resize, { passive: true });
+    document.addEventListener("visibilitychange", () => { if (document.hidden) stop(); else resize(); });
+    document.addEventListener("atlas:motion-change", () => {
+      velocity = 0;
+      if (paused()) {
+        position = target;
+        render();
+        drawFloor();
+      } else start();
+    });
+    reduced.addEventListener("change", resize);
+    const requested = new URLSearchParams(window.location.search).get("work");
+    const requestedIndex = requested ? cards.findIndex((card) => card.dataset.slug === requested) : -1;
+    moveTo(requestedIndex >= 0 ? requestedIndex : Math.min(1, cards.length - 1));
+    resize();
   });
 }
 
@@ -630,6 +890,8 @@ setupSearchQuery();
 setupLanguageSwitch();
 setupReveal();
 setupGallery();
+setupStageDialogs();
+setupStage();
 setupViewToggle();
 setupTilt();
 setupMagnetic();

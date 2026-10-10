@@ -1,8 +1,7 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import ProjectArtwork from "@/components/ProjectArtwork.astro";
-import { withBase } from "@/lib/paths";
-import { tracks, trackText } from "@/data/tracks";
+import BilingualStage from "@/components/BilingualStage.astro";
+import { tracks } from "@/data/tracks";
 import { getProjects } from "@/data/projects";
 import { getResources } from "@/data/resources";
 import { getCollection } from "astro:content";
@@ -15,87 +14,6 @@ const projects = getProjects(locale);
 const resources = getResources(locale);
 ---
 
-<BaseLayout title="Learning Atlas" description="计算、存储、网络、数据库、AI 与机器学习的中文静态学习地图。" current="Home" locale={locale}>
-  <section class="hero editorial-hero">
-    <div class="container hero-stack">
-      <div class="hero-copy" data-reveal>
-        <p class="eyebrow">个人学习田野手册</p>
-        <h1 class="hero-title">边学。边做。</h1>
-        <p class="lead">先看作品，再回到概念。Learning Atlas 用六条轨道、十八篇课程和公开项目卡片，把云基础设施与智能应用的取舍连起来。</p>
-        <div class="tag-row">
-          <a class="button primary magnetic" href={withBase("/learn/")}>开始学习</a>
-          <a class="button magnetic" href={withBase("/search/")}>搜索全站</a>
-          <span class="chip">完成 <span data-progress-count={lessonIds.join(",")}>0/{lessonIds.length}</span></span>
-        </div>
-        <p class="progress-note" data-progress-warning></p>
-      </div>
-      <div class="project-gallery" data-gallery data-reveal>
-        <div class="gallery-topline">
-          <span>精选学习作品</span>
-          <span data-gallery-index>1/{projects.length}</span>
-        </div>
-        <div class="gallery-track" data-gallery-track tabindex="0" aria-label="精选项目横向画廊">
-          {projects.map((project, index) => (
-            <a class="gallery-card" data-gallery-card data-tilt href={withBase(`/projects/${project.slug}/`)}>
-              <ProjectArtwork slug={project.slug} index={index} locale={locale} title={project.title} />
-              <div class="gallery-caption">
-                <p class="eyebrow">{project.topics.join(" / ")}</p>
-                <h2>{project.title}</h2>
-              </div>
-              <span class="corner-arrow" aria-hidden="true">↗</span>
-            </a>
-          ))}
-        </div>
-        <div class="gallery-controls">
-          <span>拖动浏览 · {projects.length} 个案例</span>
-          <button class="icon-button" type="button" data-gallery-prev aria-label="上一个项目">←</button>
-          <button class="icon-button" type="button" data-gallery-next aria-label="下一个项目">→</button>
-        </div>
-      </div>
-    </div>
-  </section>
-  <section class="section">
-    <div class="container">
-      <p class="eyebrow">知识索引</p>
-      <h2>六条路径，连成自己的知识体系。</h2>
-      <div class="knowledge-rows">
-        {tracks.map((track, index) => {
-          const text = trackText(track, locale);
-          const ids = lessons.filter((lesson) => lesson.data.track === track.slug).map(lessonProgressId);
-          return (
-            <a class="knowledge-row" data-reveal href={withBase(`/learn/${track.slug}/`)}>
-              <span class="row-number">{String(index + 1).padStart(2, "0")}</span>
-              <span><strong>{text.title}</strong><em>{text.kicker}</em></span>
-              <span class="row-summary">{text.summary}</span>
-              <span class="chip">完成 <span data-progress-count={ids.join(",")}>0/{ids.length}</span></span>
-            </a>
-          );
-        })}
-      </div>
-    </div>
-  </section>
-  <section class="section">
-    <div class="container split">
-      <div data-reveal>
-        <p class="eyebrow">案例阅读</p>
-        <h2>项目不是截图墙，而是取舍说明书。</h2>
-        <p class="lead">每张卡片只基于公开仓库与 README 可说明的事实，区分架构意图、学习收获和适用边界。</p>
-        <a class="button" href={withBase("/projects/")}>查看全部项目</a>
-      </div>
-      <aside class="sidebox profile-panel" data-reveal>
-        <p class="eyebrow">认证路线</p>
-        <h3>建议顺序</h3>
-        <p>AZ-104 基础 → AZ-700 网络 → AZ-305 设计。此顺序是学习路径，不是官方考试先修要求；18 篇入门课也不宣称覆盖完整考纲。</p>
-        <p class="muted">AZ-104/AZ-305 目标标注 2026-04-17；AZ-700 标注 2026-07-27。请以官方学习指南最新页面为准。</p>
-      </aside>
-    </div>
-  </section>
-  <section class="section">
-    <div class="container resource-strip" data-reveal>
-      <p class="eyebrow">资源</p>
-      <h2>好资料，少走弯路。</h2>
-      <p class="lead">{resources.length} 条官方文档与开源课程，按主题和认证目标整理。内容会变化，学习时请对照原始来源的最新版本。</p>
-      <a class="button" href={withBase("/resources/")}>浏览资源</a>
-    </div>
-  </section>
+<BaseLayout title="Learning Atlas" description="计算、存储、网络、数据库、AI 与机器学习的中文静态学习地图。" current="Home" locale={locale} scene>
+  <BilingualStage locale={locale} projects={projects} tracks={tracks} lessonIds={lessonIds} resourceCount={resources.length} />
 </BaseLayout>

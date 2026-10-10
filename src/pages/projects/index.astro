@@ -8,7 +8,7 @@ const projects = getProjects(locale);
 const topics = ["all", ...Array.from(new Set(projects.flatMap((project) => project.topics)))];
 ---
 <BaseLayout title="项目案例" description="公开 GitHub 项目的 README-based 学习案例。" current="Projects" locale={locale}>
-  <section class="section">
+  <section class="section project-index-scene">
     <div class="container" data-filter-scope>
       <p class="eyebrow">公开案例</p>
       <h1>项目案例</h1>

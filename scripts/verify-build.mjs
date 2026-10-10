@@ -71,6 +71,9 @@ const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => m
 assert.equal(locations.length, htmlFiles.length - 2, "All pages except localized 404 pages belong in sitemap");
 locations.forEach((location) => targetFile(new URL(location)));
 assert.match(readFileSync(join(dist, "robots.txt"), "utf8"), /learning-atlas\/sitemap\.xml/);
-assert.match(readFileSync(join(dist, "index.html"), "utf8"), /data-gallery-track/);
-assert.match(readFileSync(join(dist, "en", "index.html"), "utf8"), /data-gallery-track/);
+for (const home of [readFileSync(join(dist, "index.html"), "utf8"), readFileSync(join(dist, "en", "index.html"), "utf8")]) {
+  assert.match(home, /data-stage-track/);
+  assert.match(home, /data-stage-canvas/);
+  assert.doesNotMatch(home, /hero-title|data-gallery-track/);
+}
 console.log(`Verified ${htmlFiles.length} pages and ${references} local links/assets.`);

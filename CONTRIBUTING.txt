@@ -10,8 +10,10 @@ Learning Atlas content update guide
 
 Design and motion:
 Project artwork is original SVG in src/components/ProjectArtwork.astro.
-Portfolio layout references Jesper Landberg; cursor motion references Magic UI,
-with links and independent-implementation notes on both About pages.
+Portfolio layout references Jesper Landberg with a dark full-viewport stage,
+corner chrome, inertial project browsing and a canvas/CSS perspective floor;
+cursor motion references Magic UI, with links and independent-implementation
+notes on both About pages.
 Keep native touch scrolling and keyboard navigation. Disable decorative motion
 when paused or reduced motion is requested; cursor RAF must stop when settled.
 All English visible text, including enum labels and errors, must stay English.

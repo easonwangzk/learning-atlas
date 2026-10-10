@@ -11,6 +11,43 @@ if (!project) throw new Error(`Unknown project: ${Astro.params.slug}`);
 const previous = projects[(project.index + projects.length - 1) % projects.length];
 const next = projects[(project.index + 1) % projects.length];
 ---
-<BaseLayout title={project.title} description={project.summary} current="Projects" locale={locale}>
-  <section class="section project-detail"><div class="container split"><article><ProjectArtwork class="detail-cover" slug={project.slug} index={project.index} locale={locale} title={project.title} tilt /><p class="eyebrow">Public README summary</p><h1>{project.title}</h1><p class="lead">{project.summary}</p><p class="chip">{project.status}</p><h2>{project.slug === "recommendation-algorithm" ? "Suggested reading order (not an architecture claim)" : "Architecture reading map (from repository description)"}</h2><div class="diagram">{project.flow.map((step) => <div class="flow-step">{step}</div>)}</div><h2>Design worth studying</h2><ul>{project.learn.map((item) => <li>{item}</li>)}</ul><h2>Boundaries</h2><p>{project.limits}</p></article><aside class="sidebox"><a class="button primary" href={project.repo} rel="noreferrer">Open public repository</a><h3>Related learning</h3><ul>{project.related.map((href) => <li><a href={withBase(href)}>{href}</a></li>)}</ul><h3>Case navigation</h3><p><a href={withBase(`/en/projects/${previous.slug}/`)}>← {previous.title}</a></p><p><a href={withBase(`/en/projects/${next.slug}/`)}>{next.title} →</a></p><p class="muted">Cases are for understanding technical design; runtime, data, and model configuration belong to the source repository.</p></aside></div></section>
+<BaseLayout title={project.title} description={project.summary} current="Projects" locale={locale} canonicalPath={`/projects/${project.slug}/`} scene>
+  <article class="case-scene">
+    <nav class="stage-chrome stage-top-left"><a class="stage-wordmark" href={withBase("/en/")}>Learning Atlas</a></nav>
+    <div class="stage-chrome stage-top-right">
+      <a class="stage-link" href={withBase(`/projects/${project.slug}/`)} data-lang-switch>中文</a>
+      <a class="stage-link" href={withBase("/en/projects/")}>All projects</a>
+    </div>
+    <div class="stage-floor" aria-hidden="true"></div>
+    <div class="case-hero">
+      <ProjectArtwork class="case-cover" slug={project.slug} index={project.index} locale={locale} title={project.title} tilt />
+      <div class="case-intro">
+        <p class="eyebrow">{project.topics.join(" / ")}</p>
+        <h1>{project.title}</h1>
+        <p>{project.summary}</p>
+        <p class="chip">{project.status}</p>
+      </div>
+    </div>
+    <div class="stage-chrome stage-bottom-left"><a class="stage-link" href={withBase(`/en/projects/${previous.slug}/`)}>← {previous.title}</a></div>
+    <div class="stage-chrome stage-bottom-right"><a class="stage-link" href={withBase(`/en/projects/${next.slug}/`)}>{next.title} →</a></div>
+  </article>
+  <section class="section case-details">
+    <div class="container split">
+      <article class="prose">
+        <p class="eyebrow">Public README summary</p>
+        <h2>{project.slug === "recommendation-algorithm" ? "Suggested reading order (not an architecture claim)" : "Architecture reading map (from repository description)"}</h2>
+        <div class="diagram">{project.flow.map((step) => <div class="flow-step">{step}</div>)}</div>
+        <h2>Design worth studying</h2>
+        <ul>{project.learn.map((item) => <li>{item}</li>)}</ul>
+        <h2>Boundaries</h2>
+        <p>{project.limits}</p>
+      </article>
+      <aside class="sidebox">
+        <a class="button primary" href={project.repo} rel="noreferrer">Open public repository</a>
+        <h3>Related learning</h3>
+        <ul>{project.related.map((href) => <li><a href={withBase(href)}>{href}</a></li>)}</ul>
+        <p class="muted">Cases are for understanding technical design; runtime, data, and model configuration belong to the source repository.</p>
+      </aside>
+    </div>
+  </section>
 </BaseLayout>

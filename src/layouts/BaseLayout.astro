@@ -10,9 +10,10 @@ interface Props {
   locale?: Locale;
   switchPath?: string;
   canonicalPath?: string;
+  scene?: boolean;
 }
 
-const { title, description, current = "", locale = "zh", switchPath, canonicalPath } = Astro.props;
+const { title, description, current = "", locale = "zh", switchPath, canonicalPath, scene = false } = Astro.props;
 const t = ui[locale];
 const notFound = title === "404";
 const routePath = notFound ? "/404.html" : (canonicalPath ?? stripLocale(Astro.url.pathname.replace(withBase("/").replace(/\/$/, ""), "") || "/"));
@@ -118,10 +119,10 @@ const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atl
     {title === "404" && <meta name="robots" content="noindex" />}
     <link rel="icon" href={withBase("/favicon.svg")} type="image/svg+xml" />
   </head>
-  <body>
-    <div class="site-shell">
+  <body class={scene ? "scene-body" : undefined}>
+    <div class:list={["site-shell", scene && "scene-shell"]}>
       <a class="skip-link" href="#content">{t.skip}</a>
-      <header class="site-header">
+      {!scene && <header class="site-header">
         <nav class="nav" aria-label={t.navLabel}>
           <a class="brand" href={withBase(locale === "en" ? "/en/" : "/")}>
             <span class="brand-mark" aria-hidden="true">∴</span>
@@ -140,11 +141,11 @@ const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atl
             <button class="icon-button menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="nav-links">{t.menu}</button>
           </div>
         </nav>
-      </header>
+      </header>}
       <main id="content">
         <slot />
       </main>
-      <footer class="site-footer">
+      {!scene && <footer class="site-footer">
         <div class="container footer-grid">
           <div>
             <strong>Learning Atlas</strong>
@@ -153,7 +154,7 @@ const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atl
           </div>
           <a class="button" href={withBase(locale === "en" ? "/en/about/" : "/about/")}>{t.aboutSource}</a>
         </div>
-      </footer>
+      </footer>}
     </div>
     <script>
       import "@/scripts/site.ts";

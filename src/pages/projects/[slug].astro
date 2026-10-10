@@ -15,19 +15,32 @@ if (!project) throw new Error(`Unknown project: ${Astro.params.slug}`);
 const previous = projects[(project.index + projects.length - 1) % projects.length];
 const next = projects[(project.index + 1) % projects.length];
 ---
-<BaseLayout title={project.title} description={project.summary} current="Projects" locale={locale}>
-  <section class="section project-detail">
-    <div class="container split">
-      <article>
-        <ProjectArtwork class="detail-cover" slug={project.slug} index={project.index} locale={locale} title={project.title} tilt />
-        <p class="eyebrow">README 公开摘要</p>
+<BaseLayout title={project.title} description={project.summary} current="Projects" locale={locale} canonicalPath={`/projects/${project.slug}/`} scene>
+  <article class="case-scene">
+    <nav class="stage-chrome stage-top-left"><a class="stage-wordmark" href={withBase("/")}>Learning Atlas</a></nav>
+    <div class="stage-chrome stage-top-right">
+      <a class="stage-link" href={withBase(`/en/projects/${project.slug}/`)} data-lang-switch>English</a>
+      <a class="stage-link" href={withBase("/projects/")}>全部项目</a>
+    </div>
+    <div class="stage-floor" aria-hidden="true"></div>
+    <div class="case-hero">
+      <ProjectArtwork class="case-cover" slug={project.slug} index={project.index} locale={locale} title={project.title} tilt />
+      <div class="case-intro">
+        <p class="eyebrow">{project.topics.join(" / ")}</p>
         <h1>{project.title}</h1>
-        <p class="lead">{project.summary}</p>
+        <p>{project.summary}</p>
         <p class="chip">{project.status}</p>
+      </div>
+    </div>
+    <div class="stage-chrome stage-bottom-left"><a class="stage-link" href={withBase(`/projects/${previous.slug}/`)}>← {previous.title}</a></div>
+    <div class="stage-chrome stage-bottom-right"><a class="stage-link" href={withBase(`/projects/${next.slug}/`)}>{next.title} →</a></div>
+  </article>
+  <section class="section case-details">
+    <div class="container split">
+      <article class="prose">
+        <p class="eyebrow">README 公开摘要</p>
         <h2>{project.slug === "recommendation-algorithm" ? "建议阅读顺序（非仓库架构声明）" : "架构阅读图（基于仓库描述）"}</h2>
-        <div class="diagram">
-          {project.flow.map((step) => <div class="flow-step">{step}</div>)}
-        </div>
+        <div class="diagram">{project.flow.map((step) => <div class="flow-step">{step}</div>)}</div>
         <h2>值得学习的设计</h2>
         <ul>{project.learn.map((item) => <li>{item}</li>)}</ul>
         <h2>适用边界</h2>
@@ -37,9 +50,6 @@ const next = projects[(project.index + 1) % projects.length];
         <a class="button primary" href={project.repo} rel="noreferrer">查看公开仓库</a>
         <h3>相关学习</h3>
         <ul>{project.related.map((href) => <li><a href={withBase(href)}>{href}</a></li>)}</ul>
-        <h3>案例切换</h3>
-        <p><a href={withBase(`/projects/${previous.slug}/`)}>← {previous.title}</a></p>
-        <p><a href={withBase(`/projects/${next.slug}/`)}>{next.title} →</a></p>
         <p class="muted">案例用于理解技术设计；应用运行、数据和模型配置请以原仓库说明为准。</p>
       </aside>
     </div>
