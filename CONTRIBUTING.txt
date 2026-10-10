@@ -1,0 +1,7 @@
+Learning Atlas content update guide
+
+1. Add lessons as Markdown under src/content/lessons with frontmatter matching src/content.config.ts.
+2. Keep summaries original. Link public official sources rather than copying source text.
+3. Mark public project case studies as README-based unless functionality is independently run by this site.
+4. Do not add secrets, credentials, subscription IDs, customer data, private repository material, or raw benchmark results.
+5. Run npm run ci before committing.
