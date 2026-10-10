@@ -1,0 +1,33 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { projects } from "@/data/projects";
+import { withBase } from "@/lib/paths";
+const topics = ["all", ...Array.from(new Set(projects.flatMap((project) => project.topics)))];
+---
+<BaseLayout title="Projects" description="公开 GitHub 项目的 README-based 学习案例。" current="Projects">
+  <section class="section">
+    <div class="container" data-filter-scope>
+      <p class="eyebrow">Public case studies</p>
+      <h1>项目案例</h1>
+      <p class="lead">我的公开项目学习索引。从仓库说明中提炼问题、架构与设计取舍；本站提供案例阅读，不托管运行这些应用。</p>
+      <input class="input" data-local-search type="search" placeholder="搜索项目主题、标题或摘要" aria-label="搜索项目" />
+      <div class="filter-row">
+        {topics.map((topic) => <button class="filter-button" type="button" data-filter={topic} aria-pressed={topic === "all" ? "true" : "false"}>{topic === "all" ? "全部" : topic}</button>)}
+        <button class="button" type="button" data-filter-reset>清空筛选</button>
+      </div>
+      <p class="muted" data-filter-count role="status">{projects.length} / {projects.length} 项</p>
+      <div class="grid">
+        {projects.map((project) => (
+          <article class="card" data-filter-item={project.topics.join(" ")}>
+            <h2>{project.title}</h2>
+            <p class="muted">{project.summary}</p>
+            <p class="chip">{project.status}</p>
+            <div class="tag-row">{project.topics.map((topic) => <span class="chip">{topic}</span>)}</div>
+            <p><a href={withBase(`/projects/${project.slug}/`)}>查看学习卡</a></p>
+          </article>
+        ))}
+      </div>
+      <p class="callout hidden" data-empty>没有匹配项目。请重置筛选或换一个关键词。</p>
+    </div>
+  </section>
+</BaseLayout>

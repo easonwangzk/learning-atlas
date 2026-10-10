@@ -1,0 +1,30 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getSearchIndex } from "@/data/searchIndex";
+const items = await getSearchIndex();
+---
+<BaseLayout title="Search" description="搜索 Learning Atlas 的课程、项目和资源。" current="Search">
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Global static search</p>
+      <h1>搜索全站</h1>
+      <p class="lead">搜索课程正文、公开项目案例与学习资源。多个关键词以空格分隔，查询只在当前页面内进行。</p>
+      <div class="search-panel card">
+        <input class="input" type="search" data-global-search placeholder="输入 RAG、AZ-700、Blob、MLOps…" aria-label="全站搜索" />
+      </div>
+      <p class="muted" data-search-count role="status">{items.length} 条结果</p>
+      <ul class="grid search-results" data-search-results>
+        {items.map((item) => (
+          <li class="resource-card" data-search-item={`${item.searchText} ${item.kind} ${item.tags.join(" ")}`}>
+            <p class="eyebrow">{item.kind}</p>
+            <h3><a href={item.href} rel={item.kind === "资源" ? "noreferrer" : undefined}>{item.title}</a></h3>
+            <p class="muted">{item.summary}</p>
+            <div class="tag-row">{item.tags.map((tag) => <span class="chip">{tag}</span>)}</div>
+          </li>
+        ))}
+      </ul>
+      <p class="callout hidden" data-search-empty role="status">没有匹配结果。试试更短的关键词，或清空搜索。</p>
+      <noscript><p class="callout">JavaScript 未开启，以下仍可浏览全部课程、案例和资源。</p></noscript>
+    </div>
+  </section>
+</BaseLayout>

@@ -5,3 +5,10 @@ Learning Atlas content update guide
 3. Mark public project case studies as README-based unless functionality is independently run by this site.
 4. Do not add secrets, credentials, subscription IDs, customer data, private repository material, or raw benchmark results.
 5. Run npm run ci before committing.
+
+Security boundary (2026-10-10):
+Astro's build dependency http-cache-semantics is affected by
+GHSA-ch52-4w7c-c8xp and has no published patched release at the time of review.
+This project only emits static files; it has no authenticated server responses,
+shared user cache, remote image imports or runtime Astro server. Do not add such
+features before reassessing this advisory. Review upstream fixes before updates.

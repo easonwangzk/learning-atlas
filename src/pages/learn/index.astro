@@ -1,0 +1,31 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { tracks } from "@/data/tracks";
+import { withBase } from "@/lib/paths";
+import { getCollection } from "astro:content";
+import { lessonRoute } from "@/lib/lessons";
+const lessons = await getCollection("lessons");
+---
+<BaseLayout title="Knowledge" description="六条知识轨道和 18 篇原创学习课。" current="Knowledge">
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Knowledge index</p>
+      <h1>知识地图</h1>
+      <p class="lead">每条轨道包含 3 篇原创课：概念、取舍、安全实验、完成检查和官方来源。</p>
+      <div class="grid">
+        {tracks.map((track) => {
+          const trackLessons = lessons.filter((lesson) => lesson.data.track === track.slug).sort((a, b) => a.data.order - b.data.order);
+          return (
+            <article class="card">
+              <p class="eyebrow">{track.kicker}</p>
+              <h2>{track.title}</h2>
+              <p class="muted">{track.summary}</p>
+              <div class="diagram">{trackLessons.map((lesson) => <a class="flow-step" href={withBase(lessonRoute(lesson))}>{lesson.data.title}</a>)}</div>
+              <a class="button" href={withBase(`/learn/${track.slug}/`)}>进入轨道</a>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

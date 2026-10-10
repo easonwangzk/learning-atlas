@@ -17,6 +17,7 @@ export const resources = [
   ["Azure Docs", "文档", "AZ-305", "database", "Azure SQL", "关系数据库托管选项、性能、安全与迁移入口。", "https://learn.microsoft.com/zh-cn/azure/azure-sql/"],
   ["Azure Docs", "文档", "AZ-305", "database", "Azure Cosmos DB", "全球分布式 NoSQL、分区、吞吐与一致性入口。", "https://learn.microsoft.com/zh-cn/azure/cosmos-db/"],
   ["Azure Docs", "文档", "扩展学习", "database", "Azure AI Search", "全文检索、向量检索与 RAG 数据面基础入口。", "https://learn.microsoft.com/zh-cn/azure/search/"],
+  ["Azure Docs", "文档", "扩展学习", "ai", "Microsoft Foundry", "模型、智能体与企业 AI 应用的官方文档入口。", "https://learn.microsoft.com/zh-cn/azure/foundry/"],
   ["Azure Docs", "文档", "扩展学习", "ml", "Azure Machine Learning", "训练、注册、部署和 MLOps 的 Azure 补充学习入口。", "https://learn.microsoft.com/zh-cn/azure/machine-learning/"],
   ["Azure Docs", "框架", "AZ-305", "architecture", "Azure Well-Architected", "可靠性、安全、成本、运营与性能权衡框架。", "https://learn.microsoft.com/zh-cn/azure/well-architected/"],
   ["Azure Docs", "框架", "AZ-305", "governance", "Cloud Adoption Framework", "云采用、治理、管理与迁移组织方法。", "https://learn.microsoft.com/zh-cn/azure/cloud-adoption-framework/"],
@@ -28,7 +29,7 @@ export const resources = [
   ["Microsoft Learn", "训练", "通用", "all", "Training browse", "按产品、角色和级别浏览官方学习路径。", "https://learn.microsoft.com/zh-cn/training/browse/"],
   ["Hugging Face", "课程", "扩展学习", "ai", "Hugging Face Learn", "通用平台学习入口；非用户个人主页确认链接。", "https://huggingface.co/learn"],
   ["scikit-learn", "文档", "扩展学习", "ml", "scikit-learn User Guide", "传统机器学习、评估与模型选择的开源参考。", "https://scikit-learn.org/stable/user_guide.html"],
-  ["PyTorch", "教程", "扩展学习", "ml", "PyTorch Tutorials", "深度学习张量、训练循环与模型示例入口。", "https://pytorch.org/tutorials/"],
+  ["PyTorch", "教程", "扩展学习", "ml", "PyTorch Tutorials", "深度学习张量、训练循环与模型示例入口。", "https://docs.pytorch.org/tutorials/"],
   ["OpenAI", "文档", "扩展学习", "ai", "OpenAI API docs", "API 能力与模型使用方式的官方开发者入口。", "https://developers.openai.com/api/docs"]
 ].map(([provider, type, certification, topic, title, description, url]) => ({
   provider,

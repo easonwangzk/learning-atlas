@@ -1,0 +1,42 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { resources } from "@/data/resources";
+const groups = [
+  { key: "topic", label: "知识主题", values: Array.from(new Set(resources.map((r) => r.topic))) },
+  { key: "certification", label: "认证方向", values: Array.from(new Set(resources.map((r) => r.certification))) },
+  { key: "provider", label: "资料来源", values: Array.from(new Set(resources.map((r) => r.provider))) },
+  { key: "type", label: "资料类型", values: Array.from(new Set(resources.map((r) => r.type))) }
+];
+---
+<BaseLayout title="Resources" description="Microsoft Learn、Azure 文档与 ML/AI 稳定资源索引。" current="Resources">
+  <section class="section">
+    <div class="container" data-filter-scope>
+      <p class="eyebrow">Curated links</p>
+      <h1>资源索引</h1>
+      <p class="lead">共 {resources.length} 个明确 URL。说明文字为本站原创摘要，标注“整理于 2026-10-10”。</p>
+      <input class="input" data-local-search type="search" placeholder="搜索关键词、产品或考试代码" aria-label="搜索资源" />
+      <div class="filter-controls">
+        {groups.map((group) => (
+          <label>{group.label}<select class="input" data-filter-select={group.key}>
+            <option value="all">全部</option>
+            {group.values.map((value) => <option value={value}>{value}</option>)}
+          </select></label>
+        ))}
+        <button class="button" type="button" data-filter-reset>清空筛选</button>
+      </div>
+      <p class="muted" data-filter-count role="status">{resources.length} / {resources.length} 项</p>
+      <div class="grid">
+        {resources.map((resource) => (
+          <article class="resource-card" data-filter-item data-topic={resource.topic} data-certification={resource.certification} data-provider={resource.provider} data-type={resource.type}>
+            <p class="eyebrow">{resource.provider} · {resource.type}</p>
+            <h2>{resource.title}</h2>
+            <p class="muted">{resource.description}</p>
+            <div class="tag-row"><span class="chip">{resource.topic}</span><span class="chip">{resource.certification}</span><span class="chip">整理于 {resource.reviewedAt}</span></div>
+            <p><a href={resource.url} rel="noreferrer">{resource.url}</a></p>
+          </article>
+        ))}
+      </div>
+      <p class="callout hidden" data-empty role="status">没有匹配资源。请清空筛选或换一个关键词。</p>
+    </div>
+  </section>
+</BaseLayout>

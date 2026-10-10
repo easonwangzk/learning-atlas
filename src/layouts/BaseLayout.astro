@@ -24,12 +24,26 @@ const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atl
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script>
+    <script is:inline>
       (() => {
         const param = new URLSearchParams(window.location.search).get("scoutTheme");
         const theme =
           param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
         document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <script is:inline>
+      document.documentElement.dataset.js = "true";
+      (() => {
+        if (new URLSearchParams(window.location.search).has("scoutTheme")) return;
+        try {
+          const saved = localStorage.getItem("learning-atlas-theme");
+          if (saved === "light" || saved === "dark") {
+            document.documentElement.setAttribute("data-theme", saved);
+          }
+        } catch (error) {
+          console.warn("Learning Atlas theme preference is unavailable.", error);
+        }
       })();
     </script>
     <style is:inline>
@@ -88,7 +102,8 @@ const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atl
     </style>
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical(Astro.url.pathname.replace(withBase("/").replace(/\/$/, ""), "") || "/")} />
+    <link rel="canonical" href={canonical(title === "404" ? "/404.html" : Astro.url.pathname.replace(withBase("/").replace(/\/$/, ""), "") || "/")} />
+    {title === "404" && <meta name="robots" content="noindex" />}
     <link rel="icon" href={withBase("/favicon.svg")} type="image/svg+xml" />
   </head>
   <body>
@@ -120,9 +135,9 @@ const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atl
           <div>
             <strong>Learning Atlas</strong>
             <p class="muted">静态学习网站。进度只保存在浏览器本地；无后端、无外部模型调用、无跨设备同步。</p>
-            <p class="muted">来源政策：官方文档和公开 GitHub README 用于学习索引；不收录私有仓库、凭据、客户数据或未确认个人 Hugging Face 项目。</p>
+            <p class="muted">个人学习笔记与公开项目索引，非 Microsoft、OpenAI 或其他机构的官方课程。</p>
           </div>
-          <a class="button" href={withBase("/about/")}>Source policy</a>
+          <a class="button" href={withBase("/about/")}>关于与来源</a>
         </div>
       </footer>
     </div>

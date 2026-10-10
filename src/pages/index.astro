@@ -1,0 +1,94 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { withBase } from "@/lib/paths";
+import { tracks } from "@/data/tracks";
+import { projects } from "@/data/projects";
+import { resources } from "@/data/resources";
+import { getCollection } from "astro:content";
+import { lessonProgressId } from "@/lib/lessons";
+
+const lessons = await getCollection("lessons");
+const lessonIds = lessons.map(lessonProgressId);
+---
+
+<BaseLayout title="Learning Atlas" description="计算、存储、网络、数据库、AI 与机器学习的中文静态学习地图。" current="Home">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <p class="eyebrow">Learning Atlas · Azure + AI</p>
+        <h1 class="hero-title">Learning, <br />by building.</h1>
+        <p class="lead">从云基础设施到智能应用，把每一次学习变成自己的作品。沿着计算、存储、网络、数据库、人工智能与机器学习六条路径，读原理、看案例、记录进步。</p>
+        <div class="tag-row">
+          <a class="button primary" href={withBase("/learn/")}>开始学习</a>
+          <a class="button" href={withBase("/search/")}>搜索全站</a>
+          <span class="chip">已完成 <span data-progress-count={lessonIds.join(",")}>0/{lessonIds.length}</span></span>
+        </div>
+        <p class="progress-note" data-progress-warning></p>
+      </div>
+      <div class="hero-panel">
+        <div class="atlas-visual" role="img" aria-label="计算、存储、网络、数据库、AI 与 ML 相互连接的知识轨道">
+          <span class="node" aria-hidden="true">Compute</span>
+          <span class="node" aria-hidden="true">Storage</span>
+          <span class="node" aria-hidden="true">Network</span>
+          <span class="node" aria-hidden="true">Database</span>
+          <span class="node" aria-hidden="true">AI</span>
+          <span class="node" aria-hidden="true">ML</span>
+          <div class="atlas-center" aria-hidden="true"><span>LEARN</span><strong>Build.</strong><span>CONNECT THE DOTS</span></div>
+        </div>
+        <div class="visual-caption"><span>Six tracks. One connected journey.</span><button class="icon-button" type="button" data-motion-toggle aria-pressed="false">暂停动画</button></div>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Six knowledge tracks</p>
+      <h2>六条路径，连成自己的知识体系。</h2>
+      <div class="grid">
+        {tracks.map((track) => {
+          const ids = lessons.filter((lesson) => lesson.data.track === track.slug).map(lessonProgressId);
+          return (
+            <a class="card" href={withBase(`/learn/${track.slug}/`)}>
+              <p class="eyebrow">{track.kicker}</p>
+              <h3>{track.title}</h3>
+              <p class="muted">{track.summary}</p>
+              <div class="tag-row">{track.certs.map((cert) => <span class="chip">{cert}</span>)}<span class="chip">完成 <span data-progress-count={ids.join(",")}>0/{ids.length}</span></span></div>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container split">
+      <div>
+        <p class="eyebrow">Featured cases</p>
+        <h2>从项目里理解设计。</h2>
+        <p class="muted">从公开代码提炼架构思路、实践方法和适用边界。</p>
+        <div class="grid">
+          {projects.slice(0, 3).map((project) => (
+            <article class="card">
+              <h3>{project.title}</h3>
+              <p class="muted">{project.summary}</p>
+              <p class="chip">{project.status}</p>
+              <p><a href={withBase(`/projects/${project.slug}/`)}>查看案例</a></p>
+            </article>
+          ))}
+        </div>
+      </div>
+      <aside class="sidebox">
+        <p class="eyebrow">Certification route</p>
+        <h3>建议路线</h3>
+        <p>AZ-104 basics → AZ-700 network → AZ-305 design。此顺序是学习路径，不是官方考试先修要求；18 篇入门课也不宣称覆盖完整考纲。</p>
+        <p class="muted">AZ-104/AZ-305 目标标注 2026-04-17；AZ-700 标注 2026-07-27。请以官方学习指南最新页面为准。</p>
+      </aside>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Resources</p>
+      <h2>好资料，少走弯路。</h2>
+      <p class="lead">{resources.length} 条官方文档与开源课程，按主题和认证目标整理。内容会变化，学习时请对照原始来源的最新版本。</p>
+      <a class="button" href={withBase("/resources/")}>浏览资源</a>
+    </div>
+  </section>
+</BaseLayout>

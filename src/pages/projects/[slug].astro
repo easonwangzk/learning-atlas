@@ -1,0 +1,38 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { projects, getProject } from "@/data/projects";
+import { withBase } from "@/lib/paths";
+
+export function getStaticPaths() {
+  return projects.map((project) => ({ params: { slug: project.slug } }));
+}
+
+const project = getProject(Astro.params.slug || "");
+if (!project) throw new Error(`Unknown project: ${Astro.params.slug}`);
+---
+<BaseLayout title={project.title} description={project.summary} current="Projects">
+  <section class="section">
+    <div class="container split">
+      <article>
+        <p class="eyebrow">README-based public summary</p>
+        <h1>{project.title}</h1>
+        <p class="lead">{project.summary}</p>
+        <p class="chip">{project.status}</p>
+        <h2>{project.slug === "recommendation-algorithm" ? "建议阅读顺序（非仓库架构声明）" : "架构阅读图（基于仓库描述）"}</h2>
+        <div class="diagram">
+          {project.flow.map((step) => <div class="flow-step">{step}</div>)}
+        </div>
+        <h2>值得学习的设计</h2>
+        <ul>{project.learn.map((item) => <li>{item}</li>)}</ul>
+        <h2>适用边界</h2>
+        <p>{project.limits}</p>
+      </article>
+      <aside class="sidebox">
+        <a class="button primary" href={project.repo} rel="noreferrer">查看公开仓库</a>
+        <h3>相关学习</h3>
+        <ul>{project.related.map((href) => <li><a href={href}>{href}</a></li>)}</ul>
+        <p class="muted">案例用于理解技术设计；应用运行、数据和模型配置请以原仓库说明为准。</p>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

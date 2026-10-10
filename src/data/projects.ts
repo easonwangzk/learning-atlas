@@ -44,7 +44,7 @@ export const projects = [
     topics: ["ML", "Python"],
     status: "公开代码 / 学习案例 / README 描述，未在本站运行",
     summary: "公开 README 仅以 Recommendation Algorithm 描述该 Python 学习仓库。本站把它收录为推荐系统入口，不推断未写明的算法类型、数据集或指标。",
-    flow: ["Python learning code", "Feature thinking", "Candidate ranking", "Evaluation notes"],
+    flow: ["公开仓库入口", "补充问题定义", "核对实现与数据", "再记录评估方法"],
     learn: ["算法命名不能替代数据与目标定义", "推荐系统需要离线评估与线上约束分开看", "公开 README 不足时应明确未知"],
     limits: "不展示命中率、召回率或线上效果；不声称已部署推荐服务。",
     related: [withBase("/learn/ml/classification-evaluation/"), withBase("/learn/ml/mlops-monitoring/")]
@@ -59,7 +59,7 @@ export const projects = [
     flow: ["Biomedical QA data", "Supervised fine-tuning", "AI feedback rewards", "Benchmark comparison", "Notebook analysis"],
     learn: ["医疗模型必须避免临床有效性外推", "评估集成绩不等于医疗建议", "安全声明需要独立验证与监管语境"],
     limits: "本站不提供医疗建议、不声称临床效果、不复述 README 中未验证的经济影响为事实。",
-    related: [withBase("/learn/ml/model-evaluation/"), withBase("/about/")]
+    related: [withBase("/learn/ml/classification-evaluation/"), withBase("/about/")]
   },
   {
     slug: "uchicago-rag-system",

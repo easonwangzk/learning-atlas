@@ -1,0 +1,46 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { withBase } from "@/lib/paths";
+import { getTrack } from "@/data/tracks";
+import { getCollection, render } from "astro:content";
+import { lessonSlug, lessonProgressId } from "@/lib/lessons";
+
+export async function getStaticPaths() {
+  const lessons = await getCollection("lessons");
+  return lessons.map((lesson) => ({
+    params: { track: lesson.data.track, slug: lessonSlug(lesson) },
+    props: { lesson }
+  }));
+}
+
+const { lesson } = Astro.props;
+const { Content } = await render(lesson);
+const track = getTrack(lesson.data.track);
+const lessonId = lessonProgressId(lesson);
+---
+<BaseLayout title={lesson.data.title} description={lesson.data.summary} current="Knowledge">
+  <section class="section">
+    <div class="container split">
+      <article class="prose">
+        <p class="eyebrow">{track?.title} · {lesson.data.cert} · {lesson.data.reviewedAt}</p>
+        <h1>{lesson.data.title}</h1>
+        <p class="lead">{lesson.data.summary}</p>
+        <div class="tag-row">{lesson.data.tags.map((tag: string) => <span class="chip">{tag}</span>)}</div>
+        <div class="callout">
+          <strong>考试边界提示：</strong>本课是入门学习笔记，不宣称覆盖完整考试大纲。AZ-104/AZ-305 目标以 2026-04-17 官方学习指南为准；AZ-700 以 2026-07-27 官方学习指南为准。
+        </div>
+        <Content />
+      </article>
+      <aside class="sidebox">
+        <button class="button complete-toggle" type="button" data-complete-id={lessonId} aria-pressed="false">标记本课完成</button>
+        <p class="progress-note" data-progress-warning role="status"></p>
+        <noscript><p class="progress-note">开启 JavaScript 后可保存本浏览器的学习进度。</p></noscript>
+        <h3>官方来源</h3>
+        <ul>
+          {lesson.data.sourceUrls.map((url: string) => <li><a href={url} rel="noreferrer">{url}</a></li>)}
+        </ul>
+        <a class="button" href={withBase(`/learn/${lesson.data.track}/`)}>返回轨道</a>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

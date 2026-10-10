@@ -28,7 +28,7 @@ export const tracks = [
     title: "Database 数据库",
     kicker: "关系、文档与检索",
     summary: "选择 Azure SQL、Cosmos DB、Azure AI Search，并设计备份、索引、权限和可用性。",
-    certs: ["AZ-104", "AZ-305"],
+    certs: ["AZ-305", "扩展学习"],
     motif: "grid"
   },
   {
@@ -36,7 +36,7 @@ export const tracks = [
     title: "AI 人工智能",
     kicker: "RAG、Agent 与多模态",
     summary: "把检索、引用、函数工具、人工接管与多模态输入放进负责任的应用架构。",
-    certs: ["扩展学习", "AZ-305"],
+    certs: ["扩展学习"],
     motif: "graph"
   },
   {
