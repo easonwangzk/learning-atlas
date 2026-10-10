@@ -17,7 +17,7 @@ Azure SQL provides managed relational database capabilities, but “managed” d
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: write a “data protection table” for an order system. List which tables contain personal information, who can read and write them, how long audit records are kept, what point in time backups can restore to, and whether test environments are masked. Then design a slow-query troubleshooting flow: check metrics, Query Store, index recommendations, application connection pooling, and service tier in order. Do not treat scaling up as the only optimization; bad indexes and chatty queries can waste money just as quickly.
+Paper/local safety exercise: write a “data protection table” for an order system. List which tables contain personal information, who can read and write them, how long audit records are kept, what point in time backups can restore to, and whether test environments are masked. Then design a slow-query troubleshooting flow: check metrics, Query Store, index recommendations, application connection pooling, and service tier in order. Do not treat scaling up as the only optimization; bad indexes and chatty queries can waste money just as quickly.
 
 ## Completion checklist
 

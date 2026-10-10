@@ -1,0 +1,36 @@
+---
+import { labs, labText } from "@/data/labs";
+import { withBase } from "@/lib/paths";
+import { localizePath, type Locale } from "@/i18n";
+
+interface Props { locale: Locale }
+
+const { locale } = Astro.props;
+const isEn = locale === "en";
+---
+<section class="atlas-page">
+  <div class="atlas-container">
+    <header class="atlas-intro" data-reveal>
+      <p class="eyebrow">{isEn ? "Labs" : "实验"}</p>
+      <h1>{isEn ? "Browser-local teaching labs" : "本地教学实验"}</h1>
+      <p class="lead">
+        {isEn
+          ? "Six reproducible exercises run in this browser. They show steps, results, data tables, and charts from synthetic inputs; none provisions Azure resources or claims benchmark measurements."
+          : "六个可复现实验在浏览器本地运行。它们基于合成输入显示步骤、结果、数据表和图表；不创建 Azure 资源，也不声称真实基准。"}
+      </p>
+    </header>
+    <div class="labs-index">
+      {labs.map((lab) => {
+        const text = labText(lab, locale);
+        return (
+          <a class="lab-index-entry" href={withBase(localizePath(`/labs/${lab.slug}/`, locale))}>
+            <p class="eyebrow">{text.trackLabel} · {text.cert}</p>
+            <h2>{text.title}</h2>
+            <p>{text.summary}</p>
+            <p>{isEn ? "Includes steps, formulas, limitations, source links, result table, and accessible SVG chart." : "包含步骤、公式、限制、来源链接、结果表格和可访问 SVG 图表。"}</p>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</section>

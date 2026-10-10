@@ -17,7 +17,7 @@ Machine learning (ML) starts with problem definition, not with the model. You ne
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: for “predict course completion risk,” work only on the table design. List the features that are known at prediction time and cross out the grades and feedback that are only known later. Design both random splitting and time-based splitting, then compare which one is closer to real use. Finally, write a baseline: always predict the majority class, or score using the historic completion rate. A complex model must beat that baseline before it deserves more work.
+Paper/local safety exercise: for “predict course completion risk,” work only on the table design. List the features that are known at prediction time and cross out the grades and feedback that are only known later. Design both random splitting and time-based splitting, then compare which one is closer to real use. Finally, write a baseline: always predict the majority class, or score using the historic completion rate. A complex model must beat that baseline before it deserves more work.
 
 ## Completion checklist
 

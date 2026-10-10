@@ -5,7 +5,7 @@ summary: "用客服案例理解函数工具、用户偏好、会话状态和人�
 track: ai
 difficulty: 入门
 tags: ["Agent", "Handoff", "Identity"]
-sourceUrls: ["https://learn.microsoft.com/zh-cn/entra/identity/", "https://learn.microsoft.com/zh-cn/azure/container-apps/"]
+sourceUrls: ["https://learn.microsoft.com/zh-cn/azure/foundry/", "https://learn.microsoft.com/zh-cn/entra/identity/", "https://learn.microsoft.com/zh-cn/azure/container-apps/"]
 reviewedAt: "2026-10-10"
 order: 2
 cert: "扩展学习"
@@ -17,7 +17,7 @@ Agent 应用把模型、工具、状态和策略编排在一起。工具可能�
 
 ## 取舍与安全实验
 
-安全实验：设计一个“查询订单状态”的函数工具契约。输入只允许 orderId，调用前检查当前用户是否拥有订单，输出只返回必要字段和引用。再设计人工接管条件：身份不匹配、用户要求投诉、模型置信不足、政策风险。最后写日志字段：requestId、userId、toolName、decision、handoffTicketId。不要记录完整敏感内容。
+纸面/本地安全实验：设计一个“查询订单状态”的函数工具契约。输入只允许 orderId，调用前检查当前用户是否拥有订单，输出只返回必要字段和引用。再设计人工接管条件：身份不匹配、用户要求投诉、证据不足或模型自报低置信、政策风险；不要把模型自信分当成唯一安全门。最后写日志字段：requestId、userId、toolName、decision、handoffTicketId。不要记录完整敏感内容。
 
 ## 完成检查
 

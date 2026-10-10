@@ -13,11 +13,11 @@ cert: "扩展学习"
 
 ## Concept notes
 
-Multimodal is not about stuffing images, audio, and text into a single interface at random. Every input type has governance concerns: images may contain faces, locations, or copyrighted material; audio may contain identity clues; and generated images or video are usually asynchronous tasks that need status polling, failure handling, and cost notices. A learning repository can show API call shapes, but a production system must still handle consent, retention, auditing, content safety, and model availability changes. A static site should not embed secrets or pretend to offer live generation.
+Multimodal is not about stuffing images, audio, and text into a single interface at random. Every input type has governance concerns: images may contain faces, locations, or copyrighted material; Speech to Text (STT) and Text to Speech (TTS) can expose identity clues or create misleading audio; and generated images or video are usually asynchronous tasks that need status polling, failure handling, and cost notices. A learning repository can show API call shapes, but a production system must still handle consent, retention, auditing, content safety, and model availability changes. A static site should not embed secrets or pretend to offer live generation.
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: write a process card for “upload a product image and generate a description.” Include the pre-upload notice, file-size limit, malware scanning, vision analysis, human review, result retention, and delete request handling. Then write a state machine for an async video task: `queued`, `running`, `succeeded`, `failed`, `expired`. This exercise helps you treat multimodal systems as product workflows instead of one magical call.
+Paper/local safety exercise: write a process card for “upload a product image and generate a description.” Include the pre-upload notice, file-size limit, malware scanning, vision analysis, human review, result retention, and delete request handling. Then write a state machine for an async video task: `queued`, `running`, `succeeded`, `failed`, `expired`. This exercise helps you treat multimodal systems as product workflows instead of one magical call.
 
 ## Completion checklist
 

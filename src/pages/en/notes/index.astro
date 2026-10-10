@@ -1,0 +1,6 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import NotesView from "@/components/NotesView.astro";
+const locale = "en";
+---
+<BaseLayout title="Notes" description="Short notes, glossary, and pitfalls." current="Notes" locale={locale} pageKind="notes" contextLabel="Notes"><NotesView locale={locale} /></BaseLayout>

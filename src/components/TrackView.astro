@@ -10,7 +10,7 @@ const ids = lessons.map(lessonProgressId);
 const index = allTracks.findIndex((item) => item.slug === track.slug);
 const previous = allTracks[(index + allTracks.length - 1) % allTracks.length];
 const next = allTracks[(index + 1) % allTracks.length];
-const copy = { back: isEn ? "Back to knowledge" : "返回知识地图", read: isEn ? "Read lesson" : "阅读课程", sequence: isEn ? "Track sequence" : "轨道顺序", progress: isEn ? "Track progress" : "轨道进度", reset: isEn ? "Reset browser progress" : "重置本浏览器全部进度", privacy: isEn ? "Progress stays in this browser only." : "进度仅保存在当前浏览器。" };
+const copy = { back: isEn ? "Back to Learn" : "返回系统学习", read: isEn ? "Read lesson" : "阅读课程", sequence: isEn ? "Track sequence" : "轨道顺序", progress: isEn ? "Track progress" : "轨道进度", reset: isEn ? "Reset browser progress" : "重置本浏览器全部进度", privacy: isEn ? "Progress stays in this browser only." : "进度仅保存在当前浏览器。" };
 ---
 <section class="atlas-page atlas-track">
   <div class="atlas-container two-column">

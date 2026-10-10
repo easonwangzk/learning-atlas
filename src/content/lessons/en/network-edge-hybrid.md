@@ -13,11 +13,11 @@ cert: "AZ-700"
 
 ## Concept notes
 
-Edge ingress and hybrid connectivity solve different problems. Azure Front Door is for global HTTP/HTTPS ingress, acceleration, WAF, and origin failover; ExpressRoute is for dedicated connectivity between on-premises and Azure with more predictable network paths. In a multi-region architecture, the failure domains for the ingress layer, application layer, and data layer are different, and so are the failover speeds. When you design it, ask where the users are, how origin health is detected, who manages certificates, whether an on-prem dependency becomes a single point of failure, and whether the private circuit cost matches the business value.
+Edge ingress and hybrid connectivity solve different problems. Azure Front Door is for global HTTP/HTTPS ingress, acceleration, Web Application Firewall (WAF), and origin failover; here WAF means Web Application Firewall, not the Azure Well-Architected Framework. ExpressRoute is for dedicated connectivity between on-premises and Azure with more predictable network paths. In a multi-region architecture, the failure domains for the ingress layer, application layer, and data layer are different, and so are the failover speeds. When you design it, ask where the users are, how origin health is detected, who manages certificates, whether an on-prem dependency becomes a single point of failure, and whether the private circuit cost matches the business value.
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: write two architecture versions for a public web app: single-region App Service with Front Door, and active/passive multi-region with database replication. Compare complexity, recovery time, data consistency, and monthly cost. Then write a hybrid-access question: if the backend must call an on-premises system, how should the user experience degrade when ExpressRoute is disconnected? This helps you avoid treating a global entry point as a simple performance button.
+Paper/local safety exercise: write two architecture versions for a public web app: single-region App Service with Front Door, and active/passive multi-region with database replication. Compare complexity, recovery time, data consistency, and monthly cost. Then write a hybrid-access question: if the backend must call an on-premises system, how should the user experience degrade when ExpressRoute is disconnected? This helps you avoid treating a global entry point as a simple performance button.
 
 ## Completion checklist
 

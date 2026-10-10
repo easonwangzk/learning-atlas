@@ -5,7 +5,7 @@ summary: "理解视觉、语音、图像生成和视频任务的输入治理、�
 track: ai
 difficulty: 入门
 tags: ["Multimodal", "STT", "TTS", "Async"]
-sourceUrls: ["https://developers.openai.com/api/docs", "https://huggingface.co/learn"]
+sourceUrls: ["https://learn.microsoft.com/zh-cn/azure/foundry/", "https://developers.openai.com/api/docs", "https://huggingface.co/learn"]
 reviewedAt: "2026-10-10"
 order: 3
 cert: "扩展学习"
@@ -13,11 +13,11 @@ cert: "扩展学习"
 
 ## 概念笔记
 
-多模态不是把图片、语音和文本随意塞进一个接口。每种输入都有治理问题：图片可能含人脸、位置或版权内容；语音可能含身份线索；生成图片和视频通常是异步任务，需要状态轮询、失败处理和成本提示。学习仓库可以展示 API 调用形态，但生产系统还要处理同意、保留期、审计、内容安全和模型可用性变化。静态网站不应嵌入密钥，也不应假装提供在线生成能力。
+多模态不是把图片、语音和文本随意塞进一个接口。每种输入都有治理问题：图片可能含人脸、位置或版权内容；语音转文本（Speech to Text，STT）和文本转语音（Text to Speech，TTS）可能暴露身份线索或生成误导性音频；生成图片和视频通常是异步任务，需要状态轮询、失败处理和成本提示。学习仓库可以展示 API 调用形态，但生产系统还要处理同意、保留期、审计、内容安全和模型可用性变化。静态网站不应嵌入密钥，也不应假装提供在线生成能力。
 
 ## 取舍与安全实验
 
-安全实验：为“上传产品图片并生成描述”写一张流程卡：上传前提示、文件大小限制、病毒扫描、视觉分析、人工复核、结果保存、删除请求。再为异步视频任务写状态机：queued、running、succeeded、failed、expired。这个练习帮助你把多模态看成产品流程，而不是一次神奇调用。
+纸面/本地安全实验：为“上传产品图片并生成描述”写一张流程卡：上传前提示、文件大小限制、病毒扫描、视觉分析、人工复核、结果保存、删除请求。再为异步视频任务写状态机：queued、running、succeeded、failed、expired。这个练习帮助你把多模态看成产品流程，而不是一次神奇调用。
 
 ## 完成检查
 

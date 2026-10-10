@@ -1,0 +1,8 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import CertificationDetailView from "@/components/CertificationDetailView.astro";
+import { certifications, getCertification } from "@/data/certifications";
+export function getStaticPaths() { return certifications.map((cert) => ({ params: { slug: cert.slug } })); }
+const locale = "en"; const cert = getCertification(Astro.params.slug ?? ""); if (!cert) return Astro.redirect("/en/404/");
+---
+<BaseLayout title={cert.title.en} description={cert.intro.en} current="Certifications" locale={locale} pageKind="certifications" contextLabel="Certifications"><CertificationDetailView locale={locale} cert={cert} /></BaseLayout>

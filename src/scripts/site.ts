@@ -3,7 +3,10 @@ import { matchesQuery } from "@/lib/search";
 import { advanceSpring, springSettled } from "@/lib/motion";
 import { basePath, withBase } from "@/lib/paths";
 import { localizeFragment, localizePath, stripLocale, ui } from "@/i18n";
+import { setupLabs } from "@/scripts/labs";
 import { indexFromOffset, normalizedWheelDelta, stageCardMetrics, targetOffsetForIndex, perspectiveGrid } from "@/lib/stageGeometry";
+import { allNavigation, localizeNavPath } from "@/data/navigation";
+import { nextLessonId } from "@/lib/roadmap";
 
 function setupNotFoundLocale() {
   if (document.documentElement.dataset.notFound !== "true") return;
@@ -16,15 +19,28 @@ function setupNotFoundLocale() {
     if (element) element.textContent = text;
   };
   replace(".skip-link", t.skip);
-  const navPaths = { Home: "/", Knowledge: "/learn/", Projects: "/projects/", Resources: "/resources/", About: "/about/", Search: "/search/" };
+  const navPaths = { Home: "/", Knowledge: "/learn/", KnowledgeMap: "/knowledge-map/", Learn: "/learn/", Certifications: "/certifications/", Projects: "/projects/", Labs: "/labs/", Notes: "/notes/", Roadmap: "/roadmap/", Resources: "/resources/", About: "/about/", Search: "/search/" };
   for (const [key, path] of Object.entries(navPaths)) {
     const label = Object.entries(t.nav).find(([name]) => name === key)?.[1];
     document.querySelectorAll<HTMLAnchorElement>(`[data-nav-key="${key}"]`).forEach((link) => {
       if (!label) throw new Error(`Missing localized navigation label: ${key}`);
-      link.textContent = link.classList.contains("chrome-brand") ? "Learning Atlas" : label;
+      const title = link.querySelector<HTMLElement>("[data-nav-label]");
+      if (title) {
+        title.textContent = label;
+        const entry = allNavigation.find((item) => item.key === key);
+        const purpose = link.querySelector<HTMLElement>("[data-nav-purpose]");
+        if (entry && purpose) purpose.textContent = entry.purpose[locale];
+      } else link.textContent = link.classList.contains("chrome-brand") ? "Learning Atlas" : label;
       link.href = withBase(localizePath(path, locale));
     });
   }
+  document.querySelectorAll<HTMLAnchorElement>("[data-nav-child]").forEach((link) => {
+    const child = allNavigation.flatMap((entry) => [...entry.children]).find((item) => item.key === link.dataset.navChild);
+    if (!child) throw new Error("Unknown navigation child");
+    link.textContent = child.label[locale];
+    link.href = withBase(localizeNavPath(child.path, locale));
+  });
+  document.querySelectorAll<HTMLElement>(".navigation-children summary").forEach((el) => { el.textContent = locale === "en" ? "Browse topics" : "展开子栏目"; });
   document.querySelector("[data-site-chrome]")?.setAttribute("aria-label", t.navLabel);
   const brand = document.querySelector<HTMLAnchorElement>(".chrome-brand, .stage-wordmark");
   if (brand) brand.href = withBase(localizePath("/", locale));
@@ -49,9 +65,9 @@ function setupNotFoundLocale() {
   document.querySelector("[data-chrome-close]")?.setAttribute("aria-label", locale === "en" ? "Close" : "关闭");
   if (locale === "en") {
     replace("[data-notfound-title]", "This path does not have a lesson yet.");
-    replace("[data-notfound-description]", "Return to the knowledge map or use site search.");
+    replace("[data-notfound-description]", "Return to the Knowledge Map or use site search.");
     document.querySelector('meta[name="description"]')?.setAttribute("content", "Page not found.");
-    for (const [kind, label] of [["learn", "Back to knowledge"], ["search", "Search"]]) {
+    for (const [kind, label] of [["knowledge-map", "Knowledge Map"], ["learn", "Learn"], ["search", "Search"]]) {
       const link = document.querySelector<HTMLAnchorElement>(`[data-notfound-link="${kind}"]`);
       if (link) {
         link.textContent = label;
@@ -108,6 +124,22 @@ function renderProgress() {
     const ids = (el.dataset.progressCount || "").split(",").filter(Boolean);
     el.textContent = `${ids.filter((id) => progress[id]).length}/${ids.length}`;
   });
+  document.querySelectorAll<SVGRectElement>("[data-progress-bar]").forEach((bar) => {
+    const ids = (bar.dataset.progressBar || "").split(",").filter(Boolean);
+    const ratio = ids.length ? ids.filter((id) => progress[id]).length / ids.length : 0;
+    bar.setAttribute("width", String(Math.round(120 * ratio)));
+  });
+  const next = document.querySelector<HTMLAnchorElement>("[data-roadmap-next]");
+  const roadmapLinks = [...document.querySelectorAll<HTMLAnchorElement>("[data-roadmap-lesson]")];
+  const nextId = nextLessonId(roadmapLinks.map((link) => link.dataset.roadmapLesson || ""), progress);
+  const unfinished = roadmapLinks.find((link) => link.dataset.roadmapLesson === nextId);
+  if (next && roadmapLinks.length) {
+    next.href = unfinished?.href ?? next.dataset.reviewHref ?? next.href;
+    next.textContent = unfinished ? `${isEnglish ? "Next: " : "下一步："}${unfinished.textContent}` : (isEnglish ? "Review certification gaps" : "下一步：回看认证覆盖缺口");
+    const message = document.querySelector<HTMLElement>("[data-roadmap-message]");
+    if (message) message.textContent = unfinished ? "" : (isEnglish ? "All introductory lessons are marked complete. This is not a certification or exam-readiness claim." : "入门课程均已标记完成；这不代表已获认证或考试就绪。");
+  }
+  roadmapLinks.forEach((link) => link.dataset.complete = String(Boolean(progress[link.dataset.roadmapLesson || ""])));
   document.querySelectorAll<HTMLButtonElement>("[data-complete-id]").forEach((button) => {
     const done = Boolean(progress[button.dataset.completeId || ""]);
     button.dataset.complete = String(done);
@@ -244,6 +276,41 @@ function setupMotion() {
     setButtons(paused);
     document.dispatchEvent(new Event("atlas:motion-change"));
   }));
+}
+
+function setupKnowledgeMap() {
+  document.querySelectorAll<HTMLElement>("[data-knowledge-map]").forEach((map) => {
+    const nodes = [...map.querySelectorAll<HTMLAnchorElement>("[data-map-node]")];
+    const details = [...map.querySelectorAll<HTMLElement>("[data-map-detail]")];
+    const set = (slug: string, save = false) => {
+      if (!nodes.some((node) => node.dataset.mapNode === slug)) return;
+      map.dataset.selected = slug;
+      nodes.forEach((node) => node.setAttribute("aria-current", String(node.dataset.mapNode === slug)));
+      details.forEach((detail) => { detail.hidden = detail.dataset.mapDetail !== slug; });
+      if (save) {
+        const url = new URL(location.href);
+        url.hash = slug;
+        history.replaceState(null, "", url);
+      }
+    };
+    nodes.forEach((node, index) => {
+      const slug = node.dataset.mapNode || "";
+      node.addEventListener("focus", () => set(slug, true));
+      node.addEventListener("click", (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        set(slug, true);
+      });
+      node.addEventListener("keydown", (event) => {
+        if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+        event.preventDefault();
+        const offset = event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 1;
+        nodes[(index + offset + nodes.length) % nodes.length].focus();
+      });
+    });
+    set(nodes.some((node) => node.dataset.mapNode === location.hash.slice(1)) ? location.hash.slice(1) : "compute");
+    window.addEventListener("hashchange", () => set(location.hash.slice(1)));
+  });
 }
 
 function setupFilters() {
@@ -973,11 +1040,21 @@ function setupPageTransitions() {
     const slug = cover.dataset.projectSlug;
     if (slug && /^[a-z0-9-]+$/.test(slug)) cover.style.viewTransitionName = `project-${slug}`;
   });
+  const handledTransitions = new WeakSet<object>();
+  const reportTransition = (error: unknown) => {
+    if (error instanceof DOMException && (error.name === "AbortError" || error.name === "InvalidStateError")) {
+      console.debug("View transition skipped for reduced motion.", error.name);
+    } else console.error("View transition failed.", error);
+  };
   const skipPausedTransition = (event: Event) => {
     if (document.documentElement.dataset.motion !== "paused") return;
     if ("viewTransition" in event) {
       const transition = event.viewTransition;
       if (transition && typeof transition === "object" && "skipTransition" in transition && typeof transition.skipTransition === "function") {
+        if (handledTransitions.has(transition)) return;
+        handledTransitions.add(transition);
+        if ("ready" in transition && transition.ready instanceof Promise) void transition.ready.catch(reportTransition);
+        if ("finished" in transition && transition.finished instanceof Promise) void transition.finished.catch(reportTransition);
         transition.skipTransition();
       }
     }
@@ -1095,6 +1172,8 @@ setupTheme();
 setupMenu();
 setupMotion();
 setupProgress();
+setupLabs();
+setupKnowledgeMap();
 setupFilters();
 setupGlobalSearch();
 setupSearchQuery();

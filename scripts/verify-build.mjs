@@ -14,15 +14,20 @@ function walk(dir) {
 }
 
 const htmlFiles = walk(dist).filter((file) => file.endsWith(".html"));
-assert.equal(htmlFiles.length, 74, `expected the full bilingual static site, got ${htmlFiles.length}`);
+assert.equal(htmlFiles.length, 102, `expected the full bilingual static site, got ${htmlFiles.length}`);
 const pages = new Map(htmlFiles.map((file) => [file, readFileSync(file, "utf8")]));
 const outputPaths = htmlFiles.map((file) => relative(dist, file).split(sep).join("/"));
 const familyCounts = {
   home: outputPaths.filter((path) => /^(?:en\/)?index\.html$/.test(path)).length,
-  knowledge: outputPaths.filter((path) => /^(?:en\/)?learn\/index\.html$/.test(path)).length,
+  knowledgeMap: outputPaths.filter((path) => /^(?:en\/)?knowledge-map\/index\.html$/.test(path)).length,
+  learn: outputPaths.filter((path) => /^(?:en\/)?learn\/index\.html$/.test(path)).length,
   tracks: outputPaths.filter((path) => /^(?:en\/)?learn\/[^/]+\/index\.html$/.test(path)).length,
   lessons: outputPaths.filter((path) => /^(?:en\/)?learn\/[^/]+\/[^/]+\/index\.html$/.test(path)).length,
+  certifications: outputPaths.filter((path) => /^(?:en\/)?certifications\/(?:index\.html|[^/]+\/index\.html)$/.test(path)).length,
   projects: outputPaths.filter((path) => /^(?:en\/)?projects\/(?:index\.html|[^/]+\/index\.html)$/.test(path)).length,
+  labs: outputPaths.filter((path) => /^(?:en\/)?labs\/(?:index\.html|[^/]+\/index\.html)$/.test(path)).length,
+  notes: outputPaths.filter((path) => /^(?:en\/)?notes\/index\.html$/.test(path)).length,
+  roadmap: outputPaths.filter((path) => /^(?:en\/)?roadmap\/index\.html$/.test(path)).length,
   resources: outputPaths.filter((path) => /^(?:en\/)?resources\/index\.html$/.test(path)).length,
   search: outputPaths.filter((path) => /^(?:en\/)?search\/index\.html$/.test(path)).length,
   about: outputPaths.filter((path) => /^(?:en\/)?about\/index\.html$/.test(path)).length,
@@ -30,10 +35,15 @@ const familyCounts = {
 };
 assert.deepEqual(familyCounts, {
   home: 2,
-  knowledge: 2,
+  knowledgeMap: 2,
+  learn: 2,
   tracks: 12,
   lessons: 36,
+  certifications: 8,
   projects: 14,
+  labs: 14,
+  notes: 2,
+  roadmap: 2,
   resources: 2,
   search: 2,
   about: 2,
@@ -59,7 +69,7 @@ for (const [file, html] of pages) {
   assert.match(html, /data-shell="atlas"/, `${file}: atlas shell marker`);
   assert.match(html, /data-ambient-background/, `${file}: ambient background marker`);
   assert.match(html, /data-site-chrome/, `${file}: shared chrome marker`);
-  assert.doesNotMatch(html, /\bsite-header\b|\bsite-footer\b|\blesson-card\b|\bresource-card\b|\bproject-list-card\b/, `${file}: legacy light-template classes`);
+  assert.doesNotMatch(html, /\bsite-header\b|\bsite-footer\b|\blesson-card\b|\bresource-card\b|\bproject-list-card\b|class="card"/, `${file}: legacy light-template classes`);
   assert.match(html, /<link rel="canonical" href="https:\/\/easonwangzk\.github\.io\/learning-atlas\//);
   const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
   assert.equal(canonical, pageUrl.href, `${file}: canonical must match the actual page`);

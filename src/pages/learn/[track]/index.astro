@@ -12,4 +12,4 @@ const locale = "zh";
 const text = trackText(track, locale);
 const lessons = (await getCollection("lessons")).filter((lesson) => lesson.data.track === track.slug && lessonLocale(lesson) === locale).sort((a, b) => a.data.order - b.data.order);
 ---
-<BaseLayout title={text.title} description={text.summary} current="Knowledge" locale={locale} pageKind="track" contextLabel={text.title} crumbs={[{ label: "知识", href: "/learn/" }, { label: text.title }]}><TrackView locale={locale} track={track} text={text} lessons={lessons} allTracks={tracks} /></BaseLayout>
+<BaseLayout title={text.title} description={text.summary} current="Learn" locale={locale} pageKind="track" contextLabel={text.title} crumbs={[{ label: "Learn", href: "/learn/" }, { label: text.title }]}><TrackView locale={locale} track={track} text={text} lessons={lessons} allTracks={tracks} /></BaseLayout>

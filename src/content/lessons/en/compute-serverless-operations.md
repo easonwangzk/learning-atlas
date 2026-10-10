@@ -13,11 +13,11 @@ cert: "扩展学习"
 
 ## Concept notes
 
-Serverless does not mean “no servers”; it means the platform takes on capacity planning, runtime patching, and part of the scaling work. The thinking unit in Functions is the trigger and the binding: HTTP, queue, timer, or Event Grid decides when the function runs, and input/output bindings reduce boilerplate. It is a good fit for bursts, short tasks, glue logic, and automation; it is not a good fit for long-lived connections, strict low latency, or workloads that need full OS control. Reliability design must account for idempotency, retries, dead-letter handling, timeouts, and observability, not just the success path.
+Serverless does not mean “no servers”; the platform manages infrastructure maintenance and some scaling. Functions are organized around triggers and bindings: Hypertext Transfer Protocol (HTTP) requests, queues, timers, or Event Grid events start execution, while input/output bindings reduce boilerplate. They often suit event bursts, short tasks, and automation. Evaluate connection duration, latency, and execution limits against the hosting plan: warm instances, Premium plans, or Durable Functions orchestration can address some constraints, but do not provide full operating-system control. Reliability design must account for idempotency, retries, dead-letter handling, timeouts, and observability.
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: design an event flow for “upload a blob, then generate a thumbnail.” Write only pseudocode and a configuration checklist: trigger, storage permissions, failure retries, log fields, cost ceiling, and privacy notice. Then ask yourself: what happens if the same event is delivered twice? If the downstream API fails, will it retry forever? If a local developer gets the connection string, can they reach production data? These questions are much closer to real operations than the function code itself.
+Paper/local safety exercise: design an event flow for “upload a blob, then generate a thumbnail.” Write pseudocode and a checklist for the trigger, storage permissions, retries, log fields, budgets/alerts, and privacy notice. Budgets are not hard spending caps, and automatic shutdown can affect continuity. Ask what happens if an event is delivered twice, whether a failed downstream Application Programming Interface (API) call retries forever, and whether a local developer's connection string can access production data. These questions are closer to real operations than the function code alone.
 
 ## Completion checklist
 

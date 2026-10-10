@@ -17,7 +17,7 @@ Container Apps sit in the space where you want to ship containers but do not wan
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: draw three lines for a README-level API: the developer pushes an image, the platform pulls and runs it, and the app accesses the database. Label the minimum permissions and audit source on each line. Then compare Container Apps, App Service, and Functions: container flexibility, platform abstraction, scaling granularity, and operational complexity are all different. Do not write a demo container as if it already has a production SLA; production still needs image scanning, environment separation, alerts, budgets, and deployment approval.
+Paper/local safety exercise: draw three lines for a README-level API: the developer pushes an image, the platform pulls and runs it, and the app accesses the database. Label the minimum permissions and audit source on each line. Then compare Container Apps, App Service, and Functions: container flexibility, platform abstraction, scaling granularity, and operational complexity are all different. Do not write a demo container as if it already has a production SLA; production still needs image scanning, environment separation, alerts, budgets, and deployment approval.
 
 ## Completion checklist
 

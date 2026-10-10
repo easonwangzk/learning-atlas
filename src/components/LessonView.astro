@@ -2,9 +2,13 @@
 import { withBase } from "@/lib/paths";
 import { certificationLabel, localizePath, type Locale } from "@/i18n";
 import type { Lesson, LessonLink } from "@/lib/viewTypes";
+import { labs, labText } from "@/data/labs";
+import { certifications } from "@/data/certifications";
 interface Props { locale: Locale; lesson: Lesson; lessonId: string; trackLabel: string; previous?: LessonLink; next?: LessonLink }
 const { locale, lesson, lessonId, trackLabel, previous, next } = Astro.props;
 const isEn = locale === "en";
+const relatedLab = labs.find((lab) => lab.lesson === `/learn/${lessonId}/`);
+const relatedCerts = certifications.filter((cert) => cert.domains.some((domain) => domain.mappedLessons.includes(lessonId)));
 const copy = {
   boundary: isEn ? "Exam boundary note" : "考试边界提示",
   boundaryText: isEn ? "This is an introductory study note and does not claim full exam-objective coverage. AZ-104/AZ-305 objectives follow the official 2026-04-17 study guides; AZ-700 follows the 2026-07-27 study guide." : "本课是入门学习笔记，不宣称覆盖完整考试大纲。AZ-104/AZ-305 目标以 2026-04-17 官方学习指南为准；AZ-700 以 2026-07-27 官方学习指南为准。",
@@ -44,6 +48,12 @@ const outline = isEn
       <ol class="mini-outline">{outline.map(([href, label]) => <li><a href={href}>{label}</a></li>)}</ol>
       <h2>{copy.sources}</h2>
       <ul class="source-list">{lesson.data.sourceUrls.map((url: string) => <li><a href={url} rel="noreferrer">{url}</a></li>)}</ul>
+      <h2>{isEn ? "Practice and context" : "实践与背景"}</h2>
+      <ul class="source-list">
+        {relatedLab && <li><a href={withBase(localizePath(`/labs/${relatedLab.slug}/`, locale))}>{labText(relatedLab, locale).title}</a></li>}
+        {relatedCerts.map((cert) => <li><a href={withBase(localizePath(`/certifications/${cert.slug}/`, locale))}>{cert.title[locale]}</a></li>)}
+        <li><a href={`${withBase(localizePath("/notes/", locale))}#glossary`}>{isEn ? "Glossary and common pitfalls" : "术语与常见误区"}</a></li>
+      </ul>
       <a class="text-link" href={withBase(localizePath(`/learn/${lesson.data.track}/`, locale))}>← {copy.back}</a>
     </aside>
   </div>

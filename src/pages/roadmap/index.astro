@@ -1,0 +1,9 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import RoadmapView from "@/components/RoadmapView.astro";
+import { getCollection } from "astro:content";
+import { lessonLocale } from "@/lib/lessons";
+const locale = "zh";
+const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === locale).sort((a,b)=>a.data.track.localeCompare(b.data.track)||a.data.order-b.data.order);
+---
+<BaseLayout title="Roadmap" description="学习进度与下一步。" current="Roadmap" locale={locale} pageKind="roadmap" contextLabel="Roadmap"><RoadmapView locale={locale} lessons={lessons} /></BaseLayout>

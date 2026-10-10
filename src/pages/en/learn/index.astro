@@ -1,9 +1,9 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import KnowledgeView from "@/components/KnowledgeView.astro";
+import LearnView from "@/components/LearnView.astro";
 import { getCollection } from "astro:content";
 import { lessonLocale } from "@/lib/lessons";
 const locale = "en";
 const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === locale);
 ---
-<BaseLayout title="Knowledge" description="Six knowledge tracks and 18 original learning lessons." current="Knowledge" locale={locale} pageKind="knowledge" contextLabel="Knowledge"><KnowledgeView locale={locale} lessons={lessons} /></BaseLayout>
+<BaseLayout title="Learn" description="Course catalog for Compute, Storage, Network, Database, AI, and ML." current="Learn" locale={locale} pageKind="learn" contextLabel="Learn"><LearnView locale={locale} lessons={lessons} /></BaseLayout>

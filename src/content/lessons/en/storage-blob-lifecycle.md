@@ -17,7 +17,7 @@ Blob Storage is a good fit for unstructured objects: images, logs, backups, data
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: write a lifecycle rule for “learning screenshots”: move to cool tier after 30 days, archive after 180 days, and delete after 365 days. Then write the exceptions: legal hold, project deliverables, and personal privacy data. Finally, design one access audit: who created the SAS, when it expires, whether public network access is allowed, and where the logs are queried. This exercise helps you look at cost, compliance, and recovery time together instead of chasing only the lowest storage price.
+Paper/local safety exercise: write a lifecycle rule for “learning screenshots”: move to cool tier after 30 days, archive after 180 days, and delete after 365 days. Then write the exceptions: legal hold, project deliverables, and personal privacy data. Finally, design one access audit: who created the SAS, when it expires, whether public network access is allowed, and where the logs are queried. This exercise helps you look at cost, compliance, and recovery time together instead of chasing only the lowest storage price.
 
 ## Completion checklist
 

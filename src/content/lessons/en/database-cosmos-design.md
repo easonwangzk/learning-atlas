@@ -17,7 +17,7 @@ The core of Cosmos DB learning is making the access pattern explicit up front. T
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: design three candidate partition keys for a “user activity feed”: `userId`, `tenantId`, and `date`. For each one, write out the impact on peak writes, per-user reads, cross-tenant analysis, and deletion compliance. Then estimate which queries need composite indexes and which should move to an analytics pipeline instead of the online database. This paper exercise is more valuable than creating the database immediately, because many Cosmos DB issues only show up when the dataset grows.
+Paper/local safety exercise: design three candidate partition keys for a “user activity feed”: `userId`, `tenantId`, and `date`. For each one, write out the impact on peak writes, per-user reads, cross-tenant analysis, and deletion compliance. Then estimate which queries need composite indexes and which should move to an analytics pipeline instead of the online database. This paper exercise is more valuable than creating the database immediately, because many Cosmos DB issues only show up when the dataset grows.
 
 ## Completion checklist
 

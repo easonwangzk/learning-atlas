@@ -13,11 +13,11 @@ cert: "扩展学习"
 
 ## Concept notes
 
-Once a model goes live, the real maintenance work begins. MLOps connects data versions, training code, model registration, environment, deployment, monitoring, and rollback. You need to watch whether the input distribution changes, whether label collection is delayed, whether online metrics drift away from the offline evaluation, and whether human review finds systematic errors. Azure Machine Learning can supplement training and deployment learning, but AZ-104, AZ-305, and AZ-700 are not the same as a complete ML curriculum. Do not treat one notebook success as production capability.
+Once a model goes live, the real maintenance work begins. Machine Learning Operations (MLOps) connects data versions, training code, model registration, environment, deployment, monitoring, and rollback. You need to watch whether the input distribution changes, whether label collection is delayed, whether online metrics drift away from the offline evaluation, and whether human review finds systematic errors. Azure Machine Learning can supplement training and deployment learning, but AZ-104, AZ-305, and AZ-700 are not the same as a complete ML curriculum. Do not treat one notebook success as production capability.
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: write a launch checklist for a classification model: training-data version, evaluation report, approver, deployment environment, input log fields, drift metrics, rollback model, and user appeal channel. Then write three situations that should trigger human review: low confidence, a high-impact decision, and data that falls outside the training distribution. This exercise emphasizes governance and recoverability so you do not focus only on the training script.
+Paper/local safety exercise: write a launch checklist for a classification model: training-data version, evaluation report, approver, deployment environment, input log fields, drift metrics, rollback model, and user appeal channel. Then write three situations that should trigger human review: low confidence with weak evidence, a high-impact decision, and data that falls outside the training distribution; do not treat confidence as the only safety gate. This exercise emphasizes governance and recoverability so you do not focus only on the training script.
 
 ## Completion checklist
 

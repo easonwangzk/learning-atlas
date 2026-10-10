@@ -39,3 +39,7 @@ GHSA-ch52-4w7c-c8xp and has no published patched release at the time of review.
 This project only emits static files; it has no authenticated server responses,
 shared user cache, remote image imports or runtime Astro server. Do not add such
 features before reassessing this advisory. Review upstream fixes before updates.
+
+Information architecture note (2026-10-10): the eight primary sections are driven by src/data/navigation.ts in this exact order: Knowledge Map, Learn, Certifications, Projects, Labs, Notes, Roadmap, About. Resources and Search remain secondary compatibility utilities. New routes must be added to the typed navigation model, sitemap, search index, and route verification together.
+
+Lab provenance: browser labs use synthetic, local-only teaching inputs and visible formulas. They must not call Azure, benchmark cloud services, upload data, or imply production measurements. If a lab uses a toy model, label the limitation on the page and keep formulas testable in src/lib/labCalculators.ts.

@@ -17,7 +17,7 @@ Retrieval-Augmented Generation (RAG) separates “finding evidence in source mat
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: pick one public document page and split it into three chunks by hand, then write a title and `sourceUrl` for each chunk. Ask a question that can be answered only by the second chunk, and then write the generation rule: use only the provided chunks; if there is no evidence, say you cannot confirm; and list citations after the answer. Then ask an out-of-scope question and check whether the system refuses. This exercise does not require a model call, but it still trains you to design evidence boundaries for RAG.
+Paper/local safety exercise: pick one public document page and split it into three chunks by hand, then write a title and `sourceUrl` for each chunk. Ask a question that can be answered only by the second chunk, and then write the generation rule: use only the provided chunks; if there is no evidence, say you cannot confirm; and list citations after the answer. Then ask an out-of-scope question and check whether the system refuses. This exercise does not require a model call, but it still trains you to design evidence boundaries for RAG.
 
 ## Completion checklist
 

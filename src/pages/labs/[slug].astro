@@ -1,0 +1,8 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import LabDetailView from "@/components/LabDetailView.astro";
+import { labs, getLab } from "@/data/labs";
+export function getStaticPaths() { return labs.map((lab) => ({ params: { slug: lab.slug } })); }
+const locale = "zh"; const lab = getLab(Astro.params.slug ?? ""); if (!lab) return Astro.redirect("/404.html");
+---
+<BaseLayout title={lab.title.zh} description={lab.summary.zh} current="Labs" locale={locale} pageKind="labs" contextLabel="Labs"><LabDetailView locale={locale} lab={lab} /></BaseLayout>

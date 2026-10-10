@@ -4,6 +4,8 @@ import type { Locale } from "@/i18n";
 import { withBase } from "@/lib/paths";
 import type { getProjects } from "@/data/projects";
 import { tracks as allTracks, trackText } from "@/data/tracks";
+import { primaryNavigation, secondaryNavigation, localizeNavPath } from "@/data/navigation";
+import NavigationIndex from "@/components/NavigationIndex.astro";
 
 interface Props {
   locale: Locale;
@@ -24,7 +26,7 @@ const copy = {
   close: isEn ? "Close" : "关闭",
   featured: isEn ? "Featured" : "精选",
   full: isEn ? "Full" : "全览",
-  explore: isEn ? "Explore" : "学习",
+  explore: isEn ? "Site index" : "站点目录",
   motionPause: isEn ? "Pause motion" : "暂停动画",
   motionPlay: isEn ? "Resume motion" : "播放动画",
   motionReduced: isEn ? "Reduced motion" : "已减少动画",
@@ -34,19 +36,13 @@ const copy = {
   noJs: isEn ? "Direct links remain available without JavaScript." : "即使未开启 JavaScript，也可直接打开这些链接。",
   profileTitle: isEn ? "A quiet map for cloud and AI learning." : "一张克制的云与 AI 学习地图。",
   profileBody: isEn
-    ? "Six tracks, eighteen bilingual lessons, public project cases, and curated resources. Progress remains in this browser only."
-    : "六条学习轨道、十八篇双语课程、公开项目案例与精选资源。进度只保存在当前浏览器。",
+    ? "Eight primary sections: Knowledge Map, Learn, Certifications, Projects, Labs, Notes, Roadmap, and About. Progress remains in this browser only."
+    : "知识地图、系统学习、认证路线、项目案例、实践实验、知识笔记、学习路线图与关于作者。进度只保存在当前浏览器。",
   menuTitle: isEn ? "Explore the atlas" : "浏览学习地图",
   indexTitle: isEn ? "Full project index" : "项目全览",
   progress: isEn ? "Completed" : "完成"
 };
-const nav = [
-  [isEn ? "Knowledge" : "知识", path("/learn/")],
-  [isEn ? "Projects" : "项目", path("/projects/")],
-  [isEn ? "Resources" : "资源", path("/resources/")],
-  [isEn ? "Search" : "搜索", path("/search/")],
-  [isEn ? "About" : "关于", path("/about/")]
-] as const;
+const nav = [...primaryNavigation, ...secondaryNavigation].map((entry) => [entry.label[locale], withBase(localizeNavPath(entry.path, locale)), entry.purpose[locale]]) as [string, string, string][];
 ---
 
 <section class="stage" data-stage data-site-chrome data-stage-locale={locale} aria-label={copy.h1}>
@@ -68,6 +64,7 @@ const nav = [
     <button class="stage-link" type="button" data-stage-mode="full" aria-pressed="false">{copy.full}</button>
   </div>
   <div class="stage-chrome stage-bottom-right">
+    <a class="stage-link" href={path("/knowledge-map/")}>{isEn ? "Knowledge Map" : "知识地图"}</a>
     <button class="stage-link" type="button" data-dialog-open="explore-panel" aria-haspopup="dialog" aria-controls="explore-panel" aria-expanded="false">{copy.explore}</button>
   </div>
 
@@ -121,7 +118,7 @@ const nav = [
       })}
     </ul>
     <div class="stage-dialog-actions">
-      <a class="stage-pill" href={path("/learn/")}>{isEn ? "18 lessons" : "18 篇课程"}</a>
+      <a class="stage-pill" href={path("/knowledge-map/")}>{isEn ? "Knowledge Map" : "知识地图"}</a><a class="stage-pill" href={path("/learn/")}>{isEn ? "18 lessons" : "18 篇课程"}</a><a class="stage-pill" href={path("/labs/")}>{isEn ? "6 labs" : "6 个实验"}</a><a class="stage-pill" href={path("/notes/")}>{isEn ? "Notes" : "笔记"}</a>
       <a class="stage-pill" href={path("/projects/")}>{isEn ? `${projects.length} cases` : `${projects.length} 个案例`}</a>
       <a class="stage-pill" href={path("/resources/")}>{isEn ? `${resourceCount} resources` : `${resourceCount} 条资源`}</a>
     </div>
@@ -133,8 +130,6 @@ const nav = [
     </form>
     <p class="eyebrow">{copy.explore}</p>
     <h2 id="explore-title">{copy.menuTitle}</h2>
-    <div class="stage-menu-links">
-      {nav.map(([label, href]) => <a href={href}>{label}</a>)}
-    </div>
+    <NavigationIndex locale={locale} />
   </dialog>
 </section>

@@ -17,7 +17,7 @@ A classification model does not return business truth; it returns a score or lab
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: construct 100 paper samples, with 10 positives. Suppose the model finds 8 positives and raises 12 false alarms. Manually compute precision, recall, and F1 score, then write the business explanation: if this is a security alert, false alarms consume human time; if this is a severe-risk screen, misses are more dangerous. Then raise the threshold and imagine false alarms falling while misses rise. Explaining the metric changes in plain language is more important than memorizing the formulas.
+Paper/local safety exercise: construct 100 paper samples, with 10 positives. Suppose the model finds 8 positives and raises 12 false alarms. Manually compute precision, recall, and F1 score, then write the business explanation: if this is a security alert, false alarms consume human time; if this is a severe-risk screen, misses are more dangerous. Then raise the threshold and imagine false alarms falling while misses rise. Explaining the metric changes in plain language is more important than memorizing the formulas.
 
 ## Completion checklist
 

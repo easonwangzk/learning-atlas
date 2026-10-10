@@ -1,0 +1,6 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import LabsView from "@/components/LabsView.astro";
+const locale = "zh";
+---
+<BaseLayout title="Labs" description="六个浏览器本地教学实验。" current="Labs" locale={locale} pageKind="labs" contextLabel="Labs"><LabsView locale={locale} /></BaseLayout>

@@ -1,0 +1,48 @@
+---
+import type { Certification } from "@/data/certifications";
+import { certText } from "@/data/certifications";
+import { withBase } from "@/lib/paths";
+import { localizePath, type Locale } from "@/i18n";
+import type { Lesson } from "@/lib/viewTypes";
+import { getCollection } from "astro:content";
+import { lessonLocale, lessonProgressId, lessonRoute } from "@/lib/lessons";
+interface Props { locale: Locale; cert: Certification }
+const { locale, cert } = Astro.props;
+const isEn = locale === "en";
+const text = certText(cert, locale);
+const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === locale);
+function mappedLesson(id: string): Lesson {
+  const lesson = lessons.find((entry) => lessonProgressId(entry) === id);
+  if (!lesson) throw new Error(`Unknown certification lesson: ${id}`);
+  return lesson;
+}
+const ids = [...new Set(cert.domains.flatMap((domain) => [...domain.mappedLessons]))];
+const copy = { official: isEn ? "Official study guide" : "官方学习指南", mapped: isEn ? "Mapped intro lessons" : "映射入门课程", gaps: isEn ? "Known gaps / todo coverage" : "已知缺口 / 待补覆盖", tradeoffs: isEn ? "Architecture decision questions" : "架构取舍问题", local: isEn ? "Local completion tracks only mapped intro lessons, not certification or exam readiness." : "本地完成度只统计映射的入门课程，不代表认证或考试就绪。" };
+---
+<section class="atlas-page">
+  <div class="atlas-container reading-layout">
+    <article class="prose reading-prose" data-reveal>
+      <p class="eyebrow">{cert.code} · {isEn ? "Objectives effective" : "大纲生效于"} {text.guideDate}</p>
+      <h1>{text.title}</h1><p class="lead">{text.intro}</p>
+      <p><a href={cert.guideUrl} rel="noreferrer">{copy.official}</a></p>
+      <p class="chapter-meta">{isEn ? "Reviewed on" : "整理于"} 2026-10-10 · {isEn ? "Weights below belong to the exam, not site coverage." : "下列权重是考试领域权重，不是本站覆盖比例。"}</p>
+      {text.domains.map((domain, index) => <section id={`domain-${index + 1}`} class="certification-domain">
+        <p class="eyebrow">{domain.weight} · {isEn ? "Exam weight" : "考试权重"}</p>
+        <h2>{domain.name}</h2><h3>{copy.mapped}</h3>
+        <ul>{domain.mappedLessons.map((id) => {
+          const lesson = mappedLesson(id);
+          return <li><a href={withBase(lessonRoute(lesson, locale))}>{lesson.data.title}</a></li>;
+        })}</ul>
+        <h3>{copy.gaps}</h3><p>{domain.gaps}</p>
+      </section>)}
+      <section class="certification-domain"><h2>{copy.tradeoffs}</h2><ul>{text.tradeoffs.map((item) => <li>{item}</li>)}</ul></section>
+    </article>
+    <aside class="reading-rail" data-reveal>
+      <h2>{cert.code}</h2>
+      <p><strong data-progress-count={ids.join(",")}>0/{ids.length}</strong> {isEn ? "mapped notes complete" : "篇映射笔记已完成"}</p>
+      <p data-progress-warning role="status"></p><p>{copy.local}</p>
+      <a class="text-link" href={withBase(localizePath("/certifications/", locale))}>← {isEn ? "All certifications" : "全部认证"}</a>
+      <a class="text-link" href={cert.guideUrl} rel="noreferrer">{copy.official}</a>
+    </aside>
+  </div>
+</section>

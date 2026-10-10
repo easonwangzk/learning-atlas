@@ -17,7 +17,7 @@ Agent applications orchestrate the model, tools, state, and policy together. Too
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: design a function tool contract for querying order status. The input should allow only `orderId`, the tool should check whether the current user owns that order before calling, and the output should return only the required fields and references. Then define handoff conditions: identity mismatch, a complaint request from the user, low model confidence, and policy risk. Finally, write the log fields: `requestId`, `userId`, `toolName`, `decision`, `handoffTicketId`. Do not log full sensitive content.
+Paper/local safety exercise: design a function tool contract for querying order status. The input should allow only `orderId`, the tool should check whether the current user owns that order before calling, and the output should return only the required fields and references. Then define handoff conditions: identity mismatch, a complaint request from the user, missing evidence or low self-reported model confidence, and policy risk; do not treat a confidence score as the only safety gate. Finally, write the log fields: `requestId`, `userId`, `toolName`, `decision`, `handoffTicketId`. Do not log full sensitive content.
 
 ## Completion checklist
 

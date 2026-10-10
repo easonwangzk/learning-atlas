@@ -17,7 +17,7 @@ Backup is not a checkbox; it is a recovery promise. Recovery point objective (RP
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: write a recovery-manual table of contents for a three-tier web app; you do not need to create any resources. Include a contact list, dependent services, backup scope, restore order, validation queries, DNS cutover, rollback, and postmortem review. Then label the minimum permissions needed for each step so only one administrator does not become the sole person who knows how to recover. Finally, write down the cost question: shorter RPO/RTO targets usually require more replication, automation, and drill budget.
+Paper/local safety exercise: write a recovery-manual table of contents for a three-tier web app; you do not need to create any resources. Include a contact list, dependent services, backup scope, restore order, validation queries, DNS cutover, rollback, and postmortem review. Then label the minimum permissions needed for each step so only one administrator does not become the sole person who knows how to recover. Finally, write down the cost question: shorter RPO/RTO targets usually require more replication, automation, and drill budget.
 
 ## Completion checklist
 

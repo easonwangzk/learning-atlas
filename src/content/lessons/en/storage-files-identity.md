@@ -17,7 +17,7 @@ Azure Files provides managed file shares, and it is commonly used for legacy app
 
 ## Tradeoffs and safety exercise
 
-Safety exercise: choose a legacy file-server migration scenario and write five questions: which applications depend on SMB, which user groups have access, which directories contain sensitive data, how long the outage window is, and what the rollback path is. Then draw the access path: office client, private network, storage account, firewall, identity source, and audit logs. If the answers are not clear, do not migrate yet; file-system migration failures are usually not a copy-command problem, but a permissions and usage-pattern problem.
+Paper/local safety exercise: choose a legacy file-server migration scenario and write five questions: which applications depend on SMB, which user groups have access, which directories contain sensitive data, how long the outage window is, and what the rollback path is. Then draw the access path: office client, private network, storage account, firewall, identity source, and audit logs. If the answers are not clear, do not migrate yet; file-system migration failures are usually not a copy-command problem, but a permissions and usage-pattern problem.
 
 ## Completion checklist
 

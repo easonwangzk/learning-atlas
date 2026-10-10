@@ -3,10 +3,22 @@ import ProjectArtwork from "@/components/ProjectArtwork.astro";
 import { withBase } from "@/lib/paths";
 import { type Locale } from "@/i18n";
 import type { Project } from "@/lib/viewTypes";
+import { getCollection } from "astro:content";
+import { lessonLocale, lessonRoute } from "@/lib/lessons";
+import { localizePath } from "@/i18n";
 interface Props { locale: Locale; project: Project; previous: Project; next: Project }
 const { locale, project, previous, next } = Astro.props;
 const isEn = locale === "en";
-const copy = { repo: isEn ? "Open public repository" : "查看公开仓库", flow: project.slug === "recommendation-algorithm" ? (isEn ? "Suggested reading order (not a repository architecture claim)" : "建议阅读顺序（非仓库架构声明）") : (isEn ? "Architecture reading map (based on repository description)" : "架构阅读图（基于仓库描述）"), learn: isEn ? "What to study" : "值得学习的设计", limits: isEn ? "Boundaries" : "适用边界", related: isEn ? "Related learning" : "相关学习", note: isEn ? "Cases help read technical design; runtime, data, and model setup remain in the original repositories." : "案例用于理解技术设计；应用运行、数据和模型配置请以原仓库说明为准。", all: isEn ? "All projects" : "全部项目" };
+const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === locale);
+const relatedLinks = project.related.map((path) => ({
+  href: path,
+  label: lessons.find((lesson) => lessonRoute(lesson, locale) === path)?.data.title ??
+    (path.includes("/resources/") ? (isEn ? "Resource index" : "资料索引") : (isEn ? "About this site" : "关于本站"))
+}));
+const copy = { repo: isEn ? "Open public repository" : "查看公开仓库", flow: project.slug === "recommendation-algorithm" ? (isEn ? "Suggested reading order (not a repository architecture claim)" : "建议阅读顺序（非仓库架构声明）") : (isEn ? "Architecture reading map (based on repository description)" : "架构阅读图（基于仓库描述）"), learn: isEn ? "What to study" : "值得学习的设计", limits: isEn ? "Boundaries" : "适用边界", dimensions: isEn ? "Architecture review dimensions" : "架构评审维度", related: isEn ? "Related learning" : "相关学习", note: isEn ? "Cases help read technical design; runtime, data, and model setup remain in the original repositories." : "案例用于理解技术设计；应用运行、数据和模型配置请以原仓库说明为准。", all: isEn ? "All projects" : "全部项目" };
+const dimensions = isEn
+  ? ["Business problem: what user task does the README actually name?", "Compute: which runtime boundary is stated, and which remains unknown?", "Data: what source, retention, and evaluation evidence is public?", "Network: what ingress, private access, or DNS claim is explicit versus absent?", "Identity: where would RBAC, user isolation, and secrets be reviewed?", "Observability and cost: what would need logs, alerts, budgets, and measured load before production?"]
+  : ["业务问题：README 明确描述了哪个用户任务？", "计算：公开说明了哪种运行时边界，哪些仍未知？", "数据：公开了哪些来源、保留与评估证据？", "网络：哪些入口、私有访问或 DNS 声明是明确的，哪些没有出现？", "身份：应在哪里评审 RBAC、用户隔离和密钥管理？", "可观测性与成本：上线前还需要哪些日志、告警、预算和负载证据？"];
 ---
 <article class="atlas-page atlas-project-detail">
   <section class="case-hero-dark">
@@ -21,11 +33,13 @@ const copy = { repo: isEn ? "Open public repository" : "查看公开仓库", flo
       <h2>{copy.flow}</h2>
       <ol class="flow-list">{project.flow.map((step: string, index: number) => <li><span>{String(index + 1).padStart(2, "0")}</span>{step}</li>)}</ol>
       <h2>{copy.learn}</h2><ul>{project.learn.map((item: string) => <li>{item}</li>)}</ul>
+      <h2>{copy.dimensions}</h2><ul>{dimensions.map((item) => <li>{item}</li>)}</ul>
       <h2>{copy.limits}</h2><p>{project.limits}</p>
     </article>
     <aside class="reading-rail" data-reveal>
       <a class="text-button" href={project.repo} rel="noreferrer">{copy.repo}</a>
-      <h2>{copy.related}</h2><ul class="source-list">{project.related.map((href: string) => <li><a href={withBase(href)}>{href}</a></li>)}</ul>
+      <h2>{copy.related}</h2><ul class="source-list">{relatedLinks.map((link) => <li><a href={withBase(link.href)}>{link.label}</a></li>)}</ul>
+      <a href={withBase(localizePath("/labs/", locale))}>{isEn ? "Practice labs" : "实践实验"}</a>
       <p>{copy.note}</p>
       <nav class="rail-links" aria-label={isEn ? "Project navigation" : "项目导航"}>
         <a href={withBase(isEn ? `/en/projects/${previous.slug}/` : `/projects/${previous.slug}/`)}>← {previous.title}</a>

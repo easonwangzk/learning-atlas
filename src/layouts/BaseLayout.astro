@@ -4,6 +4,7 @@ import Atmosphere from "@/components/Atmosphere.astro";
 import SiteChrome from "@/components/SiteChrome.astro";
 import { withBase, canonical } from "@/lib/paths";
 import { alternatePath, stripLocale, ui, type Locale } from "@/i18n";
+import { allNavigation } from "@/data/navigation";
 
 interface Props {
   title: string;
@@ -24,7 +25,8 @@ const notFound = title === "404";
 const routePath = notFound ? "/404.html" : (canonicalPath ?? stripLocale(Astro.url.pathname.replace(withBase("/").replace(/\/$/, ""), "") || "/"));
 const englishPath = notFound ? "/en/404/" : routePath === "/" ? "/en/" : `/en${routePath}`;
 const otherPath = switchPath ?? (notFound ? (locale === "en" ? routePath : englishPath) : alternatePath(routePath, locale));
-const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atlas`;
+const translatedTitle = allNavigation.find((entry) => entry.label.en === title)?.label[locale] ?? title;
+const pageTitle = title === "Learning Atlas" ? title : `${translatedTitle} · Learning Atlas`;
 ---
 
 <!doctype html>
