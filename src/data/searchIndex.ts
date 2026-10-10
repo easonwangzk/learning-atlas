@@ -3,7 +3,7 @@ import { withBase } from "@/lib/paths";
 import { lessonLocale, lessonRoute } from "@/lib/lessons";
 import { getProjects } from "@/data/projects";
 import { getResources } from "@/data/resources";
-import { ui, type Locale } from "@/i18n";
+import { certificationLabel, ui, type Locale } from "@/i18n";
 import { localizePath } from "@/i18n";
 
 export async function getSearchIndex(locale: Locale = "zh") {
@@ -18,7 +18,7 @@ export async function getSearchIndex(locale: Locale = "zh") {
         title: lesson.data.title,
         summary: lesson.data.summary,
         href: withBase(lessonRoute(lesson, locale)),
-        tags: [lesson.data.track, lesson.data.cert, ...lesson.data.tags],
+        tags: [lesson.data.track, certificationLabel(lesson.data.cert, locale), ...lesson.data.tags],
         searchText: `${lesson.data.title} ${lesson.data.summary} ${lesson.body ?? ""}`
       })),
     ...projects.map((project) => ({

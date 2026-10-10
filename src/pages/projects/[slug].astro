@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import ProjectArtwork from "@/components/ProjectArtwork.astro";
 import { getProjects, getProject } from "@/data/projects";
 import { withBase } from "@/lib/paths";
 
@@ -18,7 +19,7 @@ const next = projects[(project.index + 1) % projects.length];
   <section class="section project-detail">
     <div class="container split">
       <article>
-        <div class={`detail-cover project-art motif-${project.index % 6}`} data-tilt aria-hidden="true"><span>{String(project.index + 1).padStart(2, "0")}</span><strong>{project.topics[0]}</strong><i></i><b></b></div>
+        <ProjectArtwork class="detail-cover" slug={project.slug} index={project.index} locale={locale} title={project.title} tilt />
         <p class="eyebrow">README 公开摘要</p>
         <h1>{project.title}</h1>
         <p class="lead">{project.summary}</p>

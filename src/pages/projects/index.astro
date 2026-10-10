@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import ProjectArtwork from "@/components/ProjectArtwork.astro";
 import { getProjects } from "@/data/projects";
 import { withBase } from "@/lib/paths";
 const locale = "zh";
@@ -26,7 +27,7 @@ const topics = ["all", ...Array.from(new Set(projects.flatMap((project) => proje
         {projects.map((project, index) => (
           <article class="project-list-card" data-filter-item={project.topics.join(" ")} data-reveal>
             <a href={withBase(`/projects/${project.slug}/`)} class="project-list-cover" data-tilt>
-              <div class={`project-art motif-${index % 6}`} aria-hidden="true"><span>{String(index + 1).padStart(2, "0")}</span><strong>{project.topics[0]}</strong><i></i><b></b></div>
+              <ProjectArtwork slug={project.slug} index={index} locale={locale} title={project.title} />
             </a>
             <div>
               <p class="eyebrow">{project.topics.join(" / ")}</p>

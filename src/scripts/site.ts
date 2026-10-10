@@ -1,22 +1,89 @@
 import { parseProgress, type ProgressState } from "@/lib/progress";
 import { matchesQuery } from "@/lib/search";
+import { advanceSpring, springSettled } from "@/lib/motion";
+import { basePath, withBase } from "@/lib/paths";
+import { localizeFragment, localizePath, stripLocale, ui } from "@/i18n";
+
+function setupNotFoundLocale() {
+  if (document.documentElement.dataset.notFound !== "true") return;
+  const requestPath = location.pathname.slice(basePath.length);
+  const locale = requestPath.startsWith("/en/") ? "en" : "zh";
+  const t = ui[locale];
+  document.documentElement.lang = t.lang;
+  const replace = (selector: string, text: string) => {
+    const element = document.querySelector<HTMLElement>(selector);
+    if (element) element.textContent = text;
+  };
+  replace(".skip-link", t.skip);
+  const navPaths = { Home: "/", Knowledge: "/learn/", Projects: "/projects/", Resources: "/resources/", About: "/about/", Search: "/search/" };
+  for (const [key, path] of Object.entries(navPaths)) {
+    const link = document.querySelector<HTMLAnchorElement>(`[data-nav-key="${key}"]`);
+    const label = Object.entries(t.nav).find(([name]) => name === key)?.[1];
+    if (link && label) {
+      link.textContent = label;
+      link.href = withBase(localizePath(path, locale));
+    }
+  }
+  document.querySelector("nav.nav")?.setAttribute("aria-label", t.navLabel);
+  const brand = document.querySelector<HTMLAnchorElement>(".brand");
+  if (brand) brand.href = withBase(localizePath("/", locale));
+  const language = document.querySelector<HTMLAnchorElement>("[data-lang-switch]");
+  if (language) {
+    language.textContent = t.switchLabel;
+    language.href = withBase(locale === "en" ? stripLocale(requestPath) : localizePath(requestPath === "/404.html" ? "/404/" : requestPath, "en"));
+    if (requestPath === "/en/404/") language.href = withBase("/404.html");
+  }
+  const motion = document.querySelector<HTMLButtonElement>("[data-motion-toggle]");
+  if (motion) {
+    motion.textContent = t.motionPause;
+    motion.dataset.labelPause = t.motionPause;
+    motion.dataset.labelPlay = t.motionPlay;
+    motion.dataset.labelReduced = t.motionReduced;
+  }
+  document.querySelector("[data-theme-toggle]")?.setAttribute("aria-label", t.theme);
+  replace("[data-menu-toggle]", t.menu);
+  replace(".site-footer p:nth-of-type(1)", t.footerOne);
+  replace(".site-footer p:nth-of-type(2)", t.footerTwo);
+  const about = document.querySelector<HTMLAnchorElement>(".site-footer a");
+  if (about) {
+    about.textContent = t.aboutSource;
+    about.href = withBase(localizePath("/about/", locale));
+  }
+  if (locale === "en") {
+    replace("[data-notfound-title]", "This path does not have a lesson yet.");
+    replace("[data-notfound-description]", "Return to the knowledge map or use site search.");
+    document.querySelector('meta[name="description"]')?.setAttribute("content", "Page not found.");
+    for (const [kind, label] of [["learn", "Back to knowledge"], ["search", "Search"]]) {
+      const link = document.querySelector<HTMLAnchorElement>(`[data-notfound-link="${kind}"]`);
+      if (link) {
+        link.textContent = label;
+        link.href = withBase(`/en/${kind}/`);
+      }
+    }
+  }
+}
+
+setupNotFoundLocale();
 
 const progressKey = "learning-atlas-progress-v1";
 const themeKey = "learning-atlas-theme";
 const motionKey = "learning-atlas-motion";
 const isEnglish = document.documentElement.lang.startsWith("en");
+const t = ui[isEnglish ? "en" : "zh"];
 const labels = {
-  readError: isEnglish ? "Local progress could not be read because storage is unavailable or malformed. Existing records were not deleted; content remains readable." : "无法读取本地进度：存储不可用或数据格式错误。原记录未删除；内容仍可阅读。",
-  saveError: isEnglish ? "Progress could not be saved in this browser and is only temporary until refresh." : "进度未能保存到本浏览器，仅在当前页面暂存，刷新后可能丢失。",
-  syncError: isEnglish ? "Progress from another page was malformed, so the current state was not overwritten." : "另一页面的进度数据格式错误，当前进度未被覆盖。",
-  done: isEnglish ? "Completed: click to undo" : "已完成：点击取消",
-  todo: isEnglish ? "Mark this lesson complete" : "标记本课完成",
-  reset: isEnglish ? "Clear all Learning Atlas completion progress in this browser?" : "确定清空本浏览器的 Learning Atlas 完成进度？",
-  themeError: isEnglish ? "Theme changed, but this browser did not allow saving the preference." : "主题已切换，但浏览器未允许保存偏好。",
-  items: (visible: number, total: number) => isEnglish ? `${visible} / ${total} items` : `${visible} / ${total} 项`,
-  results: (visible: number) => isEnglish ? `${visible} results` : `${visible} 条结果`,
-  open: isEnglish ? "Open" : "打开",
-  drag: isEnglish ? "Drag" : "拖动"
+  readError: t.progressReadError,
+  saveError: t.progressSaveError,
+  syncError: t.progressSyncError,
+  done: t.progressDone,
+  todo: t.progressTodo,
+  reset: t.progressReset,
+  themeError: t.themeSaveError,
+  motionError: t.motionSaveError,
+  motionReadError: t.motionReadError,
+  items: t.countItems,
+  results: t.countResults,
+  open: t.open,
+  drag: t.drag
 };
 let progress: ProgressState = {};
 let progressWarning = "";
@@ -149,18 +216,34 @@ function setupMotion() {
     });
   };
   const applyPreference = () => {
-    const stored = storage?.getItem(motionKey);
+    let stored: string | null = null;
+    try {
+      stored = storage?.getItem(motionKey) ?? null;
+    } catch (error) {
+      progressWarning = labels.motionReadError;
+      console.warn("Learning Atlas could not read the motion preference.", error);
+      renderProgress();
+    }
     const paused = preference.matches || stored === "paused";
     document.documentElement.dataset.motion = paused ? "paused" : "running";
     setButtons(paused, preference.matches);
+    document.dispatchEvent(new Event("atlas:motion-change"));
   };
   preference.addEventListener("change", applyPreference);
   applyPreference();
   buttons.forEach((button) => button.addEventListener("click", () => {
     const paused = document.documentElement.dataset.motion !== "paused";
     document.documentElement.dataset.motion = paused ? "paused" : "running";
-    try { storage?.setItem(motionKey, paused ? "paused" : "running"); } catch {}
+    try {
+      if (!storage) throw new Error("Local storage is unavailable");
+      storage.setItem(motionKey, paused ? "paused" : "running");
+    } catch (error) {
+      progressWarning = labels.motionError;
+      console.warn("Learning Atlas could not save the motion preference.", error);
+      renderProgress();
+    }
     setButtons(paused);
+    document.dispatchEvent(new Event("atlas:motion-change"));
   }));
 }
 
@@ -253,20 +336,32 @@ function setupSearchQuery() {
 
 function setupLanguageSwitch() {
   document.querySelectorAll<HTMLAnchorElement>("[data-lang-switch]").forEach((link) => {
-    link.addEventListener("click", () => {
-      try {
-        const target = new URL(link.href);
-        target.search = window.location.search;
-        target.hash = window.location.hash;
-        link.href = target.toString();
-      } catch {}
-    });
+    const update = () => {
+      const target = new URL(link.href);
+      target.search = window.location.search;
+      target.hash = localizeFragment(window.location.hash, isEnglish ? "zh" : "en");
+      link.href = target.toString();
+    };
+    update();
+    link.addEventListener("click", update);
+    link.addEventListener("pointerdown", update);
+    link.addEventListener("focus", update);
+    window.addEventListener("hashchange", update);
   });
 }
 
 function setupReveal() {
   const elements = document.querySelectorAll<HTMLElement>("[data-reveal]");
-  if (!elements.length || !("IntersectionObserver" in window) || document.documentElement.dataset.motion === "paused") return;
+  if (!elements.length) return;
+  const showAll = () => elements.forEach((element) => { element.dataset.revealed = "true"; });
+  if (!("IntersectionObserver" in window)) {
+    showAll();
+    return;
+  }
+  if (document.documentElement.dataset.motion === "paused") showAll();
+  document.addEventListener("atlas:motion-change", () => {
+    if (document.documentElement.dataset.motion === "paused") showAll();
+  });
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (!entry.isIntersecting) return;
@@ -274,7 +369,10 @@ function setupReveal() {
       observer.unobserve(entry.target);
     });
   }, { rootMargin: "0px 0px -8% 0px" });
-  elements.forEach((element) => observer.observe(element));
+  elements.forEach((element) => {
+    observer.observe(element);
+    element.dataset.revealReady = "true";
+  });
 }
 
 function setupGallery() {
@@ -287,61 +385,89 @@ function setupGallery() {
     let startX = 0;
     let startY = 0;
     let startScroll = 0;
-    let dragging = false;
+    let activePointer: number | null = null;
     let didDrag = false;
+    let dragEndedAt = -1;
     const cards = [...track.querySelectorAll<HTMLElement>("[data-gallery-card]")];
+    cards.forEach((card) => {
+      card.setAttribute("draggable", "false");
+      card.addEventListener("dragstart", (event) => event.preventDefault());
+    });
+    const cardTarget = (card: HTMLElement) => Math.max(0, Math.min(
+      track.scrollWidth - track.clientWidth,
+      card.offsetLeft - (cards[0]?.offsetLeft ?? 0) - (track.clientWidth - card.offsetWidth) / 2
+    ));
+    const currentCard = () => cards.reduce((best, card, idx) => {
+      const delta = Math.abs(cardTarget(card) - track.scrollLeft);
+      return delta < best.delta ? { idx, delta } : best;
+    }, { idx: 0, delta: Number.POSITIVE_INFINITY }).idx;
     const updateIndex = () => {
       if (!index || !cards.length) return;
-      const current = cards.reduce((best, card, idx) => {
-        const delta = Math.abs(card.offsetLeft - track.scrollLeft);
-        return delta < best.delta ? { idx, delta } : best;
-      }, { idx: 0, delta: Number.POSITIVE_INFINITY }).idx;
+      const current = currentCard();
       index.textContent = `${current + 1}/${cards.length}`;
+      if (prev) prev.disabled = current === 0;
+      if (next) next.disabled = current === cards.length - 1;
     };
     const scrollByCard = (direction: number) => {
-      const amount = cards[0]?.getBoundingClientRect().width ?? track.clientWidth * 0.8;
-      track.scrollBy({ left: direction * amount, behavior: document.documentElement.dataset.motion === "paused" ? "auto" : "smooth" });
+      const card = cards[Math.max(0, Math.min(cards.length - 1, currentCard() + direction))];
+      if (!card) return;
+      track.scrollTo({ left: cardTarget(card), behavior: document.documentElement.dataset.motion === "paused" ? "auto" : "smooth" });
     };
     prev?.addEventListener("click", () => scrollByCard(-1));
     next?.addEventListener("click", () => scrollByCard(1));
     track.addEventListener("keydown", (event) => {
-      if (event.key === "ArrowLeft") scrollByCard(-1);
-      if (event.key === "ArrowRight") scrollByCard(1);
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.preventDefault();
+        scrollByCard(event.key === "ArrowLeft" ? -1 : 1);
+      }
     });
     track.addEventListener("pointerdown", (event) => {
-      if (event.pointerType === "mouse" && event.button !== 0) return;
+      if (event.pointerType !== "mouse" || event.button !== 0) return;
       startX = event.clientX;
       startY = event.clientY;
       startScroll = track.scrollLeft;
-      dragging = true;
+      activePointer = event.pointerId;
       didDrag = false;
-      track.setPointerCapture(event.pointerId);
-      document.documentElement.dataset.cursorLabel = labels.drag;
     });
     track.addEventListener("pointermove", (event) => {
-      if (!dragging) return;
+      if (activePointer !== event.pointerId) return;
       const dx = event.clientX - startX;
       const dy = event.clientY - startY;
-      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 12) return;
-      if (Math.abs(dx) > 8) didDrag = true;
+      if (!didDrag && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 12) {
+        activePointer = null;
+        return;
+      }
+      if (!didDrag && Math.abs(dx) > 8) {
+        didDrag = true;
+        track.setPointerCapture(event.pointerId);
+        track.style.scrollSnapType = "none";
+        track.dataset.dragging = "true";
+        document.documentElement.dataset.cursorLabel = labels.drag;
+      }
       if (didDrag) {
         event.preventDefault();
         track.scrollLeft = startScroll - dx;
       }
     });
-    track.addEventListener("pointerup", (event) => {
-      dragging = false;
-      track.releasePointerCapture(event.pointerId);
-      window.setTimeout(() => { didDrag = false; }, 0);
+    const finishDrag = () => {
+      if (didDrag) dragEndedAt = performance.now();
+      if (activePointer !== null && track.hasPointerCapture(activePointer)) track.releasePointerCapture(activePointer);
+      activePointer = null;
+      track.style.removeProperty("scroll-snap-type");
+      delete track.dataset.dragging;
       document.documentElement.dataset.cursorLabel = labels.open;
-    });
+    };
+    track.addEventListener("pointerup", finishDrag);
+    track.addEventListener("pointercancel", finishDrag);
+    window.addEventListener("blur", finishDrag);
     track.addEventListener("click", (event) => {
-      if (didDrag) {
+      if (didDrag && performance.now() - dragEndedAt < 350) {
         event.preventDefault();
         event.stopPropagation();
       }
     }, true);
     track.addEventListener("scroll", updateIndex, { passive: true });
+    if ("ResizeObserver" in window) new ResizeObserver(updateIndex).observe(track);
     updateIndex();
   });
 }
@@ -360,10 +486,19 @@ function setupViewToggle() {
 }
 
 function setupTilt() {
-  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-  document.querySelectorAll<HTMLElement>("[data-tilt]").forEach((card) => {
+  const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const cards = document.querySelectorAll<HTMLElement>("[data-tilt]");
+  const reset = () => cards.forEach((card) => {
+    card.style.removeProperty("--tilt-x");
+    card.style.removeProperty("--tilt-y");
+  });
+  document.addEventListener("atlas:motion-change", reset);
+  fine.addEventListener("change", reset);
+  reduce.addEventListener("change", reset);
+  cards.forEach((card) => {
     card.addEventListener("pointermove", (event) => {
-      if (document.documentElement.dataset.motion === "paused") return;
+      if (event.pointerType !== "mouse" || !fine.matches || reduce.matches || document.documentElement.dataset.motion === "paused") return;
       const box = card.getBoundingClientRect();
       const x = (event.clientX - box.left) / box.width - 0.5;
       const y = (event.clientY - box.top) / box.height - 0.5;
@@ -377,63 +512,112 @@ function setupTilt() {
   });
 }
 
+function setupMagnetic() {
+  const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+  const elements = document.querySelectorAll<HTMLElement>(".magnetic");
+  const reset = () => elements.forEach((element) => element.style.removeProperty("transform"));
+  document.addEventListener("atlas:motion-change", reset);
+  fine.addEventListener("change", reset);
+  elements.forEach((element) => {
+    element.addEventListener("pointermove", (event) => {
+      if (event.pointerType !== "mouse" || !fine.matches || document.documentElement.dataset.motion === "paused") return;
+      const box = element.getBoundingClientRect();
+      const x = Math.max(-4, Math.min(4, (event.clientX - box.left - box.width / 2) * 0.1));
+      const y = Math.max(-4, Math.min(4, (event.clientY - box.top - box.height / 2) * 0.1));
+      element.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    });
+    element.addEventListener("pointerleave", () => element.style.removeProperty("transform"));
+  });
+}
+
 function setupSmoothCursor() {
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-  if (!fine.matches || reduce.matches) return;
   const cursor = document.createElement("div");
   cursor.className = "smooth-cursor";
   cursor.setAttribute("aria-hidden", "true");
-  cursor.innerHTML = `<span></span>`;
+  cursor.append(document.createElement("span"));
   document.body.append(cursor);
   let targetX = -100;
   let targetY = -100;
-  let x = targetX;
-  let y = targetY;
-  let vx = 0;
-  let vy = 0;
+  let state = { x: targetX, y: targetY, vx: 0, vy: 0 };
+  let pointerPresent = false;
   let raf = 0;
   let last = performance.now();
+  const allowed = () => fine.matches && !reduce.matches && !document.hidden && document.documentElement.dataset.motion !== "paused";
+  const stop = () => {
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    pointerPresent = false;
+    cursor.classList.remove("active");
+  };
   const step = (now: number) => {
-    if (document.hidden || document.documentElement.dataset.motion === "paused") {
-      raf = 0;
-      cursor.classList.remove("active");
+    if (!allowed() || !pointerPresent) {
+      stop();
       return;
     }
-    const dt = Math.min((now - last) / 1000, 0.032);
+    state = advanceSpring(state, { x: targetX, y: targetY }, Math.max(0, (now - last) / 1000));
     last = now;
-    const stiffness = 400;
-    const damping = 45;
-    const ax = (targetX - x) * stiffness - vx * damping;
-    const ay = (targetY - y) * stiffness - vy * damping;
-    vx += ax * dt;
-    vy += ay * dt;
-    x += vx * dt;
-    y += vy * dt;
-    const angle = Math.atan2(vy, vx) * 180 / Math.PI;
-    cursor.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${Number.isFinite(angle) ? angle : 0}deg)`;
+    cursor.style.transform = `translate3d(${state.x}px, ${state.y}px, 0)`;
+    if (springSettled(state, { x: targetX, y: targetY })) {
+      state = { x: targetX, y: targetY, vx: 0, vy: 0 };
+      cursor.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`;
+      raf = 0;
+      return;
+    }
     raf = requestAnimationFrame(step);
   };
   const start = () => {
-    if (!raf && document.documentElement.dataset.motion !== "paused") {
+    if (!raf && allowed() && pointerPresent) {
       last = performance.now();
       raf = requestAnimationFrame(step);
     }
   };
   window.addEventListener("pointermove", (event) => {
-    if (event.pointerType !== "mouse") return;
+    if (event.pointerType !== "mouse" || !allowed()) {
+      stop();
+      return;
+    }
     const target = event.target instanceof Element ? event.target : null;
+    if (target?.closest("input,textarea,select,[contenteditable]")) {
+      stop();
+      return;
+    }
     const interactive = target?.closest("a,button,[data-gallery-track]") ? document.documentElement.dataset.cursorLabel || labels.open : "";
     cursor.dataset.label = interactive;
     cursor.classList.toggle("has-label", Boolean(interactive));
     cursor.classList.add("active");
     targetX = event.clientX;
     targetY = event.clientY;
+    if (!pointerPresent) state = { x: targetX, y: targetY, vx: 0, vy: 0 };
+    pointerPresent = true;
     start();
   }, { passive: true });
-  window.addEventListener("blur", () => cursor.classList.remove("active"));
-  document.addEventListener("visibilitychange", () => { if (document.hidden && raf) cancelAnimationFrame(raf); raf = 0; });
-  reduce.addEventListener("change", () => { if (reduce.matches) cursor.remove(); });
+  window.addEventListener("blur", stop);
+  document.documentElement.addEventListener("pointerleave", stop);
+  document.addEventListener("visibilitychange", stop);
+  document.addEventListener("keydown", (event) => { if (event.key === "Tab") stop(); });
+  document.addEventListener("atlas:motion-change", stop);
+  fine.addEventListener("change", stop);
+  reduce.addEventListener("change", stop);
+}
+
+function setupPageTransitions() {
+  document.querySelectorAll<HTMLElement>("[data-project-cover][data-project-slug]").forEach((cover) => {
+    const slug = cover.dataset.projectSlug;
+    if (slug && /^[a-z0-9-]+$/.test(slug)) cover.style.viewTransitionName = `project-${slug}`;
+  });
+  const skipPausedTransition = (event: Event) => {
+    if (document.documentElement.dataset.motion !== "paused") return;
+    if ("viewTransition" in event) {
+      const transition = event.viewTransition;
+      if (transition && typeof transition === "object" && "skipTransition" in transition && typeof transition.skipTransition === "function") {
+        transition.skipTransition();
+      }
+    }
+  };
+  window.addEventListener("pageswap", skipPausedTransition);
+  window.addEventListener("pagereveal", skipPausedTransition);
 }
 
 setupTheme();
@@ -448,4 +632,6 @@ setupReveal();
 setupGallery();
 setupViewToggle();
 setupTilt();
+setupMagnetic();
 setupSmoothCursor();
+setupPageTransitions();

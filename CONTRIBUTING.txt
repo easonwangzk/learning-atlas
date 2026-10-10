@@ -8,6 +8,15 @@ Learning Atlas content update guide
 6. Do not add secrets, credentials, subscription IDs, customer data, private repository material, or raw benchmark results.
 7. Run npm run ci before committing.
 
+Design and motion:
+Project artwork is original SVG in src/components/ProjectArtwork.astro.
+Portfolio layout references Jesper Landberg; cursor motion references Magic UI,
+with links and independent-implementation notes on both About pages.
+Keep native touch scrolling and keyboard navigation. Disable decorative motion
+when paused or reduced motion is requested; cursor RAF must stop when settled.
+All English visible text, including enum labels and errors, must stay English.
+The root static 404 handler chooses its display locale from the missing URL.
+
 Security boundary (2026-10-10):
 Astro's build dependency http-cache-semantics is affected by
 GHSA-ch52-4w7c-c8xp and has no published patched release at the time of review.

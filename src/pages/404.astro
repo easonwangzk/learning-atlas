@@ -7,10 +7,11 @@ const locale = "zh";
   <section class="section">
     <div class="container">
       <p class="eyebrow">404</p>
-      <h1>这条路径还没有课程。</h1>
-      <p class="lead">请返回知识地图或使用全站搜索。</p>
-      <a class="button primary" href={withBase("/learn/")}>返回知识地图</a>
-      <a class="button" href={withBase("/search/")}>搜索</a>
+      <h1 data-notfound-title>这条路径还没有课程。</h1>
+      <p class="lead" data-notfound-description>请返回知识地图或使用全站搜索。</p>
+      <a class="button primary" data-notfound-link="learn" href={withBase("/learn/")}>返回知识地图</a>
+      <a class="button" data-notfound-link="search" href={withBase("/search/")}>搜索</a>
+      <noscript><p lang="en">For the English not-found page, <a href={withBase("/en/404/")}>continue in English</a>.</p></noscript>
     </div>
   </section>
 </BaseLayout>

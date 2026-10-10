@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import ProjectArtwork from "@/components/ProjectArtwork.astro";
 import { withBase } from "@/lib/paths";
 import { tracks, trackText } from "@/data/tracks";
 import { getProjects } from "@/data/projects";
@@ -18,8 +19,8 @@ const resources = getResources(locale);
   <section class="hero editorial-hero">
     <div class="container hero-stack">
       <div class="hero-copy" data-reveal>
-        <p class="eyebrow">Learning work · Azure + AI</p>
-        <h1 class="hero-title">A practical map for cloud and AI study.</h1>
+        <p class="eyebrow">A personal fieldbook</p>
+        <h1 class="hero-title">Learn by doing.</h1>
         <p class="lead">Start with projects, then return to concepts. Learning Atlas connects six tracks, eighteen lessons, and public project notes into one readable path.</p>
         <div class="tag-row">
           <a class="button primary magnetic" href={withBase("/en/learn/")}>Start learning</a>
@@ -33,13 +34,14 @@ const resources = getResources(locale);
         <div class="gallery-track" data-gallery-track tabindex="0" aria-label="Selected projects carousel">
           {projects.map((project, index) => (
             <a class="gallery-card" data-gallery-card data-tilt href={withBase(`/en/projects/${project.slug}/`)}>
-              <div class={`project-art motif-${index % 6}`} aria-hidden="true"><span>{String(index + 1).padStart(2, "0")}</span><strong>{project.topics[0]}</strong><i></i><b></b></div>
-              <div class="gallery-caption"><p class="eyebrow">{project.topics.join(" / ")}</p><h2>{project.title}</h2><p>{project.summary}</p></div>
+              <ProjectArtwork slug={project.slug} index={index} locale={locale} title={project.title} />
+              <div class="gallery-caption"><p class="eyebrow">{project.topics.join(" / ")}</p><h2>{project.title}</h2></div>
               <span class="corner-arrow" aria-hidden="true">↗</span>
             </a>
           ))}
         </div>
         <div class="gallery-controls">
+          <span>Drag to explore · {projects.length} studies</span>
           <button class="icon-button" type="button" data-gallery-prev aria-label="Previous project">←</button>
           <button class="icon-button" type="button" data-gallery-next aria-label="Next project">→</button>
         </div>

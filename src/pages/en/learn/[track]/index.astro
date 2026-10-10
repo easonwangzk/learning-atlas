@@ -4,6 +4,7 @@ import { withBase } from "@/lib/paths";
 import { getTrack, tracks, trackText } from "@/data/tracks";
 import { getCollection } from "astro:content";
 import { lessonLocale, lessonRoute, lessonProgressId } from "@/lib/lessons";
+import { certificationLabel, ui } from "@/i18n";
 export async function getStaticPaths() { return tracks.map((track) => ({ params: { track: track.slug } })); }
 const { track: trackSlug } = Astro.params;
 const track = getTrack(trackSlug || "");
@@ -15,6 +16,6 @@ const ids = lessons.map(lessonProgressId);
 ---
 <BaseLayout title={text.title} description={text.summary} current="Knowledge" locale={locale}>
   <section class="section"><div class="container split"><div><p class="eyebrow">{text.kicker}</p><h1>{text.title}</h1><p class="lead">{text.summary}</p><div class="grid">{lessons.map((lesson) => (
-    <article class="lesson-card" data-reveal><p class="eyebrow">{lesson.data.cert} · Beginner</p><h2>{lesson.data.title}</h2><p class="muted">{lesson.data.summary}</p><div class="tag-row">{lesson.data.tags.map((tag) => <span class="chip">{tag}</span>)}</div><p><a href={withBase(lessonRoute(lesson, locale))}>Read lesson</a></p></article>
+    <article class="lesson-card" data-reveal><p class="eyebrow">{certificationLabel(lesson.data.cert, locale)} · {ui.en.difficulty[lesson.data.difficulty]}</p><h2>{lesson.data.title}</h2><p class="muted">{lesson.data.summary}</p><div class="tag-row">{lesson.data.tags.map((tag) => <span class="chip">{tag}</span>)}</div><p><a href={withBase(lessonRoute(lesson, locale))}>Read lesson</a></p></article>
   ))}</div></div><aside class="sidebox"><h3>Track progress</h3><p>This track: <strong data-progress-count={ids.join(",")}>0/{ids.length}</strong></p><p class="progress-note" data-progress-warning role="status"></p><button class="button" type="button" data-progress-reset>Reset all browser progress</button><p class="muted">Progress is saved only in this browser and is never uploaded or synced across devices.</p></aside></div></section>
 </BaseLayout>

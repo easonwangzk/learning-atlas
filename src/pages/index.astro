@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import ProjectArtwork from "@/components/ProjectArtwork.astro";
 import { withBase } from "@/lib/paths";
 import { tracks, trackText } from "@/data/tracks";
 import { getProjects } from "@/data/projects";
@@ -18,8 +19,8 @@ const resources = getResources(locale);
   <section class="hero editorial-hero">
     <div class="container hero-stack">
       <div class="hero-copy" data-reveal>
-        <p class="eyebrow">学习作品 · Azure + AI</p>
-        <h1 class="hero-title">把知识铺成一张可走的地图。</h1>
+        <p class="eyebrow">个人学习田野手册</p>
+        <h1 class="hero-title">边学。边做。</h1>
         <p class="lead">先看作品，再回到概念。Learning Atlas 用六条轨道、十八篇课程和公开项目卡片，把云基础设施与智能应用的取舍连起来。</p>
         <div class="tag-row">
           <a class="button primary magnetic" href={withBase("/learn/")}>开始学习</a>
@@ -36,21 +37,17 @@ const resources = getResources(locale);
         <div class="gallery-track" data-gallery-track tabindex="0" aria-label="精选项目横向画廊">
           {projects.map((project, index) => (
             <a class="gallery-card" data-gallery-card data-tilt href={withBase(`/projects/${project.slug}/`)}>
-              <div class={`project-art motif-${index % 6}`} aria-hidden="true">
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <strong>{project.topics[0]}</strong>
-                <i></i><b></b>
-              </div>
+              <ProjectArtwork slug={project.slug} index={index} locale={locale} title={project.title} />
               <div class="gallery-caption">
                 <p class="eyebrow">{project.topics.join(" / ")}</p>
                 <h2>{project.title}</h2>
-                <p>{project.summary}</p>
               </div>
               <span class="corner-arrow" aria-hidden="true">↗</span>
             </a>
           ))}
         </div>
         <div class="gallery-controls">
+          <span>拖动浏览 · {projects.length} 个案例</span>
           <button class="icon-button" type="button" data-gallery-prev aria-label="上一个项目">←</button>
           <button class="icon-button" type="button" data-gallery-next aria-label="下一个项目">→</button>
         </div>

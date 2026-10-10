@@ -14,8 +14,10 @@ interface Props {
 
 const { title, description, current = "", locale = "zh", switchPath, canonicalPath } = Astro.props;
 const t = ui[locale];
-const routePath = title === "404" ? "/" : (canonicalPath ?? stripLocale(Astro.url.pathname.replace(withBase("/").replace(/\/$/, ""), "") || "/"));
-const otherPath = switchPath ?? alternatePath(routePath, locale);
+const notFound = title === "404";
+const routePath = notFound ? "/404.html" : (canonicalPath ?? stripLocale(Astro.url.pathname.replace(withBase("/").replace(/\/$/, ""), "") || "/"));
+const englishPath = notFound ? "/en/404/" : routePath === "/" ? "/en/" : `/en${routePath}`;
+const otherPath = switchPath ?? (notFound ? (locale === "en" ? routePath : englishPath) : alternatePath(routePath, locale));
 const nav = [
   ["Home", locale === "en" ? "/en/" : "/"],
   ["Knowledge", locale === "en" ? "/en/learn/" : "/learn/"],
@@ -27,7 +29,7 @@ const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atl
 ---
 
 <!doctype html>
-<html lang={t.lang} dir={t.dir}>
+<html lang={t.lang} dir={t.dir} data-not-found={notFound ? "true" : undefined}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -109,9 +111,9 @@ const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atl
     </style>
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical(locale === "en" ? (routePath === "/" ? "/en/" : `/en${routePath}`) : routePath)} />
+    <link rel="canonical" href={canonical(locale === "en" ? englishPath : routePath)} />
     <link rel="alternate" hreflang="zh-CN" href={canonical(routePath)} />
-    <link rel="alternate" hreflang="en" href={canonical(routePath === "/" ? "/en/" : `/en${routePath}`)} />
+    <link rel="alternate" hreflang="en" href={canonical(englishPath)} />
     <link rel="alternate" hreflang="x-default" href={canonical(routePath)} />
     {title === "404" && <meta name="robots" content="noindex" />}
     <link rel="icon" href={withBase("/favicon.svg")} type="image/svg+xml" />
@@ -127,9 +129,9 @@ const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atl
           </a>
           <div class="nav-links" id="nav-links">
             {nav.map(([label, href]) => (
-              <a href={withBase(href)} aria-current={current === label ? "page" : undefined}>{t.nav[label]}</a>
+              <a href={withBase(href)} data-nav-key={label} aria-current={current === label ? "page" : undefined}>{t.nav[label]}</a>
             ))}
-            <a href={withBase(locale === "en" ? "/en/search/" : "/search/")} aria-current={current === "Search" ? "page" : undefined}>{t.nav.Search}</a>
+            <a href={withBase(locale === "en" ? "/en/search/" : "/search/")} data-nav-key="Search" aria-current={current === "Search" ? "page" : undefined}>{t.nav.Search}</a>
           </div>
           <div class="nav-actions">
             <a class="icon-button lang-switch" href={withBase(otherPath)} data-lang-switch>{t.switchLabel}</a>

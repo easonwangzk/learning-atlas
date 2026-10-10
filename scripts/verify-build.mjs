@@ -34,11 +34,19 @@ for (const [file, html] of pages) {
   const isEnglish = outputPath.startsWith("en/");
   assert.match(html, isEnglish ? /<html lang="en"/ : /<html lang="zh-CN"/, `${file}: language`);
   assert.match(html, /<link rel="canonical" href="https:\/\/easonwangzk\.github\.io\/learning-atlas\//);
+  const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+  assert.equal(canonical, pageUrl.href, `${file}: canonical must match the actual page`);
   assert.match(html, /hreflang="zh-CN"/, `${file}: zh alternate`);
   assert.match(html, /hreflang="en"/, `${file}: en alternate`);
   assert.match(html, /<script>\s*\(\(\) => \{/, `${file}: early inline theme detection`);
-  if (isEnglish && !outputPath.endsWith("404/index.html")) {
-    assert.doesNotMatch(html, /(首页|知识地图|搜索全站|资源索引|项目案例|关于本站|阅读课程|返回轨道|清空筛选|没有匹配)/, `${file}: untranslated Chinese UI`);
+  if (isEnglish) {
+    const counterpart = outputPath === "en/404/index.html" ? join(dist, "404.html") : join(dist, outputPath.slice(3));
+    assert.ok(existsSync(counterpart), `${file}: missing Chinese counterpart`);
+    const visibleText = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "")
+      .replace(/<style\b[^>]*>[\s\S]*?<\/style>/g, "")
+      .replace(/<[^>]+>/g, "")
+      .replaceAll("中文", "");
+    assert.doesNotMatch(visibleText, /\p{Script=Han}/u, `${file}: untranslated Chinese text`);
   }
   const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
   assert.equal(ids.length, new Set(ids).size, `${file}: duplicate element IDs`);
@@ -63,6 +71,6 @@ const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => m
 assert.equal(locations.length, htmlFiles.length - 2, "All pages except localized 404 pages belong in sitemap");
 locations.forEach((location) => targetFile(new URL(location)));
 assert.match(readFileSync(join(dist, "robots.txt"), "utf8"), /learning-atlas\/sitemap\.xml/);
-assert.match(readFileSync(join(dist, "index.html"), "utf8"), /把知识铺成一张可走的地图/);
-assert.match(readFileSync(join(dist, "en", "index.html"), "utf8"), /A practical map for cloud and AI study/);
+assert.match(readFileSync(join(dist, "index.html"), "utf8"), /data-gallery-track/);
+assert.match(readFileSync(join(dist, "en", "index.html"), "utf8"), /data-gallery-track/);
 console.log(`Verified ${htmlFiles.length} pages and ${references} local links/assets.`);

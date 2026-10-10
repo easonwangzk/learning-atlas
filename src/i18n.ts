@@ -39,6 +39,8 @@ export const ui = {
     progressTodo: "标记本课完成",
     progressReset: "确定清空本浏览器的 Learning Atlas 完成进度？",
     themeSaveError: "主题已切换，但浏览器未允许保存偏好。",
+    motionSaveError: "动画偏好未能保存，当前页面设置仍然有效。",
+    motionReadError: "无法读取动画偏好，当前按系统设置显示。",
     all: "全部",
     clearFilters: "清空筛选",
     noProject: "没有匹配项目。请重置筛选或换一个关键词。",
@@ -89,6 +91,8 @@ export const ui = {
     progressTodo: "Mark this lesson complete",
     progressReset: "Clear all Learning Atlas completion progress in this browser?",
     themeSaveError: "Theme changed, but this browser did not allow saving the preference.",
+    motionSaveError: "Motion preference could not be saved. The current page setting still applies.",
+    motionReadError: "The saved motion preference could not be read; the system preference is being used.",
     all: "All",
     clearFilters: "Clear filters",
     noProject: "No matching projects. Reset filters or try another keyword.",
@@ -124,3 +128,18 @@ export function stripLocale(path: string): string {
   return path.replace(/^\/en(?=\/|$)/, "") || "/";
 }
 
+export function certificationLabel(value: string, locale: Locale): string {
+  return value === "扩展学习" || value === "通用" ? ui[locale].cert[value] : value;
+}
+
+export function localizeFragment(hash: string, locale: Locale): string {
+  const headings = [
+    { zh: "概念笔记", en: "concept-notes" },
+    { zh: "取舍与安全实验", en: "tradeoffs-and-safety-exercise" },
+    { zh: "完成检查", en: "completion-checklist" }
+  ];
+  const heading = headings.find((entry) =>
+    hash === `#${entry.en}` || hash === `#${entry.zh}` || hash === `#${encodeURIComponent(entry.zh)}`
+  );
+  return heading ? `#${encodeURIComponent(heading[locale])}` : hash;
+}

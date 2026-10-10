@@ -20,6 +20,11 @@ test("contains 18 English counterparts with stable locale-independent IDs", () =
     assert.match(text, /^locale: en$/m, file);
     assert.doesNotMatch(text, /^slug: /m, `${file} should let the collection id stay unique`);
     assert.match(text, /## Completion checklist/, file);
+    const chinese = readFileSync(join(lessonDir, file), "utf8");
+    for (const field of ["track", "difficulty", "order", "cert"]) {
+      const pattern = new RegExp(`^${field}: (.+)$`, "m");
+      assert.equal(text.match(pattern)?.[1], chinese.match(pattern)?.[1], `${file}: shared ${field}`);
+    }
   }
 });
 
