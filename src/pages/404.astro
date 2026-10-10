@@ -1,17 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { withBase } from "@/lib/paths";
+import NotFoundView from "@/components/NotFoundView.astro";
 const locale = "zh";
 ---
-<BaseLayout title="404" description="页面未找到。" locale={locale}>
-  <section class="section">
-    <div class="container">
-      <p class="eyebrow">404</p>
-      <h1 data-notfound-title>这条路径还没有课程。</h1>
-      <p class="lead" data-notfound-description>请返回知识地图或使用全站搜索。</p>
-      <a class="button primary" data-notfound-link="learn" href={withBase("/learn/")}>返回知识地图</a>
-      <a class="button" data-notfound-link="search" href={withBase("/search/")}>搜索</a>
-      <noscript><p lang="en">For the English not-found page, <a href={withBase("/en/404/")}>continue in English</a>.</p></noscript>
-    </div>
-  </section>
-</BaseLayout>
+<BaseLayout title="404" description="页面未找到。" locale={locale} pageKind="notfound" contextLabel="404"><NotFoundView locale={locale} /></BaseLayout>

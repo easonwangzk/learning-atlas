@@ -1,12 +1,8 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import ProjectArtwork from "@/components/ProjectArtwork.astro";
+import ProjectIndexView from "@/components/ProjectIndexView.astro";
 import { getProjects } from "@/data/projects";
-import { withBase } from "@/lib/paths";
 const locale = "en";
 const projects = getProjects(locale);
-const topics = ["all", ...Array.from(new Set(projects.flatMap((project) => project.topics)))];
 ---
-<BaseLayout title="Projects" description="README-based learning cases from public GitHub projects." current="Projects" locale={locale}>
-  <section class="section project-index-scene"><div class="container" data-filter-scope><p class="eyebrow">Public case studies</p><h1>Project cases</h1><p class="lead">A public project learning index that extracts problems, architecture, and tradeoffs from repository descriptions. The apps are not hosted here.</p><div class="view-toggle" role="group" aria-label="Project view"><button class="filter-button" type="button" data-view="gallery" aria-pressed="true">Featured</button><button class="filter-button" type="button" data-view="index" aria-pressed="false">Index</button></div><input class="input" data-local-search type="search" placeholder="Search project topic, title, or summary" aria-label="Search projects" /><div class="filter-row">{topics.map((topic) => <button class="filter-button" type="button" data-filter={topic} aria-pressed={topic === "all" ? "true" : "false"}>{topic === "all" ? "All" : topic}</button>)}<button class="button" type="button" data-filter-reset>Clear filters</button></div><p class="muted" data-filter-count role="status">{projects.length} / {projects.length} items</p><div class="project-index">{projects.map((project, index) => (<article class="project-list-card" data-filter-item={project.topics.join(" ")} data-reveal><a href={withBase(`/en/projects/${project.slug}/`)} class="project-list-cover" data-tilt><ProjectArtwork slug={project.slug} index={index} locale={locale} title={project.title} /></a><div><p class="eyebrow">{project.topics.join(" / ")}</p><h2><a href={withBase(`/en/projects/${project.slug}/`)}>{project.title}</a></h2><p class="muted">{project.summary}</p><p class="chip">{project.status}</p></div></article>))}</div><p class="callout hidden" data-empty>No matching projects. Reset filters or try another keyword.</p></div></section>
-</BaseLayout>
+<BaseLayout title="Projects" description="README-based learning cases from public GitHub projects." current="Projects" locale={locale} pageKind="projects" contextLabel="Projects"><ProjectIndexView locale={locale} projects={projects} /></BaseLayout>

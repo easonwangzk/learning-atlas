@@ -1,0 +1,23 @@
+---
+import type { Locale } from "@/i18n";
+interface Props { locale: Locale; items: any[] }
+const { locale, items } = Astro.props;
+const isEn = locale === "en";
+const copy = { eyebrow: isEn ? "Static search" : "静态搜索", title: isEn ? "Search the site" : "搜索全站", lead: isEn ? "Search lesson bodies, public project cases, and learning resources. Multiple terms run locally on this page." : "搜索课程正文、公开项目案例与学习资源。多个关键词在当前页面内本地匹配。", label: isEn ? "Search query" : "搜索关键词", placeholder: isEn ? "Try RAG, AZ-700, Blob, MLOps…" : "输入 RAG、AZ-700、Blob、MLOps…", nojs: isEn ? "JavaScript is disabled; all lessons, cases, and resources are still listed below." : "JavaScript 未开启，以下仍可浏览全部课程、案例和资源。", empty: isEn ? "No matches. Try shorter keywords or clear the search." : "没有匹配结果。试试更短的关键词，或清空搜索。" };
+---
+<section class="atlas-page atlas-search">
+  <div class="atlas-container">
+    <header class="atlas-intro search-intro" data-reveal><p class="eyebrow">{copy.eyebrow}</p><h1>{copy.title}</h1><p class="lead">{copy.lead}</p></header>
+    <label class="global-search-line"><span>{copy.label}</span><input type="search" data-global-search placeholder={copy.placeholder} /></label>
+    <p class="muted" data-search-count role="status">{items.length} {isEn ? "results" : "条结果"}</p>
+    <ol class="search-list" data-search-results>
+      {items.map((item, index) => (
+        <li class="search-row" data-search-item={`${item.searchText} ${item.kind} ${item.tags.join(" ")}`}>
+          <span class="chapter-number">{String(index + 1).padStart(2, "0")}</span>
+          <div><p class="eyebrow">{item.kind} · {item.tags.slice(0, 3).join(" / ")}</p><h2><a href={item.href} rel={item.kind === (isEn ? "Resource" : "资源") ? "noreferrer" : undefined}>{item.title}</a></h2><p>{item.summary}</p></div>
+        </li>
+      ))}
+    </ol>
+    <p class="callout hidden" data-search-empty role="status">{copy.empty}</p><noscript><p class="callout">{copy.nojs}</p></noscript>
+  </div>
+</section>

@@ -8,6 +8,16 @@ Learning Atlas content update guide
 6. Do not add secrets, credentials, subscription IDs, customer data, private repository material, or raw benchmark results.
 7. Run npm run ci before committing.
 
+Site architecture:
+All routes use BaseLayout with the dark atlas shell, Atmosphere, and SiteChrome
+markers. Home keeps BilingualStage as its interactive full-viewport chrome; all
+other families use shared view components (KnowledgeView, TrackView, LessonView,
+ProjectIndexView, ProjectView, ResourceView, SearchView, AboutView,
+NotFoundView). When adding a route, pass pageKind/context breadcrumbs and avoid
+legacy light-template classes such as site-header, site-footer, lesson-card, or
+resource-card. scripts/verify-build.mjs enforces 74 generated pages, shell /
+ambient / chrome markers, canonical/hreflang links, and route-family coverage.
+
 Design and motion:
 Project artwork is original SVG in src/components/ProjectArtwork.astro.
 Portfolio layout references Jesper Landberg with a dark full-viewport stage,

@@ -1,5 +1,7 @@
 ---
 import "@/styles/global.css";
+import Atmosphere from "@/components/Atmosphere.astro";
+import SiteChrome from "@/components/SiteChrome.astro";
 import { withBase, canonical } from "@/lib/paths";
 import { alternatePath, stripLocale, ui, type Locale } from "@/i18n";
 
@@ -11,21 +13,17 @@ interface Props {
   switchPath?: string;
   canonicalPath?: string;
   scene?: boolean;
+  pageKind?: string;
+  crumbs?: { label: string; href?: string }[];
+  contextLabel?: string;
 }
 
-const { title, description, current = "", locale = "zh", switchPath, canonicalPath, scene = false } = Astro.props;
+const { title, description, current = "", locale = "zh", switchPath, canonicalPath, scene = false, pageKind = current?.toLowerCase() || "content", crumbs = [], contextLabel } = Astro.props;
 const t = ui[locale];
 const notFound = title === "404";
 const routePath = notFound ? "/404.html" : (canonicalPath ?? stripLocale(Astro.url.pathname.replace(withBase("/").replace(/\/$/, ""), "") || "/"));
 const englishPath = notFound ? "/en/404/" : routePath === "/" ? "/en/" : `/en${routePath}`;
 const otherPath = switchPath ?? (notFound ? (locale === "en" ? routePath : englishPath) : alternatePath(routePath, locale));
-const nav = [
-  ["Home", locale === "en" ? "/en/" : "/"],
-  ["Knowledge", locale === "en" ? "/en/learn/" : "/learn/"],
-  ["Projects", locale === "en" ? "/en/projects/" : "/projects/"],
-  ["Resources", locale === "en" ? "/en/resources/" : "/resources/"],
-  ["About", locale === "en" ? "/en/about/" : "/about/"]
-] as const;
 const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atlas`;
 ---
 
@@ -119,42 +117,14 @@ const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atl
     {title === "404" && <meta name="robots" content="noindex" />}
     <link rel="icon" href={withBase("/favicon.svg")} type="image/svg+xml" />
   </head>
-  <body class={scene ? "scene-body" : undefined}>
-    <div class:list={["site-shell", scene && "scene-shell"]}>
+  <body class:list={["scene-body", scene && "home-stage-body"]}>
+    <Atmosphere locale={locale} pageKind={pageKind} active={!scene} />
+    <div class:list={["site-shell", scene && "scene-shell"]} data-shell="atlas" data-page-kind={pageKind}>
       <a class="skip-link" href="#content">{t.skip}</a>
-      {!scene && <header class="site-header">
-        <nav class="nav" aria-label={t.navLabel}>
-          <a class="brand" href={withBase(locale === "en" ? "/en/" : "/")}>
-            <span class="brand-mark" aria-hidden="true">∴</span>
-            <span>Learning Atlas</span>
-          </a>
-          <div class="nav-links" id="nav-links">
-            {nav.map(([label, href]) => (
-              <a href={withBase(href)} data-nav-key={label} aria-current={current === label ? "page" : undefined}>{t.nav[label]}</a>
-            ))}
-            <a href={withBase(locale === "en" ? "/en/search/" : "/search/")} data-nav-key="Search" aria-current={current === "Search" ? "page" : undefined}>{t.nav.Search}</a>
-          </div>
-          <div class="nav-actions">
-            <a class="icon-button lang-switch" href={withBase(otherPath)} data-lang-switch>{t.switchLabel}</a>
-            <button class="icon-button" type="button" data-motion-toggle aria-pressed="false" data-label-pause={t.motionPause} data-label-play={t.motionPlay} data-label-reduced={t.motionReduced}>{t.motionPause}</button>
-            <button class="icon-button" type="button" data-theme-toggle aria-label={t.theme}>◐</button>
-            <button class="icon-button menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="nav-links">{t.menu}</button>
-          </div>
-        </nav>
-      </header>}
+      {!scene ? <SiteChrome locale={locale} current={current} otherPath={otherPath} pageKind={pageKind} crumbs={crumbs} contextLabel={contextLabel} /> : <span class="visually-hidden" data-site-chrome data-page-kind={pageKind}>Stage chrome</span>}
       <main id="content">
         <slot />
       </main>
-      {!scene && <footer class="site-footer">
-        <div class="container footer-grid">
-          <div>
-            <strong>Learning Atlas</strong>
-            <p class="muted">{t.footerOne}</p>
-            <p class="muted">{t.footerTwo}</p>
-          </div>
-          <a class="button" href={withBase(locale === "en" ? "/en/about/" : "/about/")}>{t.aboutSource}</a>
-        </div>
-      </footer>}
     </div>
     <script>
       import "@/scripts/site.ts";

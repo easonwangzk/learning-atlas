@@ -1,18 +1,22 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { withBase } from "@/lib/paths";
+import LessonView from "@/components/LessonView.astro";
 import { getTrack, trackText } from "@/data/tracks";
 import { getCollection, render } from "astro:content";
-import { lessonLocale, lessonSlug, lessonProgressId } from "@/lib/lessons";
-import { certificationLabel } from "@/i18n";
-export async function getStaticPaths() { const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === "en"); return lessons.map((lesson) => ({ params: { track: lesson.data.track, slug: lessonSlug(lesson) }, props: { lesson } })); }
+import { lessonLocale, lessonSlug, lessonProgressId, lessonRoute } from "@/lib/lessons";
+export async function getStaticPaths() {
+  const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === "en");
+  return lessons.map((lesson) => ({ params: { track: lesson.data.track, slug: lessonSlug(lesson) }, props: { lesson } }));
+}
 const { lesson } = Astro.props;
 const { Content } = await render(lesson);
 const locale = "en";
 const track = getTrack(lesson.data.track);
 const trackLabel = track ? trackText(track, locale).title : lesson.data.track;
 const lessonId = lessonProgressId(lesson);
+const peers = (await getCollection("lessons")).filter((item) => item.data.track === lesson.data.track && lessonLocale(item) === locale).sort((a, b) => a.data.order - b.data.order);
+const idx = peers.findIndex((item) => lessonSlug(item) === lessonSlug(lesson));
+const previous = idx > 0 ? { title: peers[idx - 1].data.title, href: lessonRoute(peers[idx - 1], locale) } : undefined;
+const next = idx < peers.length - 1 ? { title: peers[idx + 1].data.title, href: lessonRoute(peers[idx + 1], locale) } : undefined;
 ---
-<BaseLayout title={lesson.data.title} description={lesson.data.summary} current="Knowledge" locale={locale}>
-  <section class="section lesson-section"><div class="container split lesson-layout"><article class="prose"><p class="eyebrow">{trackLabel} · {certificationLabel(lesson.data.cert, locale)} · {lesson.data.reviewedAt}</p><h1>{lesson.data.title}</h1><p class="lead">{lesson.data.summary}</p><div class="tag-row">{lesson.data.tags.map((tag: string) => <span class="chip">{tag}</span>)}</div><div class="callout"><strong>Exam boundary note:</strong> This is an introductory study note and does not claim full exam-objective coverage. AZ-104/AZ-305 objectives follow the official 2026-04-17 study guides; AZ-700 follows the 2026-07-27 study guide.</div><Content /></article><aside class="sidebox lesson-tools"><button class="button complete-toggle" type="button" data-complete-id={lessonId} aria-pressed="false">Mark this lesson complete</button><p class="progress-note" data-progress-warning role="status"></p><noscript><p class="progress-note">Enable JavaScript to save learning progress in this browser.</p></noscript><h3>Lesson outline</h3><ol class="mini-outline"><li><a href="#concept-notes">Concept notes</a></li><li><a href="#tradeoffs-and-safety-exercise">Tradeoffs and safety exercise</a></li><li><a href="#completion-checklist">Completion checklist</a></li></ol><h3>Official sources</h3><ul>{lesson.data.sourceUrls.map((url: string) => <li><a href={url} rel="noreferrer">{url}</a></li>)}</ul><a class="button" href={withBase(`/en/learn/${lesson.data.track}/`)}>Back to track</a></aside></div></section>
-</BaseLayout>
+<BaseLayout title={lesson.data.title} description={lesson.data.summary} current="Knowledge" locale={locale} pageKind="lesson" contextLabel={trackLabel} crumbs={[{ label: "Knowledge", href: "/en/learn/" }, { label: trackLabel, href: `/en/learn/${lesson.data.track}/` }, { label: lesson.data.title }]}><LessonView locale={locale} lesson={lesson} lessonId={lessonId} trackLabel={trackLabel} previous={previous} next={next}><Content /></LessonView></BaseLayout>

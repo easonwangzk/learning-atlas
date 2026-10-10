@@ -1,33 +1,9 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { tracks, trackText } from "@/data/tracks";
-import { withBase } from "@/lib/paths";
+import KnowledgeView from "@/components/KnowledgeView.astro";
 import { getCollection } from "astro:content";
-import { lessonLocale, lessonRoute } from "@/lib/lessons";
+import { lessonLocale } from "@/lib/lessons";
 const locale = "zh";
 const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === locale);
 ---
-<BaseLayout title="知识地图" description="六条知识轨道和 18 篇原创学习课。" current="Knowledge" locale={locale}>
-  <section class="section">
-    <div class="container">
-      <p class="eyebrow">知识索引</p>
-      <h1>知识地图</h1>
-      <p class="lead">每条轨道包含 3 篇原创课：概念、取舍、安全实验、完成检查和官方来源。</p>
-      <div class="grid">
-        {tracks.map((track) => {
-          const text = trackText(track, locale);
-          const trackLessons = lessons.filter((lesson) => lesson.data.track === track.slug).sort((a, b) => a.data.order - b.data.order);
-          return (
-            <article class="card track-card" data-reveal>
-              <p class="eyebrow">{text.kicker}</p>
-              <h2>{text.title}</h2>
-              <p class="muted">{text.summary}</p>
-              <div class="diagram">{trackLessons.map((lesson) => <a class="flow-step" href={withBase(lessonRoute(lesson, locale))}>{lesson.data.title}</a>)}</div>
-              <a class="button" href={withBase(`/learn/${track.slug}/`)}>进入轨道</a>
-            </article>
-          );
-        })}
-      </div>
-    </div>
-  </section>
-</BaseLayout>
+<BaseLayout title="知识地图" description="六条知识轨道和 18 篇原创学习课。" current="Knowledge" locale={locale} pageKind="knowledge" contextLabel="Knowledge"><KnowledgeView locale={locale} lessons={lessons} /></BaseLayout>

@@ -1,15 +1,8 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import ResourceView from "@/components/ResourceView.astro";
 import { getResources } from "@/data/resources";
 const locale = "en";
 const resources = getResources(locale);
-const groups = [
-  { key: "topic", label: "Topic", values: Array.from(new Set(resources.map((r) => r.topic))) },
-  { key: "certification", label: "Certification", values: Array.from(new Set(resources.map((r) => r.certification))) },
-  { key: "provider", label: "Provider", values: Array.from(new Set(resources.map((r) => r.provider))) },
-  { key: "type", label: "Type", values: Array.from(new Set(resources.map((r) => r.type))) }
-];
 ---
-<BaseLayout title="Resources" description="A stable index for Microsoft Learn, Azure docs, and ML/AI references." current="Resources" locale={locale}>
-  <section class="section"><div class="container" data-filter-scope><p class="eyebrow">Curated links</p><h1>Resource index</h1><p class="lead">{resources.length} explicit URLs with original summaries, organized on 2026-10-10.</p><input class="input" data-local-search type="search" placeholder="Search keyword, product, or exam code" aria-label="Search resources" /><div class="filter-controls">{groups.map((group) => (<label>{group.label}<select class="input" data-filter-select={group.key}><option value="all">All</option>{group.values.map((value) => <option value={value}>{value}</option>)}</select></label>))}<button class="button" type="button" data-filter-reset>Clear filters</button></div><p class="muted" data-filter-count role="status">{resources.length} / {resources.length} items</p><div class="resource-table">{resources.map((resource) => (<article class="resource-row" data-filter-item data-topic={resource.topic} data-certification={resource.certification} data-provider={resource.provider} data-type={resource.type} data-reveal><div><p class="eyebrow">{resource.provider} · {resource.type}</p><h2>{resource.title}</h2></div><p class="muted">{resource.description}</p><div class="tag-row"><span class="chip">{resource.topic}</span><span class="chip">{resource.certification}</span><span class="chip">Organized on {resource.reviewedAt}</span></div><a class="button" href={resource.url} rel="noreferrer">Open source</a></article>))}</div><p class="callout hidden" data-empty role="status">No matching resources. Clear filters or try another keyword.</p></div></section>
-</BaseLayout>
+<BaseLayout title="Resources" description="A stable index for Microsoft Learn, Azure docs, and ML/AI references." current="Resources" locale={locale} pageKind="resources" contextLabel="Resources"><ResourceView locale={locale} resources={resources} /></BaseLayout>

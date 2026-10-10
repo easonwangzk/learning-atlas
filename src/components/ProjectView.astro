@@ -1,0 +1,36 @@
+---
+import ProjectArtwork from "@/components/ProjectArtwork.astro";
+import { withBase } from "@/lib/paths";
+import { type Locale } from "@/i18n";
+interface Props { locale: Locale; project: any; previous: any; next: any }
+const { locale, project, previous, next } = Astro.props;
+const isEn = locale === "en";
+const copy = { repo: isEn ? "Open public repository" : "查看公开仓库", flow: project.slug === "recommendation-algorithm" ? (isEn ? "Suggested reading order (not a repository architecture claim)" : "建议阅读顺序（非仓库架构声明）") : (isEn ? "Architecture reading map (based on repository description)" : "架构阅读图（基于仓库描述）"), learn: isEn ? "What to study" : "值得学习的设计", limits: isEn ? "Boundaries" : "适用边界", related: isEn ? "Related learning" : "相关学习", note: isEn ? "Cases help read technical design; runtime, data, and model setup remain in the original repositories." : "案例用于理解技术设计；应用运行、数据和模型配置请以原仓库说明为准。", all: isEn ? "All projects" : "全部项目" };
+---
+<article class="atlas-page atlas-project-detail">
+  <section class="case-hero-dark">
+    <ProjectArtwork class="case-cover" slug={project.slug} index={project.index} locale={locale} title={project.title} tilt />
+    <div class="case-intro-dark" data-reveal>
+      <p class="eyebrow">{project.topics.join(" / ")}</p><h1>{project.title}</h1><p class="lead">{project.summary}</p><p class="chapter-meta">{project.status}</p>
+    </div>
+  </section>
+  <section class="atlas-container reading-layout case-reading">
+    <article class="prose reading-prose" data-reveal>
+      <p class="eyebrow">README</p>
+      <h2>{copy.flow}</h2>
+      <ol class="flow-list">{project.flow.map((step: string, index: number) => <li><span>{String(index + 1).padStart(2, "0")}</span>{step}</li>)}</ol>
+      <h2>{copy.learn}</h2><ul>{project.learn.map((item: string) => <li>{item}</li>)}</ul>
+      <h2>{copy.limits}</h2><p>{project.limits}</p>
+    </article>
+    <aside class="reading-rail" data-reveal>
+      <a class="text-button" href={project.repo} rel="noreferrer">{copy.repo}</a>
+      <h2>{copy.related}</h2><ul class="source-list">{project.related.map((href: string) => <li><a href={withBase(href)}>{href}</a></li>)}</ul>
+      <p>{copy.note}</p>
+      <nav class="rail-links" aria-label={isEn ? "Project navigation" : "项目导航"}>
+        <a href={withBase(isEn ? `/en/projects/${previous.slug}/` : `/projects/${previous.slug}/`)}>← {previous.title}</a>
+        <a href={withBase(isEn ? `/en/projects/${next.slug}/` : `/projects/${next.slug}/`)}>{next.title} →</a>
+        <a href={withBase(isEn ? "/en/projects/" : "/projects/")}>{copy.all}</a>
+      </nav>
+    </aside>
+  </section>
+</article>

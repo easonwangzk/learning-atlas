@@ -1,8 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { withBase } from "@/lib/paths";
+import NotFoundView from "@/components/NotFoundView.astro";
 const locale = "en";
 ---
-<BaseLayout title="404" description="Page not found." locale={locale}>
-  <section class="section"><div class="container"><p class="eyebrow">404</p><h1>This path does not have a lesson yet.</h1><p class="lead">Return to the knowledge map or use site search.</p><a class="button primary" href={withBase("/en/learn/")}>Back to knowledge</a><a class="button" href={withBase("/en/search/")}>Search</a></div></section>
-</BaseLayout>
+<BaseLayout title="404" description="Page not found." locale={locale} pageKind="notfound" contextLabel="404"><NotFoundView locale={locale} /></BaseLayout>

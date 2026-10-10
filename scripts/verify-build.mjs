@@ -14,8 +14,31 @@ function walk(dir) {
 }
 
 const htmlFiles = walk(dist).filter((file) => file.endsWith(".html"));
-assert.ok(htmlFiles.length >= 70, `expected bilingual generated pages, got ${htmlFiles.length}`);
+assert.equal(htmlFiles.length, 74, `expected the full bilingual static site, got ${htmlFiles.length}`);
 const pages = new Map(htmlFiles.map((file) => [file, readFileSync(file, "utf8")]));
+const outputPaths = htmlFiles.map((file) => relative(dist, file).split(sep).join("/"));
+const familyCounts = {
+  home: outputPaths.filter((path) => /^(?:en\/)?index\.html$/.test(path)).length,
+  knowledge: outputPaths.filter((path) => /^(?:en\/)?learn\/index\.html$/.test(path)).length,
+  tracks: outputPaths.filter((path) => /^(?:en\/)?learn\/[^/]+\/index\.html$/.test(path)).length,
+  lessons: outputPaths.filter((path) => /^(?:en\/)?learn\/[^/]+\/[^/]+\/index\.html$/.test(path)).length,
+  projects: outputPaths.filter((path) => /^(?:en\/)?projects\/(?:index\.html|[^/]+\/index\.html)$/.test(path)).length,
+  resources: outputPaths.filter((path) => /^(?:en\/)?resources\/index\.html$/.test(path)).length,
+  search: outputPaths.filter((path) => /^(?:en\/)?search\/index\.html$/.test(path)).length,
+  about: outputPaths.filter((path) => /^(?:en\/)?about\/index\.html$/.test(path)).length,
+  notfound: outputPaths.filter((path) => /^(?:404\.html|en\/404\/index\.html)$/.test(path)).length
+};
+assert.deepEqual(familyCounts, {
+  home: 2,
+  knowledge: 2,
+  tracks: 12,
+  lessons: 36,
+  projects: 14,
+  resources: 2,
+  search: 2,
+  about: 2,
+  notfound: 2
+}, "generated route family coverage");
 
 function targetFile(url) {
   assert.ok(url.pathname.startsWith(base), `Base path missing: ${url.href}`);
@@ -33,6 +56,10 @@ for (const [file, html] of pages) {
   const pageUrl = new URL(`${base}${route}`, site);
   const isEnglish = outputPath.startsWith("en/");
   assert.match(html, isEnglish ? /<html lang="en"/ : /<html lang="zh-CN"/, `${file}: language`);
+  assert.match(html, /data-shell="atlas"/, `${file}: atlas shell marker`);
+  assert.match(html, /data-ambient-background/, `${file}: ambient background marker`);
+  assert.match(html, /data-site-chrome/, `${file}: shared chrome marker`);
+  assert.doesNotMatch(html, /\bsite-header\b|\bsite-footer\b|\blesson-card\b|\bresource-card\b|\bproject-list-card\b/, `${file}: legacy light-template classes`);
   assert.match(html, /<link rel="canonical" href="https:\/\/easonwangzk\.github\.io\/learning-atlas\//);
   const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
   assert.equal(canonical, pageUrl.href, `${file}: canonical must match the actual page`);

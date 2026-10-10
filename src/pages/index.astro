@@ -14,6 +14,6 @@ const projects = getProjects(locale);
 const resources = getResources(locale);
 ---
 
-<BaseLayout title="Learning Atlas" description="计算、存储、网络、数据库、AI 与机器学习的中文静态学习地图。" current="Home" locale={locale} scene>
+<BaseLayout title="Learning Atlas" description="计算、存储、网络、数据库、AI 与机器学习的中文静态学习地图。" current="Home" locale={locale} pageKind="home" scene>
   <BilingualStage locale={locale} projects={projects} tracks={tracks} lessonIds={lessonIds} resourceCount={resources.length} />
 </BaseLayout>

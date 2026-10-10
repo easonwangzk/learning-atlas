@@ -1,0 +1,16 @@
+---
+import { withBase } from "@/lib/paths";
+import { localizePath, type Locale } from "@/i18n";
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const isEn = locale === "en";
+---
+<section class="atlas-page atlas-notfound">
+  <div class="atlas-container notfound-wrap" data-reveal>
+    <p class="notfound-code">404</p>
+    <h1 data-notfound-title>{isEn ? "This path does not have a lesson yet." : "这条路径还没有课程。"}</h1>
+    <p class="lead" data-notfound-description>{isEn ? "Return to the knowledge map or use site search." : "请返回知识地图或使用全站搜索。"}</p>
+    <p><a class="text-button" data-notfound-link="learn" href={withBase(localizePath("/learn/", locale))}>{isEn ? "Back to knowledge" : "返回知识地图"}</a> <a class="text-link" data-notfound-link="search" href={withBase(localizePath("/search/", locale))}>{isEn ? "Search" : "搜索"}</a></p>
+    {!isEn && <noscript><p lang="en">For the English not-found page, <a href={withBase("/en/404/")}>continue in English</a>.</p></noscript>}
+  </div>
+</section>

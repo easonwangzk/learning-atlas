@@ -1,44 +1,8 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import ProjectArtwork from "@/components/ProjectArtwork.astro";
+import ProjectIndexView from "@/components/ProjectIndexView.astro";
 import { getProjects } from "@/data/projects";
-import { withBase } from "@/lib/paths";
 const locale = "zh";
 const projects = getProjects(locale);
-const topics = ["all", ...Array.from(new Set(projects.flatMap((project) => project.topics)))];
 ---
-<BaseLayout title="项目案例" description="公开 GitHub 项目的 README-based 学习案例。" current="Projects" locale={locale}>
-  <section class="section project-index-scene">
-    <div class="container" data-filter-scope>
-      <p class="eyebrow">公开案例</p>
-      <h1>项目案例</h1>
-      <p class="lead">公开项目学习索引。从仓库说明中提炼问题、架构与设计取舍；本站提供案例阅读，不托管运行这些应用。</p>
-      <div class="view-toggle" role="group" aria-label="项目视图">
-        <button class="filter-button" type="button" data-view="gallery" aria-pressed="true">精选</button>
-        <button class="filter-button" type="button" data-view="index" aria-pressed="false">索引</button>
-      </div>
-      <input class="input" data-local-search type="search" placeholder="搜索项目主题、标题或摘要" aria-label="搜索项目" />
-      <div class="filter-row">
-        {topics.map((topic) => <button class="filter-button" type="button" data-filter={topic} aria-pressed={topic === "all" ? "true" : "false"}>{topic === "all" ? "全部" : topic}</button>)}
-        <button class="button" type="button" data-filter-reset>清空筛选</button>
-      </div>
-      <p class="muted" data-filter-count role="status">{projects.length} / {projects.length} 项</p>
-      <div class="project-index">
-        {projects.map((project, index) => (
-          <article class="project-list-card" data-filter-item={project.topics.join(" ")} data-reveal>
-            <a href={withBase(`/projects/${project.slug}/`)} class="project-list-cover" data-tilt>
-              <ProjectArtwork slug={project.slug} index={index} locale={locale} title={project.title} />
-            </a>
-            <div>
-              <p class="eyebrow">{project.topics.join(" / ")}</p>
-              <h2><a href={withBase(`/projects/${project.slug}/`)}>{project.title}</a></h2>
-              <p class="muted">{project.summary}</p>
-              <p class="chip">{project.status}</p>
-            </div>
-          </article>
-        ))}
-      </div>
-      <p class="callout hidden" data-empty>没有匹配项目。请重置筛选或换一个关键词。</p>
-    </div>
-  </section>
-</BaseLayout>
+<BaseLayout title="项目案例" description="公开 GitHub 项目的 README-based 学习案例。" current="Projects" locale={locale} pageKind="projects" contextLabel="Projects"><ProjectIndexView locale={locale} projects={projects} /></BaseLayout>

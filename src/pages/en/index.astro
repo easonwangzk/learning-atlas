@@ -14,6 +14,6 @@ const projects = getProjects(locale);
 const resources = getResources(locale);
 ---
 
-<BaseLayout title="Learning Atlas" description="An English static learning map for compute, storage, networking, databases, AI, and machine learning." current="Home" locale={locale} scene>
+<BaseLayout title="Learning Atlas" description="An English static learning map for compute, storage, networking, databases, AI, and machine learning." current="Home" locale={locale} pageKind="home" scene>
   <BilingualStage locale={locale} projects={projects} tracks={tracks} lessonIds={lessonIds} resourceCount={resources.length} />
 </BaseLayout>

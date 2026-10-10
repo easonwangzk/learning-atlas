@@ -1,0 +1,10 @@
+---
+import type { Locale } from "@/i18n";
+interface Props { locale: Locale; pageKind?: string; active?: boolean }
+const { locale, pageKind = "content", active = true } = Astro.props;
+---
+<div class:list={["atlas-atmosphere", !active && "atlas-atmosphere--marker"]} data-ambient-background data-ambient-kind={pageKind} data-ambient-locale={locale} aria-hidden="true">
+  {active && <canvas class="atlas-atmosphere__canvas" data-ambient-canvas></canvas>}
+  <div class="atlas-atmosphere__horizon"></div>
+  <div class="atlas-atmosphere__floor"></div>
+</div>

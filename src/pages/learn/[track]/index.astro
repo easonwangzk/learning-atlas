@@ -1,50 +1,15 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { withBase } from "@/lib/paths";
+import TrackView from "@/components/TrackView.astro";
 import { getTrack, tracks, trackText } from "@/data/tracks";
 import { getCollection } from "astro:content";
-import { lessonLocale, lessonRoute, lessonProgressId } from "@/lib/lessons";
-
-export async function getStaticPaths() {
-  return tracks.map((track) => ({ params: { track: track.slug } }));
-}
-
+import { lessonLocale } from "@/lib/lessons";
+export async function getStaticPaths() { return tracks.map((track) => ({ params: { track: track.slug } })); }
 const { track: trackSlug } = Astro.params;
 const track = getTrack(trackSlug || "");
 if (!track) throw new Error(`Unknown learning track: ${trackSlug}`);
 const locale = "zh";
 const text = trackText(track, locale);
-const lessons = (await getCollection("lessons"))
-  .filter((lesson) => lesson.data.track === track.slug && lessonLocale(lesson) === locale)
-  .sort((a, b) => a.data.order - b.data.order);
-const ids = lessons.map(lessonProgressId);
+const lessons = (await getCollection("lessons")).filter((lesson) => lesson.data.track === track.slug && lessonLocale(lesson) === locale).sort((a, b) => a.data.order - b.data.order);
 ---
-<BaseLayout title={text.title} description={text.summary} current="Knowledge" locale={locale}>
-  <section class="section">
-    <div class="container split">
-      <div>
-        <p class="eyebrow">{text.kicker}</p>
-        <h1>{text.title}</h1>
-        <p class="lead">{text.summary}</p>
-        <div class="grid">
-          {lessons.map((lesson) => (
-            <article class="lesson-card" data-reveal>
-              <p class="eyebrow">{lesson.data.cert} · {lesson.data.difficulty}</p>
-              <h2>{lesson.data.title}</h2>
-              <p class="muted">{lesson.data.summary}</p>
-              <div class="tag-row">{lesson.data.tags.map((tag) => <span class="chip">{tag}</span>)}</div>
-              <p><a href={withBase(lessonRoute(lesson, locale))}>阅读课程</a></p>
-            </article>
-          ))}
-        </div>
-      </div>
-      <aside class="sidebox">
-        <h3>轨道进度</h3>
-        <p>本轨道完成 <strong data-progress-count={ids.join(",")}>0/{ids.length}</strong></p>
-        <p class="progress-note" data-progress-warning role="status"></p>
-        <button class="button" type="button" data-progress-reset>重置本浏览器全部进度</button>
-        <p class="muted">进度仅保存在当前浏览器，不上传，也不跨设备同步。</p>
-      </aside>
-    </div>
-  </section>
-</BaseLayout>
+<BaseLayout title={text.title} description={text.summary} current="Knowledge" locale={locale} pageKind="track" contextLabel={text.title} crumbs={[{ label: "知识", href: "/learn/" }, { label: text.title }]}><TrackView locale={locale} track={track} text={text} lessons={lessons} allTracks={tracks} /></BaseLayout>

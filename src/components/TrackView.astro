@@ -1,0 +1,49 @@
+---
+import { withBase } from "@/lib/paths";
+import { lessonRoute, lessonProgressId } from "@/lib/lessons";
+import { certificationLabel, localizePath, type Locale } from "@/i18n";
+interface Props { locale: Locale; track: any; text: any; lessons: any[]; allTracks: readonly any[] }
+const { locale, track, text, lessons, allTracks } = Astro.props;
+const isEn = locale === "en";
+const ids = lessons.map(lessonProgressId);
+const index = allTracks.findIndex((item) => item.slug === track.slug);
+const previous = allTracks[(index + allTracks.length - 1) % allTracks.length];
+const next = allTracks[(index + 1) % allTracks.length];
+const copy = { back: isEn ? "Back to knowledge" : "返回知识地图", read: isEn ? "Read lesson" : "阅读课程", sequence: isEn ? "Track sequence" : "轨道顺序", progress: isEn ? "Track progress" : "轨道进度", reset: isEn ? "Reset browser progress" : "重置本浏览器全部进度", privacy: isEn ? "Progress stays in this browser only." : "进度仅保存在当前浏览器。" };
+---
+<section class="atlas-page atlas-track">
+  <div class="atlas-container two-column">
+    <header class="atlas-intro track-intro" data-reveal>
+      <a class="text-link" href={withBase(localizePath("/learn/", locale))}>← {copy.back}</a>
+      <p class="eyebrow">{text.kicker}</p>
+      <h1>{text.title}</h1>
+      <p class="lead">{text.summary}</p>
+      <p class="chapter-meta">{track.certs.map((cert: string) => certificationLabel(cert, locale)).join(" / ")}</p>
+    </header>
+    <aside class="reading-rail" data-reveal>
+      <h2>{copy.progress}</h2>
+      <p><strong data-progress-count={ids.join(",")}>0/{ids.length}</strong></p>
+      <p class="progress-note" data-progress-warning role="status"></p>
+      <button class="text-button" type="button" data-progress-reset>{copy.reset}</button>
+      <p>{copy.privacy}</p>
+      <nav class="rail-links" aria-label={copy.sequence}>
+        <a href={withBase(localizePath(`/learn/${previous.slug}/`, locale))}>← {previous.title[locale]}</a>
+        <a href={withBase(localizePath(`/learn/${next.slug}/`, locale))}>{next.title[locale]} →</a>
+      </nav>
+    </aside>
+    <ol class="lesson-sequence">
+      {lessons.map((lesson, idx) => (
+        <li class="lesson-row" data-reveal>
+          <span class="chapter-number">{String(idx + 1).padStart(2, "0")}</span>
+          <div>
+            <p class="eyebrow">{certificationLabel(lesson.data.cert, locale)} · {isEn ? (lesson.data.difficulty === "入门" ? "Beginner" : "Intermediate") : lesson.data.difficulty}</p>
+            <h2><a href={withBase(lessonRoute(lesson, locale))}>{lesson.data.title}</a></h2>
+            <p>{lesson.data.summary}</p>
+            <div class="tag-row">{lesson.data.tags.map((tag: string) => <span class="chip">{tag}</span>)}</div>
+          </div>
+          <a class="text-link" href={withBase(lessonRoute(lesson, locale))}>{copy.read}</a>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

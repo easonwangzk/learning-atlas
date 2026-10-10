@@ -1,0 +1,30 @@
+---
+import { withBase } from "@/lib/paths";
+import { localizePath, type Locale } from "@/i18n";
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const isEn = locale === "en";
+const sections = isEn ? [
+  ["Privacy and progress", "Lesson completion status is stored only in this browser's localStorage. There is no server, account, cross-device sync, or external API call for learning behavior. If local storage is blocked, the page says so and remains readable."],
+  ["Source policy", "Lessons are original study notes with official links for further reading. Project pages are based on public GitHub READMEs and are not run or independently re-tested here. Third-party sources keep their own licenses; this site's MIT license covers original site code only."],
+  ["Scope", "Study notes are not full certification courses. Identity, governance, monitoring, and continuity appear across infrastructure topics; AI and ML are extended learning and do not claim complete coverage of the three AZ exams."],
+  ["Hugging Face status", "A personal Hugging Face profile or project has not been confirmed, so it is not listed. The resources page only links to Hugging Face Learn as a general learning entry."],
+  ["Update guide", "Add lessons under src/content/lessons with slug, track, tags, sourceUrls, reviewedAt, locale, and order. Pages, sitemap, and search are generated from content. New projects need public sources and clear boundaries between design intent, repository self-description, and verified facts."]
+] : [
+  ["隐私与进度", "课程完成状态只保存在当前浏览器 localStorage。没有服务器、没有账户、没有跨设备同步，也不会向外部 API 发送学习行为。若浏览器阻止本地存储，页面会明确提示，内容仍可阅读。"],
+  ["来源政策", "知识课程是原创学习笔记，官方链接用于继续阅读。项目页基于公开 GitHub README，未在本站运行或独立复验。涉及引用、数据或模型时，继续遵循原作者与数据来源的许可证；本站 MIT 许可只覆盖原创站点代码，不授予第三方素材的使用权。"],
+  ["范围", "学习笔记不等同完整认证课程。身份、治理、监控和业务连续性贯穿基础设施主题；AI 与 ML 作为扩展学习，不宣称属于三项 AZ 考试的完整覆盖范围。"],
+  ["Hugging Face 状态", "个人 Hugging Face 主页与项目尚未确认，暂不收录。资源页仅提供 Hugging Face Learn 作为通用学习入口，后续确认公开项目链接后再补充。"],
+  ["更新指南", "新增课程请放入 src/content/lessons 内容集合，填写 slug、track、tags、sourceUrls、reviewedAt、locale 和 order。页面、站点地图与搜索索引将从内容自动生成。新增项目必须有公开来源，并明确说明哪些是设计意图、仓库自述或已验证事实。"]
+];
+---
+<section class="atlas-page atlas-about">
+  <div class="atlas-container reading-layout">
+    <article class="prose reading-prose profile-text" data-reveal>
+      <p class="eyebrow">{isEn ? "Policy" : "政策"}</p><h1>{isEn ? "About this site" : "关于本站"}</h1><p class="lead">{isEn ? "Learning Atlas is a backend-free static study map built with Astro and TypeScript for future free GitHub Pages hosting." : "Learning Atlas 是一个无后端静态学习地图，用 Astro + TypeScript 构建，面向 GitHub Pages 免费托管。"}</p>
+      {sections.map(([title, body], index) => <section class="profile-section"><span class="chapter-number">{String(index + 1).padStart(2, "0")}</span><h2>{title}</h2><p>{body}</p></section>)}
+      <section class="profile-section"><span class="chapter-number">06</span><h2>{isEn ? "Design references" : "设计参考"}</h2><p>{isEn ? "The dark full-screen project stage, corner chrome, inertial case browsing, and perspective floor take inspiration from " : "深色全屏作品展台、角落导航、惯性案例浏览与透视地面参考了 "}<a href="https://www.awwwards.com/sites/jesper-landberg-4" rel="noreferrer">Jesper Landberg</a>{isEn ? "; the smooth cursor follows spring-motion principles from " : "；平滑光标参考了 "}<a href="https://magicui.design/docs/components/smooth-cursor" rel="noreferrer">Magic UI</a>{isEn ? ". Artwork and interactions here are independently implemented; no reference images, copy, or source code are reused." : " 的弹簧运动思路。本站使用原创图形与独立实现，不复用参考站点的作品图片、文案或源代码。"}</p><p>{isEn ? "Touch devices retain native scrolling. Decorative motion never replaces keyboard interaction or text-input cursors, and respects reduced-motion preferences." : "移动端保留原生触摸滚动；键盘操作、输入控件与减弱动画设置不会被装饰性光标接管。"}</p></section>
+    </article>
+    <aside class="reading-rail" data-reveal><h2>{isEn ? "Publication scope" : "发布范围"}</h2><ul><li>{isEn ? "Static HTML/CSS/JS only." : "仅静态 HTML/CSS/JS。"}</li><li>{isEn ? "No external fonts, CDN, runtime model calls, or backend." : "无外部字体、CDN、运行时模型调用或后端。"}</li><li>{isEn ? "MIT license covers original site code only." : "MIT 许可只覆盖原创站点代码。"}</li></ul><a class="text-link" href={withBase(localizePath("/learn/", locale))}>{isEn ? "Browse knowledge" : "浏览知识地图"}</a></aside>
+  </div>
+</section>

@@ -25,8 +25,8 @@ function setupNotFoundLocale() {
       link.href = withBase(localizePath(path, locale));
     }
   }
-  document.querySelector("nav.nav")?.setAttribute("aria-label", t.navLabel);
-  const brand = document.querySelector<HTMLAnchorElement>(".brand");
+  document.querySelector("[data-site-chrome]")?.setAttribute("aria-label", t.navLabel);
+  const brand = document.querySelector<HTMLAnchorElement>(".chrome-brand, .stage-wordmark");
   if (brand) brand.href = withBase(localizePath("/", locale));
   const language = document.querySelector<HTMLAnchorElement>("[data-lang-switch]");
   if (language) {
@@ -43,13 +43,6 @@ function setupNotFoundLocale() {
   }
   document.querySelector("[data-theme-toggle]")?.setAttribute("aria-label", t.theme);
   replace("[data-menu-toggle]", t.menu);
-  replace(".site-footer p:nth-of-type(1)", t.footerOne);
-  replace(".site-footer p:nth-of-type(2)", t.footerTwo);
-  const about = document.querySelector<HTMLAnchorElement>(".site-footer a");
-  if (about) {
-    about.textContent = t.aboutSource;
-    about.href = withBase(localizePath("/about/", locale));
-  }
   if (locale === "en") {
     replace("[data-notfound-title]", "This path does not have a lesson yet.");
     replace("[data-notfound-description]", "Return to the knowledge map or use site search.");
@@ -988,6 +981,103 @@ function setupPageTransitions() {
   window.addEventListener("pagereveal", skipPausedTransition);
 }
 
+function setupAmbientBackground() {
+  document.querySelectorAll<HTMLElement>("[data-ambient-background]").forEach((ambient) => {
+    const canvas = ambient.querySelector<HTMLCanvasElement>("[data-ambient-canvas]");
+    const context = canvas?.getContext("2d") ?? null;
+    if (!canvas || !context) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+    let raf = 0;
+    let width = 0;
+    let height = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+    let cameraX = 0;
+    let cameraY = 0;
+    let scroll = window.scrollY;
+    const paused = () => document.documentElement.dataset.motion === "paused" || reduced.matches;
+    const draw = () => {
+      const box = ambient.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const nextWidth = Math.max(1, Math.floor(box.width * dpr));
+      const nextHeight = Math.max(1, Math.floor(box.height * dpr));
+      if (nextWidth !== width || nextHeight !== height) {
+        canvas.width = nextWidth;
+        canvas.height = nextHeight;
+        width = nextWidth;
+        height = nextHeight;
+      }
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context.clearRect(0, 0, box.width, box.height);
+      const styles = getComputedStyle(ambient);
+      context.strokeStyle = styles.getPropertyValue("--cp-border").trim();
+      context.lineWidth = 1;
+      const scrollOffset = (scroll % 240) * 0.06;
+      for (const segment of perspectiveGrid(box.width, box.height, 14, 8)) {
+        context.beginPath();
+        context.moveTo(segment.x1 + cameraX * 0.18, segment.y1 + cameraY * 0.12 + scrollOffset);
+        context.lineTo(segment.x2 + cameraX * 0.8, segment.y2 + cameraY * 0.45 + scrollOffset);
+        context.stroke();
+      }
+      context.strokeStyle = styles.getPropertyValue("--cp-border-strong").trim();
+      context.beginPath();
+      context.moveTo(box.width * 0.1 + cameraX * 0.15, box.height * 0.45 + cameraY * 0.12);
+      context.lineTo(box.width * 0.9 + cameraX * 0.15, box.height * 0.45 + cameraY * 0.12);
+      context.stroke();
+      ambient.style.setProperty("--ambient-x", `${cameraX.toFixed(2)}px`);
+      ambient.style.setProperty("--ambient-y", `${cameraY.toFixed(2)}px`);
+    };
+    const stop = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    };
+    const frame = () => {
+      if (document.hidden) {
+        stop();
+        return;
+      }
+      if (paused()) {
+        cameraX = 0;
+        cameraY = 0;
+      } else {
+        cameraX += (pointerX - cameraX) * 0.12;
+        cameraY += (pointerY - cameraY) * 0.12;
+      }
+      draw();
+      if (Math.abs(pointerX - cameraX) < 0.05 && Math.abs(pointerY - cameraY) < 0.05) {
+        raf = 0;
+        return;
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    const start = () => {
+      if (!raf && !document.hidden) raf = requestAnimationFrame(frame);
+    };
+    window.addEventListener("pointermove", (event) => {
+      if (event.pointerType !== "mouse" || !fine.matches || paused()) return;
+      pointerX = (event.clientX / Math.max(1, window.innerWidth) - 0.5) * 42;
+      pointerY = (event.clientY / Math.max(1, window.innerHeight) - 0.5) * 22;
+      start();
+    }, { passive: true });
+    window.addEventListener("scroll", () => {
+      scroll = window.scrollY;
+      if (!paused()) start();
+      else draw();
+    }, { passive: true });
+    window.addEventListener("resize", draw, { passive: true });
+    document.addEventListener("visibilitychange", () => { if (document.hidden) stop(); else draw(); });
+    document.addEventListener("atlas:motion-change", () => {
+      pointerX = pointerY = cameraX = cameraY = 0;
+      stop();
+      draw();
+    });
+    reduced.addEventListener("change", draw);
+    fine.addEventListener("change", draw);
+    draw();
+  });
+}
+
 setupTheme();
 setupMenu();
 setupMotion();
@@ -1005,3 +1095,4 @@ setupTilt();
 setupMagnetic();
 setupSmoothCursor();
 setupPageTransitions();
+setupAmbientBackground();

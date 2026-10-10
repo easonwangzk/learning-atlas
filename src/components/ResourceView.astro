@@ -1,0 +1,31 @@
+---
+import type { Locale } from "@/i18n";
+interface Props { locale: Locale; resources: any[] }
+const { locale, resources } = Astro.props;
+const isEn = locale === "en";
+const groups = [
+  { key: "topic", label: isEn ? "Topic" : "知识主题", values: Array.from(new Set(resources.map((r) => r.topic))) },
+  { key: "certification", label: isEn ? "Certification" : "认证方向", values: Array.from(new Set(resources.map((r) => r.certification))) },
+  { key: "provider", label: isEn ? "Provider" : "资料来源", values: Array.from(new Set(resources.map((r) => r.provider))) },
+  { key: "type", label: isEn ? "Type" : "资料类型", values: Array.from(new Set(resources.map((r) => r.type))) }
+];
+const copy = { eyebrow: isEn ? "Curated links" : "精选链接", title: isEn ? "Resources" : "资源索引", lead: isEn ? `${resources.length} explicit URLs with original summaries, organized on 2026-10-10.` : `共 ${resources.length} 个明确 URL。说明文字为本站原创摘要，标注“整理于 2026-10-10”。`, search: isEn ? "Search resources" : "搜索资源", all: isEn ? "All" : "全部", clear: isEn ? "Clear filters" : "清空筛选", open: isEn ? "Open source" : "打开来源", organized: isEn ? "Organized on" : "整理于", empty: isEn ? "No matching resources. Clear filters or try another keyword." : "没有匹配资源。请清空筛选或换一个关键词。" };
+---
+<section class="atlas-page atlas-resources">
+  <div class="atlas-container" data-filter-scope>
+    <header class="atlas-intro" data-reveal><p class="eyebrow">{copy.eyebrow}</p><h1>{copy.title}</h1><p class="lead">{copy.lead}</p></header>
+    <div class="archive-toolbar"><label class="search-line"><span>{copy.search}</span><input data-local-search type="search" /></label><button class="text-button" type="button" data-filter-reset>{copy.clear}</button></div>
+    <div class="filter-controls compact">{groups.map((group) => <label>{group.label}<select data-filter-select={group.key}><option value="all">{copy.all}</option>{group.values.map((value) => <option value={value}>{value}</option>)}</select></label>)}</div>
+    <p class="muted" data-filter-count role="status">{resources.length} / {resources.length} {isEn ? "items" : "项"}</p>
+    <ol class="resource-archive">
+      {resources.map((resource, index) => (
+        <li class="resource-row-dark" data-filter-item data-topic={resource.topic} data-certification={resource.certification} data-provider={resource.provider} data-type={resource.type} data-reveal>
+          <span class="chapter-number">{String(index + 1).padStart(2, "0")}</span>
+          <div><p class="eyebrow">{resource.provider} · {resource.type} · {resource.certification}</p><h2>{resource.title}</h2><details open><summary>{resource.topic}</summary><p>{resource.description}</p><p class="muted">{copy.organized} {resource.reviewedAt}</p></details></div>
+          <a class="text-link" href={resource.url} rel="noreferrer">{copy.open}</a>
+        </li>
+      ))}
+    </ol>
+    <p class="callout hidden" data-empty role="status">{copy.empty}</p>
+  </div>
+</section>
