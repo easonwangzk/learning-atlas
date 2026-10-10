@@ -1,26 +1,33 @@
 ---
 import "@/styles/global.css";
 import { withBase, canonical } from "@/lib/paths";
+import { alternatePath, stripLocale, ui, type Locale } from "@/i18n";
 
 interface Props {
   title: string;
   description: string;
   current?: string;
+  locale?: Locale;
+  switchPath?: string;
+  canonicalPath?: string;
 }
 
-const { title, description, current = "" } = Astro.props;
+const { title, description, current = "", locale = "zh", switchPath, canonicalPath } = Astro.props;
+const t = ui[locale];
+const routePath = title === "404" ? "/" : (canonicalPath ?? stripLocale(Astro.url.pathname.replace(withBase("/").replace(/\/$/, ""), "") || "/"));
+const otherPath = switchPath ?? alternatePath(routePath, locale);
 const nav = [
-  ["Home", "/"],
-  ["Knowledge", "/learn/"],
-  ["Projects", "/projects/"],
-  ["Resources", "/resources/"],
-  ["About", "/about/"]
+  ["Home", locale === "en" ? "/en/" : "/"],
+  ["Knowledge", locale === "en" ? "/en/learn/" : "/learn/"],
+  ["Projects", locale === "en" ? "/en/projects/" : "/projects/"],
+  ["Resources", locale === "en" ? "/en/resources/" : "/resources/"],
+  ["About", locale === "en" ? "/en/about/" : "/about/"]
 ] as const;
 const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atlas`;
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang={t.lang} dir={t.dir}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -102,28 +109,33 @@ const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atl
     </style>
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical(title === "404" ? "/404.html" : Astro.url.pathname.replace(withBase("/").replace(/\/$/, ""), "") || "/")} />
+    <link rel="canonical" href={canonical(locale === "en" ? (routePath === "/" ? "/en/" : `/en${routePath}`) : routePath)} />
+    <link rel="alternate" hreflang="zh-CN" href={canonical(routePath)} />
+    <link rel="alternate" hreflang="en" href={canonical(routePath === "/" ? "/en/" : `/en${routePath}`)} />
+    <link rel="alternate" hreflang="x-default" href={canonical(routePath)} />
     {title === "404" && <meta name="robots" content="noindex" />}
     <link rel="icon" href={withBase("/favicon.svg")} type="image/svg+xml" />
   </head>
   <body>
     <div class="site-shell">
-      <a class="skip-link" href="#content">跳到主要内容</a>
+      <a class="skip-link" href="#content">{t.skip}</a>
       <header class="site-header">
-        <nav class="nav" aria-label="全站导航">
-          <a class="brand" href={withBase("/")}>
+        <nav class="nav" aria-label={t.navLabel}>
+          <a class="brand" href={withBase(locale === "en" ? "/en/" : "/")}>
             <span class="brand-mark" aria-hidden="true">∴</span>
             <span>Learning Atlas</span>
           </a>
           <div class="nav-links" id="nav-links">
             {nav.map(([label, href]) => (
-              <a href={withBase(href)} aria-current={current === label ? "page" : undefined}>{label}</a>
+              <a href={withBase(href)} aria-current={current === label ? "page" : undefined}>{t.nav[label]}</a>
             ))}
-            <a href={withBase("/search/")} aria-current={current === "Search" ? "page" : undefined}>Search</a>
+            <a href={withBase(locale === "en" ? "/en/search/" : "/search/")} aria-current={current === "Search" ? "page" : undefined}>{t.nav.Search}</a>
           </div>
           <div class="nav-actions">
-            <button class="icon-button" type="button" data-theme-toggle aria-label="切换明暗主题">◐</button>
-            <button class="icon-button menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="nav-links">菜单</button>
+            <a class="icon-button lang-switch" href={withBase(otherPath)} data-lang-switch>{t.switchLabel}</a>
+            <button class="icon-button" type="button" data-motion-toggle aria-pressed="false" data-label-pause={t.motionPause} data-label-play={t.motionPlay} data-label-reduced={t.motionReduced}>{t.motionPause}</button>
+            <button class="icon-button" type="button" data-theme-toggle aria-label={t.theme}>◐</button>
+            <button class="icon-button menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="nav-links">{t.menu}</button>
           </div>
         </nav>
       </header>
@@ -134,10 +146,10 @@ const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atl
         <div class="container footer-grid">
           <div>
             <strong>Learning Atlas</strong>
-            <p class="muted">静态学习网站。进度只保存在浏览器本地；无后端、无外部模型调用、无跨设备同步。</p>
-            <p class="muted">个人学习笔记与公开项目索引，非 Microsoft、OpenAI 或其他机构的官方课程。</p>
+            <p class="muted">{t.footerOne}</p>
+            <p class="muted">{t.footerTwo}</p>
           </div>
-          <a class="button" href={withBase("/about/")}>关于与来源</a>
+          <a class="button" href={withBase(locale === "en" ? "/en/about/" : "/about/")}>{t.aboutSource}</a>
         </div>
       </footer>
     </div>

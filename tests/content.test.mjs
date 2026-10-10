@@ -6,9 +6,21 @@ import { join } from "node:path";
 const root = process.cwd();
 const lessonDir = join(root, "src", "content", "lessons");
 const lessons = readdirSync(lessonDir).filter((file) => file.endsWith(".md"));
+const enLessonDir = join(lessonDir, "en");
+const enLessons = readdirSync(enLessonDir).filter((file) => file.endsWith(".md"));
 
 test("contains exactly 18 lesson markdown files", () => {
   assert.equal(lessons.length, 18);
+});
+
+test("contains 18 English counterparts with stable locale-independent IDs", () => {
+  assert.deepEqual(enLessons.sort(), lessons.sort());
+  for (const file of enLessons) {
+    const text = readFileSync(join(enLessonDir, file), "utf8");
+    assert.match(text, /^locale: en$/m, file);
+    assert.doesNotMatch(text, /^slug: /m, `${file} should let the collection id stay unique`);
+    assert.match(text, /## Completion checklist/, file);
+  }
 });
 
 test("lessons include required frontmatter and public sources", () => {

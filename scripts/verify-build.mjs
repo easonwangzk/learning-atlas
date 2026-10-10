@@ -14,7 +14,7 @@ function walk(dir) {
 }
 
 const htmlFiles = walk(dist).filter((file) => file.endsWith(".html"));
-assert.ok(htmlFiles.length >= 30, `expected generated pages, got ${htmlFiles.length}`);
+assert.ok(htmlFiles.length >= 70, `expected bilingual generated pages, got ${htmlFiles.length}`);
 const pages = new Map(htmlFiles.map((file) => [file, readFileSync(file, "utf8")]));
 
 function targetFile(url) {
@@ -31,9 +31,15 @@ for (const [file, html] of pages) {
   const outputPath = relative(dist, file).split(sep).join("/");
   const route = outputPath === "index.html" ? "" : outputPath.replace(/index\.html$/, "");
   const pageUrl = new URL(`${base}${route}`, site);
-  assert.match(html, /<html lang="zh-CN"/, `${file}: language`);
+  const isEnglish = outputPath.startsWith("en/");
+  assert.match(html, isEnglish ? /<html lang="en"/ : /<html lang="zh-CN"/, `${file}: language`);
   assert.match(html, /<link rel="canonical" href="https:\/\/easonwangzk\.github\.io\/learning-atlas\//);
+  assert.match(html, /hreflang="zh-CN"/, `${file}: zh alternate`);
+  assert.match(html, /hreflang="en"/, `${file}: en alternate`);
   assert.match(html, /<script>\s*\(\(\) => \{/, `${file}: early inline theme detection`);
+  if (isEnglish && !outputPath.endsWith("404/index.html")) {
+    assert.doesNotMatch(html, /(首页|知识地图|搜索全站|资源索引|项目案例|关于本站|阅读课程|返回轨道|清空筛选|没有匹配)/, `${file}: untranslated Chinese UI`);
+  }
   const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
   assert.equal(ids.length, new Set(ids).size, `${file}: duplicate element IDs`);
 
@@ -54,8 +60,9 @@ for (const [file, html] of pages) {
 
 const sitemap = readFileSync(join(dist, "sitemap.xml"), "utf8");
 const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-assert.equal(locations.length, htmlFiles.length - 1, "All pages except 404 belong in sitemap");
+assert.equal(locations.length, htmlFiles.length - 2, "All pages except localized 404 pages belong in sitemap");
 locations.forEach((location) => targetFile(new URL(location)));
 assert.match(readFileSync(join(dist, "robots.txt"), "utf8"), /learning-atlas\/sitemap\.xml/);
-assert.match(readFileSync(join(dist, "index.html"), "utf8"), /Learning,\s*<br[^>]*>by building\./);
+assert.match(readFileSync(join(dist, "index.html"), "utf8"), /把知识铺成一张可走的地图/);
+assert.match(readFileSync(join(dist, "en", "index.html"), "utf8"), /A practical map for cloud and AI study/);
 console.log(`Verified ${htmlFiles.length} pages and ${references} local links/assets.`);

@@ -1,4 +1,7 @@
-export const resources = [
+import type { Locale } from "@/i18n";
+import { ui } from "@/i18n";
+
+const baseResources = [
   ["Microsoft Learn", "认证指南", "AZ-104", "compute", "AZ-104 study guide", "管理员考试官方学习指南；目标自 2026-04-17 起生效。", "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-104"],
   ["Microsoft Learn", "认证指南", "AZ-305", "architecture", "AZ-305 study guide", "解决方案架构考试官方学习指南；目标自 2026-04-17 起生效。", "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-305"],
   ["Microsoft Learn", "认证指南", "AZ-700", "network", "AZ-700 study guide", "网络工程师考试官方学习指南；目标自 2026-07-27 起生效。", "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-700"],
@@ -31,13 +34,61 @@ export const resources = [
   ["scikit-learn", "文档", "扩展学习", "ml", "scikit-learn User Guide", "传统机器学习、评估与模型选择的开源参考。", "https://scikit-learn.org/stable/user_guide.html"],
   ["PyTorch", "教程", "扩展学习", "ml", "PyTorch Tutorials", "深度学习张量、训练循环与模型示例入口。", "https://docs.pytorch.org/tutorials/"],
   ["OpenAI", "文档", "扩展学习", "ai", "OpenAI API docs", "API 能力与模型使用方式的官方开发者入口。", "https://developers.openai.com/api/docs"]
-].map(([provider, type, certification, topic, title, description, url]) => ({
+];
+
+const englishDescriptions = [
+  "Official administrator exam study guide; objectives are effective from 2026-04-17.",
+  "Official solutions architect exam study guide; objectives are effective from 2026-04-17.",
+  "Official network engineer exam study guide; objectives are effective from 2026-07-27.",
+  "Entry point for virtual machines, availability, disks, and operations responsibility.",
+  "Entry point for managed container apps, revisions, scaling, and microservice patterns.",
+  "Managed web apps, deployment slots, and platform operations boundaries.",
+  "Overview of event-driven functions, triggers, bindings, and consumption models.",
+  "Main entry for storage accounts, redundancy, security, and data services.",
+  "Object storage, hierarchical namespace, lifecycle, and access control.",
+  "Managed file shares, SMB/NFS, identity, and hybrid access.",
+  "VNet, subnet, routing, security groups, and private address-space basics.",
+  "Public DNS zones and record management; pair private resolution with dedicated docs.",
+  "Design entry for private endpoints and private access to PaaS services.",
+  "Dedicated connectivity, routing domains, and hybrid network reliability.",
+  "Global entry, WAF, acceleration, and multi-region web delivery.",
+  "Managed relational database choices, performance, security, and migration.",
+  "Globally distributed NoSQL, partitioning, throughput, and consistency.",
+  "Full-text search, vector search, and RAG data-plane basics.",
+  "Official documentation for models, agents, and enterprise AI applications.",
+  "Supplementary Azure learning for training, registering, deploying, and MLOps.",
+  "Reliability, security, cost, operations, and performance tradeoff framework.",
+  "Cloud adoption, governance, management, and migration operating model.",
+  "Identity, access, conditional access, and permission boundary entry point.",
+  "Policy definitions, assignments, compliance state, and governance automation.",
+  "Metrics, logs, alerts, and observability fundamentals.",
+  "Backup policies, Recovery Services vaults, and workload protection.",
+  "Disaster recovery, replication, and failover planning.",
+  "Browse official learning paths by product, role, and level.",
+  "General platform learning entry, not a confirmed personal profile link.",
+  "Open-source reference for classical machine learning, evaluation, and model selection.",
+  "Deep-learning tensor, training loop, and model examples.",
+  "Official developer entry for API capabilities and model usage."
+] as const;
+
+function localizeLearnUrl(url: string, locale: Locale) {
+  if (!url.includes("learn.microsoft.com/")) return url;
+  return locale === "en" ? url.replace("/zh-cn/", "/en-us/") : url.replace("/en-us/", "/zh-cn/");
+}
+
+export function getResources(locale: Locale = "zh") {
+  return baseResources.map(([provider, type, certification, topic, title, description, url], index) => ({
   provider,
-  type,
-  certification,
+  type: locale === "en" ? (ui.en.resourceTypes[type as keyof typeof ui.en.resourceTypes] ?? type) : type,
+  canonicalType: type,
+  certification: locale === "en" ? (ui.en.cert[certification as keyof typeof ui.en.cert] ?? certification) : certification,
+  canonicalCertification: certification,
   topic,
   title,
-  description,
-  url,
+  description: locale === "en" ? englishDescriptions[index] : description,
+  url: localizeLearnUrl(url, locale),
   reviewedAt: "2026-10-10"
 }));
+}
+
+export const resources = getResources("zh");

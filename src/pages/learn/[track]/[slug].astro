@@ -1,12 +1,12 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { withBase } from "@/lib/paths";
-import { getTrack } from "@/data/tracks";
+import { getTrack, trackText } from "@/data/tracks";
 import { getCollection, render } from "astro:content";
-import { lessonSlug, lessonProgressId } from "@/lib/lessons";
+import { lessonLocale, lessonSlug, lessonProgressId } from "@/lib/lessons";
 
 export async function getStaticPaths() {
-  const lessons = await getCollection("lessons");
+  const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === "zh");
   return lessons.map((lesson) => ({
     params: { track: lesson.data.track, slug: lessonSlug(lesson) },
     props: { lesson }
@@ -15,14 +15,16 @@ export async function getStaticPaths() {
 
 const { lesson } = Astro.props;
 const { Content } = await render(lesson);
+const locale = "zh";
 const track = getTrack(lesson.data.track);
+const trackLabel = track ? trackText(track, locale).title : lesson.data.track;
 const lessonId = lessonProgressId(lesson);
 ---
-<BaseLayout title={lesson.data.title} description={lesson.data.summary} current="Knowledge">
-  <section class="section">
-    <div class="container split">
+<BaseLayout title={lesson.data.title} description={lesson.data.summary} current="Knowledge" locale={locale}>
+  <section class="section lesson-section">
+    <div class="container split lesson-layout">
       <article class="prose">
-        <p class="eyebrow">{track?.title} · {lesson.data.cert} · {lesson.data.reviewedAt}</p>
+        <p class="eyebrow">{trackLabel} · {lesson.data.cert} · {lesson.data.reviewedAt}</p>
         <h1>{lesson.data.title}</h1>
         <p class="lead">{lesson.data.summary}</p>
         <div class="tag-row">{lesson.data.tags.map((tag: string) => <span class="chip">{tag}</span>)}</div>
@@ -31,10 +33,16 @@ const lessonId = lessonProgressId(lesson);
         </div>
         <Content />
       </article>
-      <aside class="sidebox">
+      <aside class="sidebox lesson-tools">
         <button class="button complete-toggle" type="button" data-complete-id={lessonId} aria-pressed="false">标记本课完成</button>
         <p class="progress-note" data-progress-warning role="status"></p>
         <noscript><p class="progress-note">开启 JavaScript 后可保存本浏览器的学习进度。</p></noscript>
+        <h3>本课导航</h3>
+        <ol class="mini-outline">
+          <li><a href="#概念笔记">概念笔记</a></li>
+          <li><a href="#取舍与安全实验">取舍与安全实验</a></li>
+          <li><a href="#完成检查">完成检查</a></li>
+        </ol>
         <h3>官方来源</h3>
         <ul>
           {lesson.data.sourceUrls.map((url: string) => <li><a href={url} rel="noreferrer">{url}</a></li>)}

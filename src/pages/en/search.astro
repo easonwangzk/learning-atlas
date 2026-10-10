@@ -1,0 +1,9 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getSearchIndex } from "@/data/searchIndex";
+const locale = "en";
+const items = await getSearchIndex(locale);
+---
+<BaseLayout title="Search" description="Search Learning Atlas lessons, projects, and resources." current="Search" locale={locale}>
+  <section class="section"><div class="container"><p class="eyebrow">Static search</p><h1>Search the site</h1><p class="lead">Search lesson bodies, public project cases, and learning resources. Multiple terms are separated by spaces and run locally on this page.</p><div class="search-panel card"><input class="input" type="search" data-global-search placeholder="Try RAG, AZ-700, Blob, MLOps…" aria-label="Site search" /></div><p class="muted" data-search-count role="status">{items.length} results</p><ul class="grid search-results" data-search-results>{items.map((item) => (<li class="resource-card" data-search-item={`${item.searchText} ${item.kind} ${item.tags.join(" ")}`}><p class="eyebrow">{item.kind}</p><h3><a href={item.href} rel={item.kind === "Resource" ? "noreferrer" : undefined}>{item.title}</a></h3><p class="muted">{item.summary}</p><div class="tag-row">{item.tags.map((tag) => <span class="chip">{tag}</span>)}</div></li>))}</ul><p class="callout hidden" data-search-empty role="status">No matches. Try shorter keywords or clear the search.</p><noscript><p class="callout">JavaScript is disabled; all lessons, cases, and resources are still listed below.</p></noscript></div></section>
+</BaseLayout>

@@ -1,9 +1,9 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { withBase } from "@/lib/paths";
-import { getTrack, tracks } from "@/data/tracks";
+import { getTrack, tracks, trackText } from "@/data/tracks";
 import { getCollection } from "astro:content";
-import { lessonRoute, lessonProgressId } from "@/lib/lessons";
+import { lessonLocale, lessonRoute, lessonProgressId } from "@/lib/lessons";
 
 export async function getStaticPaths() {
   return tracks.map((track) => ({ params: { track: track.slug } }));
@@ -12,26 +12,28 @@ export async function getStaticPaths() {
 const { track: trackSlug } = Astro.params;
 const track = getTrack(trackSlug || "");
 if (!track) throw new Error(`Unknown learning track: ${trackSlug}`);
+const locale = "zh";
+const text = trackText(track, locale);
 const lessons = (await getCollection("lessons"))
-  .filter((lesson) => lesson.data.track === track.slug)
+  .filter((lesson) => lesson.data.track === track.slug && lessonLocale(lesson) === locale)
   .sort((a, b) => a.data.order - b.data.order);
 const ids = lessons.map(lessonProgressId);
 ---
-<BaseLayout title={track.title} description={track.summary} current="Knowledge">
+<BaseLayout title={text.title} description={text.summary} current="Knowledge" locale={locale}>
   <section class="section">
     <div class="container split">
       <div>
-        <p class="eyebrow">{track.kicker}</p>
-        <h1>{track.title}</h1>
-        <p class="lead">{track.summary}</p>
+        <p class="eyebrow">{text.kicker}</p>
+        <h1>{text.title}</h1>
+        <p class="lead">{text.summary}</p>
         <div class="grid">
           {lessons.map((lesson) => (
-            <article class="lesson-card">
+            <article class="lesson-card" data-reveal>
               <p class="eyebrow">{lesson.data.cert} · {lesson.data.difficulty}</p>
               <h2>{lesson.data.title}</h2>
               <p class="muted">{lesson.data.summary}</p>
               <div class="tag-row">{lesson.data.tags.map((tag) => <span class="chip">{tag}</span>)}</div>
-              <p><a href={withBase(lessonRoute(lesson))}>阅读课程</a></p>
+              <p><a href={withBase(lessonRoute(lesson, locale))}>阅读课程</a></p>
             </article>
           ))}
         </div>

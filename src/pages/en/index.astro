@@ -1,0 +1,86 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { withBase } from "@/lib/paths";
+import { tracks, trackText } from "@/data/tracks";
+import { getProjects } from "@/data/projects";
+import { getResources } from "@/data/resources";
+import { getCollection } from "astro:content";
+import { lessonLocale, lessonProgressId } from "@/lib/lessons";
+
+const locale = "en";
+const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === locale);
+const lessonIds = lessons.map(lessonProgressId);
+const projects = getProjects(locale);
+const resources = getResources(locale);
+---
+
+<BaseLayout title="Learning Atlas" description="An English static learning map for compute, storage, networking, databases, AI, and machine learning." current="Home" locale={locale}>
+  <section class="hero editorial-hero">
+    <div class="container hero-stack">
+      <div class="hero-copy" data-reveal>
+        <p class="eyebrow">Learning work · Azure + AI</p>
+        <h1 class="hero-title">A practical map for cloud and AI study.</h1>
+        <p class="lead">Start with projects, then return to concepts. Learning Atlas connects six tracks, eighteen lessons, and public project notes into one readable path.</p>
+        <div class="tag-row">
+          <a class="button primary magnetic" href={withBase("/en/learn/")}>Start learning</a>
+          <a class="button magnetic" href={withBase("/en/search/")}>Search site</a>
+          <span class="chip">Completed <span data-progress-count={lessonIds.join(",")}>0/{lessonIds.length}</span></span>
+        </div>
+        <p class="progress-note" data-progress-warning></p>
+      </div>
+      <div class="project-gallery" data-gallery data-reveal>
+        <div class="gallery-topline"><span>Selected work</span><span data-gallery-index>1/{projects.length}</span></div>
+        <div class="gallery-track" data-gallery-track tabindex="0" aria-label="Selected projects carousel">
+          {projects.map((project, index) => (
+            <a class="gallery-card" data-gallery-card data-tilt href={withBase(`/en/projects/${project.slug}/`)}>
+              <div class={`project-art motif-${index % 6}`} aria-hidden="true"><span>{String(index + 1).padStart(2, "0")}</span><strong>{project.topics[0]}</strong><i></i><b></b></div>
+              <div class="gallery-caption"><p class="eyebrow">{project.topics.join(" / ")}</p><h2>{project.title}</h2><p>{project.summary}</p></div>
+              <span class="corner-arrow" aria-hidden="true">↗</span>
+            </a>
+          ))}
+        </div>
+        <div class="gallery-controls">
+          <button class="icon-button" type="button" data-gallery-prev aria-label="Previous project">←</button>
+          <button class="icon-button" type="button" data-gallery-next aria-label="Next project">→</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Knowledge index</p>
+      <h2>Six paths for one connected system.</h2>
+      <div class="knowledge-rows">
+        {tracks.map((track, index) => {
+          const text = trackText(track, locale);
+          const ids = lessons.filter((lesson) => lesson.data.track === track.slug).map(lessonProgressId);
+          return (
+            <a class="knowledge-row" data-reveal href={withBase(`/en/learn/${track.slug}/`)}>
+              <span class="row-number">{String(index + 1).padStart(2, "0")}</span>
+              <span><strong>{text.title}</strong><em>{text.kicker}</em></span>
+              <span class="row-summary">{text.summary}</span>
+              <span class="chip">Done <span data-progress-count={ids.join(",")}>0/{ids.length}</span></span>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container split">
+      <div data-reveal>
+        <p class="eyebrow">Case reading</p>
+        <h2>Projects are design notes, not screenshot walls.</h2>
+        <p class="lead">Each card separates public README facts, architecture intent, learning takeaways, and boundaries.</p>
+        <a class="button" href={withBase("/en/projects/")}>View all projects</a>
+      </div>
+      <aside class="sidebox profile-panel" data-reveal>
+        <p class="eyebrow">Certification route</p>
+        <h3>Suggested order</h3>
+        <p>AZ-104 basics → AZ-700 networking → AZ-305 design. This is a learning order, not an official prerequisite chain; the 18 introductory lessons do not claim full exam coverage.</p>
+        <p class="muted">AZ-104/AZ-305 objectives are marked 2026-04-17; AZ-700 is marked 2026-07-27. Always check the official study guides.</p>
+      </aside>
+    </div>
+  </section>
+  <section class="section"><div class="container resource-strip" data-reveal><p class="eyebrow">Resources</p><h2>Reliable links, less wandering.</h2><p class="lead">{resources.length} official docs and open learning resources organized by topic and certification target.</p><a class="button" href={withBase("/en/resources/")}>Browse resources</a></div></section>
+</BaseLayout>

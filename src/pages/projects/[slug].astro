@@ -1,20 +1,25 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { projects, getProject } from "@/data/projects";
+import { getProjects, getProject } from "@/data/projects";
 import { withBase } from "@/lib/paths";
 
+const locale = "zh";
+const projects = getProjects(locale);
 export function getStaticPaths() {
-  return projects.map((project) => ({ params: { slug: project.slug } }));
+  return getProjects("zh").map((project) => ({ params: { slug: project.slug } }));
 }
 
-const project = getProject(Astro.params.slug || "");
+const project = getProject(Astro.params.slug || "", locale);
 if (!project) throw new Error(`Unknown project: ${Astro.params.slug}`);
+const previous = projects[(project.index + projects.length - 1) % projects.length];
+const next = projects[(project.index + 1) % projects.length];
 ---
-<BaseLayout title={project.title} description={project.summary} current="Projects">
-  <section class="section">
+<BaseLayout title={project.title} description={project.summary} current="Projects" locale={locale}>
+  <section class="section project-detail">
     <div class="container split">
       <article>
-        <p class="eyebrow">README-based public summary</p>
+        <div class={`detail-cover project-art motif-${project.index % 6}`} data-tilt aria-hidden="true"><span>{String(project.index + 1).padStart(2, "0")}</span><strong>{project.topics[0]}</strong><i></i><b></b></div>
+        <p class="eyebrow">README 公开摘要</p>
         <h1>{project.title}</h1>
         <p class="lead">{project.summary}</p>
         <p class="chip">{project.status}</p>
@@ -30,7 +35,10 @@ if (!project) throw new Error(`Unknown project: ${Astro.params.slug}`);
       <aside class="sidebox">
         <a class="button primary" href={project.repo} rel="noreferrer">查看公开仓库</a>
         <h3>相关学习</h3>
-        <ul>{project.related.map((href) => <li><a href={href}>{href}</a></li>)}</ul>
+        <ul>{project.related.map((href) => <li><a href={withBase(href)}>{href}</a></li>)}</ul>
+        <h3>案例切换</h3>
+        <p><a href={withBase(`/projects/${previous.slug}/`)}>← {previous.title}</a></p>
+        <p><a href={withBase(`/projects/${next.slug}/`)}>{next.title} →</a></p>
         <p class="muted">案例用于理解技术设计；应用运行、数据和模型配置请以原仓库说明为准。</p>
       </aside>
     </div>

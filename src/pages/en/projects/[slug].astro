@@ -1,0 +1,15 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getProjects, getProject } from "@/data/projects";
+import { withBase } from "@/lib/paths";
+const locale = "en";
+const projects = getProjects(locale);
+export function getStaticPaths() { return getProjects("en").map((project) => ({ params: { slug: project.slug } })); }
+const project = getProject(Astro.params.slug || "", locale);
+if (!project) throw new Error(`Unknown project: ${Astro.params.slug}`);
+const previous = projects[(project.index + projects.length - 1) % projects.length];
+const next = projects[(project.index + 1) % projects.length];
+---
+<BaseLayout title={project.title} description={project.summary} current="Projects" locale={locale}>
+  <section class="section project-detail"><div class="container split"><article><div class={`detail-cover project-art motif-${project.index % 6}`} data-tilt aria-hidden="true"><span>{String(project.index + 1).padStart(2, "0")}</span><strong>{project.topics[0]}</strong><i></i><b></b></div><p class="eyebrow">Public README summary</p><h1>{project.title}</h1><p class="lead">{project.summary}</p><p class="chip">{project.status}</p><h2>{project.slug === "recommendation-algorithm" ? "Suggested reading order (not an architecture claim)" : "Architecture reading map (from repository description)"}</h2><div class="diagram">{project.flow.map((step) => <div class="flow-step">{step}</div>)}</div><h2>Design worth studying</h2><ul>{project.learn.map((item) => <li>{item}</li>)}</ul><h2>Boundaries</h2><p>{project.limits}</p></article><aside class="sidebox"><a class="button primary" href={project.repo} rel="noreferrer">Open public repository</a><h3>Related learning</h3><ul>{project.related.map((href) => <li><a href={withBase(href)}>{href}</a></li>)}</ul><h3>Case navigation</h3><p><a href={withBase(`/en/projects/${previous.slug}/`)}>← {previous.title}</a></p><p><a href={withBase(`/en/projects/${next.slug}/`)}>{next.title} →</a></p><p class="muted">Cases are for understanding technical design; runtime, data, and model configuration belong to the source repository.</p></aside></div></section>
+</BaseLayout>

@@ -1,0 +1,17 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { tracks, trackText } from "@/data/tracks";
+import { withBase } from "@/lib/paths";
+import { getCollection } from "astro:content";
+import { lessonLocale, lessonRoute } from "@/lib/lessons";
+const locale = "en";
+const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === locale);
+---
+<BaseLayout title="Knowledge" description="Six knowledge tracks and 18 original learning lessons." current="Knowledge" locale={locale}>
+  <section class="section"><div class="container">
+    <p class="eyebrow">Knowledge index</p><h1>Knowledge map</h1><p class="lead">Each track contains three original lessons: concepts, tradeoffs, safe exercises, completion checks, and official sources.</p>
+    <div class="grid">{tracks.map((track) => { const text = trackText(track, locale); const trackLessons = lessons.filter((lesson) => lesson.data.track === track.slug).sort((a, b) => a.data.order - b.data.order); return (
+      <article class="card track-card" data-reveal><p class="eyebrow">{text.kicker}</p><h2>{text.title}</h2><p class="muted">{text.summary}</p><div class="diagram">{trackLessons.map((lesson) => <a class="flow-step" href={withBase(lessonRoute(lesson, locale))}>{lesson.data.title}</a>)}</div><a class="button" href={withBase(`/en/learn/${track.slug}/`)}>Enter track</a></article>
+    ); })}</div>
+  </div></section>
+</BaseLayout>

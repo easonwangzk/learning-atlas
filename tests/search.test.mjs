@@ -14,4 +14,7 @@ test("lesson metadata drives page routes and stable progress IDs", () => {
   const lesson = { id: "draft-file-name", data: { track: "compute", slug: "vm-basics" } };
   assert.equal(lessonRoute(lesson), "/learn/compute/vm-basics/");
   assert.equal(lessonProgressId(lesson), "compute/vm-basics");
+  const enLesson = { id: "en/compute-vm-basics", data: { track: "compute", locale: "en" } };
+  assert.equal(lessonRoute(enLesson), "/en/learn/compute/vm-basics/");
+  assert.equal(lessonProgressId(enLesson), "compute/vm-basics");
 });

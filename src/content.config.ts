@@ -3,7 +3,11 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
 const lessons = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/lessons" }),
+  loader: glob({
+    pattern: "**/*.md",
+    base: "./src/content/lessons",
+    generateId: ({ entry }) => entry.replace(/\.md$/, "")
+  }),
   schema: z.object({
     slug: z.string().optional(),
     title: z.string(),
@@ -13,6 +17,7 @@ const lessons = defineCollection({
     tags: z.array(z.string()),
     sourceUrls: z.array(z.url()),
     reviewedAt: z.string(),
+    locale: z.enum(["zh", "en"]).default("zh"),
     order: z.number(),
     cert: z.enum(["AZ-104", "AZ-305", "AZ-700", "扩展学习"])
   })

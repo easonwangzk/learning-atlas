@@ -1,31 +1,36 @@
 import { getCollection } from "astro:content";
 import { withBase } from "@/lib/paths";
-import { lessonRoute } from "@/lib/lessons";
-import { projects } from "@/data/projects";
-import { resources } from "@/data/resources";
+import { lessonLocale, lessonRoute } from "@/lib/lessons";
+import { getProjects } from "@/data/projects";
+import { getResources } from "@/data/resources";
+import { ui, type Locale } from "@/i18n";
+import { localizePath } from "@/i18n";
 
-export async function getSearchIndex() {
-  const lessons = await getCollection("lessons");
+export async function getSearchIndex(locale: Locale = "zh") {
+  const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === locale);
+  const projects = getProjects(locale);
+  const resources = getResources(locale);
+  const t = ui[locale];
   return [
     ...lessons.sort((a, b) => a.data.track.localeCompare(b.data.track) || a.data.order - b.data.order)
       .map((lesson) => ({
-        kind: "课程",
+        kind: t.courseKind,
         title: lesson.data.title,
         summary: lesson.data.summary,
-        href: withBase(lessonRoute(lesson)),
+        href: withBase(lessonRoute(lesson, locale)),
         tags: [lesson.data.track, lesson.data.cert, ...lesson.data.tags],
         searchText: `${lesson.data.title} ${lesson.data.summary} ${lesson.body ?? ""}`
       })),
     ...projects.map((project) => ({
-      kind: "项目",
+      kind: t.projectKind,
       title: project.title,
       summary: project.summary,
-      href: withBase(`/projects/${project.slug}/`),
+      href: withBase(localizePath(`/projects/${project.slug}/`, locale)),
       tags: [...project.topics],
       searchText: `${project.title} ${project.summary} ${project.learn.join(" ")}`
     })),
     ...resources.map((resource) => ({
-      kind: "资源",
+      kind: t.resourceKind,
       title: resource.title,
       summary: resource.description,
       href: resource.url,

@@ -1,10 +1,12 @@
 Learning Atlas content update guide
 
-1. Add lessons as Markdown under src/content/lessons with frontmatter matching src/content.config.ts.
-2. Keep summaries original. Link public official sources rather than copying source text.
-3. Mark public project case studies as README-based unless functionality is independently run by this site.
-4. Do not add secrets, credentials, subscription IDs, customer data, private repository material, or raw benchmark results.
-5. Run npm run ci before committing.
+1. Add Chinese lessons as Markdown under src/content/lessons with frontmatter matching src/content.config.ts.
+2. Add the English counterpart under src/content/lessons/en using the same filename and locale: en. Do not add duplicate slug frontmatter there; route slugs stay canonical through the filename.
+3. Keep summaries original. Link public official sources rather than copying source text.
+4. Add UI text through src/i18n.ts and localized data helpers so / and /en/ remain equivalent.
+5. Mark public project case studies as README-based unless functionality is independently run by this site.
+6. Do not add secrets, credentials, subscription IDs, customer data, private repository material, or raw benchmark results.
+7. Run npm run ci before committing.
 
 Security boundary (2026-10-10):
 Astro's build dependency http-cache-semantics is affected by
