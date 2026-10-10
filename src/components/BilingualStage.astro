@@ -59,7 +59,7 @@ const nav = [
     <a class="stage-wordmark" href={withBase(isEn ? "/en/" : "/")}>{copy.brand}</a>
   </nav>
   <div class="stage-chrome stage-top-right">
-    <button class="stage-link" type="button" data-dialog-open="profile-panel" aria-haspopup="dialog">{copy.profile}</button>
+    <button class="stage-link" type="button" data-dialog-open="profile-panel" aria-haspopup="dialog" aria-controls="profile-panel" aria-expanded="false">{copy.profile}</button>
     <a class="stage-link" href={switchPath} data-lang-switch>{isEn ? "中文" : "English"}</a>
     <button class="stage-link" type="button" data-motion-toggle aria-pressed="false" data-label-pause={copy.motionPause} data-label-play={copy.motionPlay} data-label-reduced={copy.motionReduced}>{copy.motionPause}</button>
   </div>
@@ -68,7 +68,7 @@ const nav = [
     <button class="stage-link" type="button" data-stage-mode="full" aria-pressed="false">{copy.full}</button>
   </div>
   <div class="stage-chrome stage-bottom-right">
-    <button class="stage-link" type="button" data-dialog-open="explore-panel" aria-haspopup="dialog">{copy.explore}</button>
+    <button class="stage-link" type="button" data-dialog-open="explore-panel" aria-haspopup="dialog" aria-controls="explore-panel" aria-expanded="false">{copy.explore}</button>
   </div>
 
   <div class="stage-gallery" data-stage-gallery>
@@ -103,16 +103,17 @@ const nav = [
     </div>
   </div>
 
-  <noscript><p class="stage-noscript">{copy.noJs}</p></noscript>
+  <noscript><nav class="stage-noscript" aria-label={copy.menuTitle}>{nav.map(([label, href]) => <a href={href}>{label}</a>)}</nav></noscript>
 
-  <dialog class="stage-dialog" id="profile-panel" data-stage-dialog>
+  <dialog class="stage-dialog" id="profile-panel" data-stage-dialog aria-labelledby="profile-title">
     <form method="dialog">
       <button class="stage-close" aria-label={copy.close}>×</button>
     </form>
     <p class="eyebrow">{copy.profile}</p>
-    <h2>{copy.profileTitle}</h2>
+    <h2 id="profile-title">{copy.profileTitle}</h2>
     <p>{copy.profileBody}</p>
     <p class="stage-progress">{copy.progress} <span data-progress-count={lessonIds.join(",")}>0/{lessonIds.length}</span></p>
+    <p data-progress-warning role="status"></p>
     <ul class="stage-track-list">
       {tracks.map((track) => {
         const text = trackText(track, locale);
@@ -126,12 +127,12 @@ const nav = [
     </div>
   </dialog>
 
-  <dialog class="stage-dialog stage-menu" id="explore-panel" data-stage-dialog>
+  <dialog class="stage-dialog stage-menu" id="explore-panel" data-stage-dialog aria-labelledby="explore-title">
     <form method="dialog">
       <button class="stage-close" aria-label={copy.close}>×</button>
     </form>
     <p class="eyebrow">{copy.explore}</p>
-    <h2>{copy.menuTitle}</h2>
+    <h2 id="explore-title">{copy.menuTitle}</h2>
     <div class="stage-menu-links">
       {nav.map(([label, href]) => <a href={href}>{label}</a>)}
     </div>

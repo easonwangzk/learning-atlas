@@ -14,6 +14,10 @@ Portfolio layout references Jesper Landberg with a dark full-viewport stage,
 corner chrome, inertial project browsing and a canvas/CSS perspective floor;
 cursor motion references Magic UI, with links and independent-implementation
 notes on both About pages.
+Stage selection is stored in the URL as work=<slug> and view=full. Preserve it
+across locale changes and synchronize native mobile scrolling with this state.
+Resize canvas backing dimensions only when the viewport/DPR changes. Pointer
+parallax and inertial scrolling share a scheduler that stops after settling.
 Keep native touch scrolling and keyboard navigation. Disable decorative motion
 when paused or reduced motion is requested; cursor RAF must stop when settled.
 All English visible text, including enum labels and errors, must stay English.

@@ -482,14 +482,19 @@ function setupStageDialogs() {
     button.addEventListener("click", () => {
       restoreFocus = button;
       if (!dialog.open) dialog.showModal();
+      button.setAttribute("aria-expanded", "true");
       dialog.querySelector<HTMLElement>("button,a")?.focus();
     });
     dialog.addEventListener("close", () => {
+      button.setAttribute("aria-expanded", "false");
       restoreFocus?.focus();
       restoreFocus = null;
     });
     dialog.addEventListener("click", (event) => {
-      if (event.target === dialog) dialog.close();
+      const box = dialog.getBoundingClientRect();
+      if (event.target === dialog && (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom)) {
+        dialog.close();
+      }
     });
   });
 }
@@ -498,6 +503,10 @@ function setupStage() {
   document.querySelectorAll<HTMLElement>("[data-stage]").forEach((stage) => {
     const track = stage.querySelector<HTMLElement>("[data-stage-track]");
     const cards = [...stage.querySelectorAll<HTMLElement>("[data-stage-card]")];
+    cards.forEach((card) => {
+      card.setAttribute("draggable", "false");
+      card.addEventListener("dragstart", (event) => event.preventDefault());
+    });
     const prev = stage.querySelector<HTMLButtonElement>("[data-stage-prev]");
     const next = stage.querySelector<HTMLButtonElement>("[data-stage-next]");
     const count = stage.querySelector<HTMLElement>("[data-stage-count]");
@@ -520,45 +529,62 @@ function setupStage() {
     let dragEndedAt = -1;
     let raf = 0;
     let lastFrame = performance.now();
+    let pointerX = 0;
+    let pointerY = 0;
+    let cameraX = 0;
+    let cameraY = 0;
+    let canvasWidth = 0;
+    let canvasHeight = 0;
+    const context = canvas?.getContext("2d") ?? null;
+    if (canvas && !context) console.warn("Learning Atlas stage canvas is unavailable; CSS perspective floor is used.");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
     const mobile = () => window.matchMedia("(max-width: 719px), (pointer: coarse)").matches;
     const maxOffset = () => targetOffsetForIndex(cards.length - 1, cards.length, metrics);
     const clampOffset = (value: number) => Math.max(0, Math.min(maxOffset(), value));
-    const currentIndex = () => indexFromOffset(target, cards.length, metrics);
+    const currentIndex = () => indexFromOffset(position, cards.length, metrics);
+    const targetIndex = () => indexFromOffset(target, cards.length, metrics);
     const paused = () => document.documentElement.dataset.motion === "paused" || reduced.matches;
 
     const updateUrl = (idx: number) => {
       const slug = cards[idx]?.dataset.slug;
       if (!slug) return;
       const url = new URL(window.location.href);
+      if (url.searchParams.get("work") === slug) return;
       url.searchParams.set("work", slug);
       history.replaceState(null, "", url);
+      document.querySelectorAll<HTMLAnchorElement>("[data-lang-switch]").forEach((link) => {
+        const destination = new URL(link.href);
+        destination.search = url.search;
+        link.href = destination.toString();
+      });
     };
     const drawFloor = () => {
-      if (!canvas) return;
-      const context = canvas.getContext("2d");
-      if (!context) {
-        console.warn("Learning Atlas stage canvas is unavailable; CSS perspective floor is used.");
-        return;
-      }
+      if (!canvas || !context) return;
       const box = stage.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.max(1, Math.floor(box.width * dpr));
-      canvas.height = Math.max(1, Math.floor(box.height * dpr));
+      const width = Math.max(1, Math.floor(box.width * dpr));
+      const height = Math.max(1, Math.floor(box.height * dpr));
+      if (canvasWidth !== width || canvasHeight !== height) {
+        canvas.width = width;
+        canvas.height = height;
+        canvasWidth = width;
+        canvasHeight = height;
+      }
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       context.clearRect(0, 0, box.width, box.height);
       const styles = getComputedStyle(stage);
       context.strokeStyle = styles.getPropertyValue("--stage-line").trim() || styles.getPropertyValue("--cp-border").trim();
       for (const segment of perspectiveGrid(box.width, box.height, 15, 9)) {
         context.beginPath();
-        context.moveTo(segment.x1 + position * -0.018, segment.y1);
-        context.lineTo(segment.x2 + position * -0.06, segment.y2);
+        context.moveTo(segment.x1 + position * -0.018 + cameraX * 0.2, segment.y1 + cameraY * 0.2);
+        context.lineTo(segment.x2 + position * -0.06 + cameraX, segment.y2 + cameraY);
         context.stroke();
       }
       context.strokeStyle = styles.getPropertyValue("--stage-line-strong").trim() || styles.getPropertyValue("--cp-border-strong").trim();
       context.beginPath();
-      context.moveTo(box.width * 0.12, box.height * 0.48);
-      context.lineTo(box.width * 0.88, box.height * 0.48);
+      context.moveTo(box.width * 0.12 + cameraX * 0.2, box.height * 0.48 + cameraY * 0.2);
+      context.lineTo(box.width * 0.88 + cameraX * 0.2, box.height * 0.48 + cameraY * 0.2);
       context.stroke();
     };
     const render = () => {
@@ -581,8 +607,12 @@ function setupStage() {
       if (count) count.textContent = `${idx + 1}/${cards.length}`;
       if (prev) prev.disabled = idx === 0;
       if (next) next.disabled = idx === cards.length - 1;
-      indexItems.forEach((item, itemIndex) => item.toggleAttribute("aria-current", itemIndex === idx));
-      stage.style.setProperty("--stage-camera", `${(position * -0.028).toFixed(2)}px`);
+      indexItems.forEach((item, itemIndex) => {
+        if (itemIndex === idx) item.setAttribute("aria-current", "true");
+        else item.removeAttribute("aria-current");
+      });
+      stage.style.setProperty("--stage-camera", `${(position * -0.028 + cameraX).toFixed(2)}px`);
+      stage.style.setProperty("--stage-camera-y", `${cameraY.toFixed(2)}px`);
       stage.style.setProperty("--stage-curve", `${(velocity * 0.01).toFixed(2)}deg`);
     };
     const stop = () => {
@@ -590,26 +620,36 @@ function setupStage() {
       raf = 0;
     };
     const frame = (now: number) => {
+      if (document.hidden || stage.dataset.stageView === "full") {
+        stop();
+        return;
+      }
       const dt = Math.min(0.05, Math.max(0.001, (now - lastFrame) / 1000));
       lastFrame = now;
       if (paused()) {
         position = target;
         velocity = 0;
+        cameraX = 0;
+        cameraY = 0;
       } else if (!activePointer) {
         if (Math.abs(velocity) > 0.01) {
           target = clampOffset(target + velocity * dt * 60);
           velocity *= Math.pow(0.86, dt * 60);
         } else {
-          target = targetOffsetForIndex(currentIndex(), cards.length, metrics);
-          updateUrl(currentIndex());
+          target = targetOffsetForIndex(targetIndex(), cards.length, metrics);
         }
         position += (target - position) * Math.min(1, 0.18 * dt * 60);
       } else {
         position += (target - position) * Math.min(1, 0.36 * dt * 60);
       }
+      if (!paused()) {
+        cameraX += (pointerX - cameraX) * Math.min(1, dt * 10);
+        cameraY += (pointerY - cameraY) * Math.min(1, dt * 10);
+      }
       render();
       drawFloor();
-      if (Math.abs(target - position) < 0.08 && Math.abs(velocity) < 0.02 && !activePointer) {
+      updateUrl(currentIndex());
+      if (Math.abs(target - position) < 0.08 && Math.abs(velocity) < 0.02 && Math.abs(pointerX - cameraX) < 0.05 && Math.abs(pointerY - cameraY) < 0.05 && !activePointer) {
         position = target;
         render();
         raf = 0;
@@ -618,7 +658,7 @@ function setupStage() {
       raf = requestAnimationFrame(frame);
     };
     const start = () => {
-      if (!raf && !mobile()) {
+      if (!raf && !mobile() && !document.hidden && stage.dataset.stageView !== "full") {
         lastFrame = performance.now();
         raf = requestAnimationFrame(frame);
       }
@@ -626,8 +666,11 @@ function setupStage() {
     const moveTo = (idx: number) => {
       target = targetOffsetForIndex(idx, cards.length, metrics);
       velocity = 0;
-      updateUrl(currentIndex());
-      if (paused()) {
+      updateUrl(targetIndex());
+      if (mobile()) {
+        const card = cards[targetIndex()];
+        track.scrollTo({ top: card.offsetTop, behavior: "instant" });
+      } else if (paused()) {
         position = target;
         render();
         drawFloor();
@@ -637,19 +680,35 @@ function setupStage() {
       stop();
       const idx = currentIndex();
       metrics = stageCardMetrics(stage.clientWidth || window.innerWidth, stage.clientHeight || window.innerHeight);
+      if (mobile()) {
+        const width = cards[0]?.offsetWidth ?? metrics.cardWidth;
+        const height = cards[0]?.offsetHeight ?? metrics.cardHeight;
+        metrics = { ...metrics, cardWidth: width, cardHeight: height };
+      }
       target = targetOffsetForIndex(idx, cards.length, metrics);
       position = target;
       render();
       drawFloor();
+      if (mobile()) track.scrollTo({ top: cards[idx].offsetTop, behavior: "instant" });
     };
 
-    prev?.addEventListener("click", () => moveTo(currentIndex() - 1));
-    next?.addEventListener("click", () => moveTo(currentIndex() + 1));
+    prev?.addEventListener("click", () => moveTo(targetIndex() - 1));
+    next?.addEventListener("click", () => moveTo(targetIndex() + 1));
     indexItems.forEach((item, idx) => item.addEventListener("click", () => moveTo(idx)));
+    let keyboardInput = false;
+    document.addEventListener("keydown", (event) => {
+      if (["Tab", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) keyboardInput = true;
+    });
+    document.addEventListener("pointerdown", () => { keyboardInput = false; });
+    track.addEventListener("focusin", (event) => {
+      if (!keyboardInput) return;
+      const card = event.target instanceof Element ? event.target.closest<HTMLElement>("[data-stage-card]") : null;
+      if (card) moveTo(cards.indexOf(card));
+    });
     track.addEventListener("keydown", (event) => {
       if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
         event.preventDefault();
-        moveTo(currentIndex() + (event.key === "ArrowLeft" ? -1 : 1));
+        moveTo(targetIndex() + (event.key === "ArrowLeft" ? -1 : 1));
       }
     });
     track.addEventListener("wheel", (event) => {
@@ -658,7 +717,13 @@ function setupStage() {
       const delta = normalizedWheelDelta(event);
       target = clampOffset(target + delta * 1.05);
       velocity += delta * 0.06;
-      start();
+      if (paused()) {
+        velocity = 0;
+        position = target;
+        render();
+        drawFloor();
+        updateUrl(currentIndex());
+      } else start();
     }, { passive: false });
     track.addEventListener("pointerdown", (event) => {
       if (event.pointerType !== "mouse" || event.button !== 0 || mobile()) return;
@@ -701,6 +766,29 @@ function setupStage() {
     };
     track.addEventListener("pointerup", finishDrag);
     track.addEventListener("pointercancel", finishDrag);
+    window.addEventListener("blur", finishDrag);
+    track.addEventListener("scroll", () => {
+      if (!mobile()) return;
+      const index = cards.reduce((best, card, idx) => {
+        const distance = Math.abs(card.offsetTop - track.scrollTop);
+        return distance < best.distance ? { idx, distance } : best;
+      }, { idx: 0, distance: Infinity }).idx;
+      position = target = targetOffsetForIndex(index, cards.length, metrics);
+      render();
+      drawFloor();
+      updateUrl(index);
+    }, { passive: true });
+    stage.addEventListener("pointermove", (event) => {
+      if (event.pointerType !== "mouse" || !fine.matches || mobile() || paused()) return;
+      const box = stage.getBoundingClientRect();
+      pointerX = (event.clientX / box.width - 0.5) * 36;
+      pointerY = (event.clientY / box.height - 0.5) * 18;
+      start();
+    }, { passive: true });
+    stage.addEventListener("pointerleave", () => {
+      pointerX = pointerY = 0;
+      start();
+    });
     track.addEventListener("click", (event) => {
       if (dragged && performance.now() - dragEndedAt < 350) {
         event.preventDefault();
@@ -711,6 +799,17 @@ function setupStage() {
       button.addEventListener("click", () => {
         const full = button.dataset.stageMode === "full";
         stage.dataset.stageView = full ? "full" : "featured";
+        track.inert = full;
+        const gallery = stage.querySelector<HTMLElement>("[data-stage-gallery]");
+        if (gallery) gallery.inert = full;
+        const indexView = stage.querySelector<HTMLElement>("[data-stage-index]");
+        if (indexView) indexView.inert = !full;
+        const url = new URL(location.href);
+        if (full) url.searchParams.set("view", "full");
+        else url.searchParams.delete("view");
+        history.replaceState(null, "", url);
+        if (full) stop();
+        else start();
         modeButtons.forEach((other) => other.setAttribute("aria-pressed", String(other === button)));
       });
     });
@@ -719,6 +818,8 @@ function setupStage() {
     document.addEventListener("atlas:motion-change", () => {
       velocity = 0;
       if (paused()) {
+        stop();
+        pointerX = pointerY = cameraX = cameraY = 0;
         position = target;
         render();
         drawFloor();
@@ -727,8 +828,15 @@ function setupStage() {
     reduced.addEventListener("change", resize);
     const requested = new URLSearchParams(window.location.search).get("work");
     const requestedIndex = requested ? cards.findIndex((card) => card.dataset.slug === requested) : -1;
-    moveTo(requestedIndex >= 0 ? requestedIndex : Math.min(1, cards.length - 1));
+    const initial = requestedIndex >= 0 ? requestedIndex : (mobile() ? 0 : Math.min(1, cards.length - 1));
+    position = target = targetOffsetForIndex(initial, cards.length, metrics);
     resize();
+    moveTo(initial);
+    const indexView = stage.querySelector<HTMLElement>("[data-stage-index]");
+    if (indexView) indexView.inert = true;
+    if (new URLSearchParams(location.search).get("view") === "full") {
+      modeButtons.find((button) => button.dataset.stageMode === "full")?.click();
+    }
   });
 }
 
