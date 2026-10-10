@@ -76,14 +76,6 @@ svg {
   flex-direction: column;
 }
 
-.retired-shell-a {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  background: var(--cp-bg);
-  border-bottom: 0.0625rem solid var(--cp-border);
-}
-
 .nav {
   width: min(78rem, calc(100% - 1.5rem));
   margin: 0 auto;
@@ -566,15 +558,10 @@ main {
   grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
 }
 
-[data-view-mode="gallery"] .retired-project-a {
-  grid-template-columns: 1fr;
-}
-
 [data-view-mode="gallery"] .project-list-cover {
   min-height: 18rem;
 }
 
-.retired-project-a,
 .resource-row {
   display: grid;
   grid-template-columns: minmax(12rem, 22rem) minmax(0, 1fr);
@@ -788,8 +775,6 @@ h3 {
 
 .hero-panel,
 .card,
-.retired-lesson-a,
-.retired-resource-a,
 .project-panel,
 .search-panel {
   background: var(--cp-panel-strong);
@@ -802,9 +787,7 @@ h3 {
   padding: 1rem;
 }
 
-.card h2,
-.retired-lesson-a h2,
-.retired-resource-a h2 {
+.card h2 {
   font-size: clamp(1.3rem, 2.5vw, 1.9rem);
   line-height: 1.3;
 }
@@ -815,7 +798,6 @@ a.card {
 }
 
 .sidebox,
-.retired-resource-a,
 .prose {
   overflow-wrap: anywhere;
   min-width: 0;
@@ -827,16 +809,12 @@ a.card {
   gap: 1rem;
 }
 
-.card,
-.retired-lesson-a,
-.retired-resource-a {
+.card {
   padding: 1.25rem;
   transition: transform 160ms ease, border-color 160ms ease;
 }
 
-.card:hover,
-.retired-lesson-a:hover,
-.retired-resource-a:hover {
+.card:hover {
   transform: translateY(-0.2rem);
   border-color: var(--cp-border-strong);
 }
@@ -979,12 +957,6 @@ a.card {
 
 .search-results a {
   color: var(--cp-text);
-}
-
-.retired-shell-b {
-  border-top: 0.0625rem solid var(--cp-border);
-  background: var(--cp-bg-elevated);
-  padding: 2rem 0;
 }
 
 .footer-grid {
@@ -1660,13 +1632,6 @@ html:not([data-js="true"]) [data-motion-toggle] {
   border: 0.0625rem solid var(--cp-border);
 }
 
-.project-index-scene .retired-project-a {
-  border: 0;
-  border-radius: 0;
-  background: var(--cp-panel-strong);
-  box-shadow: none;
-}
-
 .project-index-scene .project-list-cover .project-artwork {
   border-radius: 0;
   border: 0;
@@ -1838,7 +1803,6 @@ html:not([data-js="true"]) [data-motion-toggle] {
   }
 
   .knowledge-row,
-  .retired-project-a,
   .resource-row {
     grid-template-columns: 1fr;
   }
@@ -1957,7 +1921,7 @@ html:not([data-js="true"]) [data-motion-toggle] {
 
 .atlas-atmosphere__floor {
   top: 42%;
-  transform: perspective(46rem) rotateX(66deg) translateY(12%);
+  transform: perspective(46rem) rotateX(66deg) translateY(calc(12% + var(--ambient-y, 0px))) translateX(var(--ambient-x, 0px));
   transform-origin: top center;
   background-image:
     linear-gradient(to right, var(--cp-border) 1px, transparent 1px),
@@ -2038,6 +2002,7 @@ html:not([data-js="true"]) [data-motion-toggle] {
 
 .chrome-dialog,
 .stage-dialog {
+  pointer-events: auto;
   width: min(32rem, calc(100vw - 2rem));
   border: 1px solid var(--cp-border);
   background: var(--cp-panel-strong);
@@ -2048,6 +2013,7 @@ html:not([data-js="true"]) [data-motion-toggle] {
 
 .chrome-dialog::backdrop,
 .stage-dialog::backdrop {
+  pointer-events: auto;
   background: var(--cp-overlay);
 }
 
@@ -2075,6 +2041,7 @@ html:not([data-js="true"]) [data-motion-toggle] {
 }
 
 .chrome-noscript {
+  pointer-events: auto;
   position: fixed;
   top: 3rem;
   left: 1rem;
@@ -2266,7 +2233,31 @@ html:not([data-js="true"]) [data-motion-toggle] {
 }
 
 .reading-prose h1 {
-  font-size: clamp(2.6rem, 8vw, 6.2rem);
+  font-size: clamp(2rem, 4.5vw, 3.8rem);
+  line-height: 1.18;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.reading-prose .tag-row .chip {
+  border: 0;
+  border-right: 1px solid var(--cp-border);
+  border-radius: 0;
+  padding: 0 0.6rem 0 0;
+}
+
+.reading-prose .tag-row .chip:last-child {
+  border-right: 0;
+}
+
+.atlas-atmosphere[data-ambient-kind="lesson"] .atlas-atmosphere__canvas,
+.atlas-atmosphere[data-ambient-kind="about"] .atlas-atmosphere__canvas {
+  opacity: 0.16;
+}
+
+.atlas-atmosphere[data-ambient-kind="lesson"] .atlas-atmosphere__floor,
+.atlas-atmosphere[data-ambient-kind="about"] .atlas-atmosphere__floor {
+  opacity: 0.035;
 }
 
 .reading-prose h2 {
@@ -2314,6 +2305,35 @@ html:not([data-js="true"]) [data-motion-toggle] {
 .project-poster {
   display: block;
   transform: perspective(40rem) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+}
+
+[data-view-mode="gallery"] .project-archive {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem 2rem;
+}
+
+[data-view-mode="gallery"] .project-row {
+  grid-template-columns: 3rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+}
+
+[data-view-mode="gallery"] .project-poster {
+  grid-column: 1 / -1;
+}
+
+[data-view-mode="gallery"] .project-row > .text-link {
+  grid-column: 2;
+  justify-self: start;
+}
+
+[data-view-mode="index"] .project-row {
+  grid-template-columns: 3rem minmax(0, 1fr) auto;
+}
+
+[data-view-mode="index"] .project-poster {
+  display: none;
 }
 
 .case-hero-dark {
@@ -2438,10 +2458,12 @@ html:not([data-js="true"]) [data-motion-toggle] {
   .resource-row-dark > .text-link { grid-column: 2; justify-self: start; }
   .project-row { grid-template-columns: 3rem minmax(0, 1fr); }
   .project-poster { grid-column: 1 / -1; max-width: 22rem; }
+  [data-view-mode="gallery"] .project-archive { grid-template-columns: 1fr; }
+  [data-view-mode="index"] .project-row { grid-template-columns: 3rem minmax(0, 1fr); }
+  [data-view-mode="index"] .project-row > .text-link { grid-column: 2; justify-self: start; }
   .two-column,
   .reading-layout,
   .case-hero-dark { grid-template-columns: 1fr; }
   .reading-rail { position: static; border-left: 0; border-top: 1px solid var(--cp-border); padding: 1rem 0 0; }
   .profile-section .chapter-number { position: static; display: block; margin-bottom: 0.4rem; }
 }
-

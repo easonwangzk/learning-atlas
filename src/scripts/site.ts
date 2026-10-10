@@ -18,12 +18,12 @@ function setupNotFoundLocale() {
   replace(".skip-link", t.skip);
   const navPaths = { Home: "/", Knowledge: "/learn/", Projects: "/projects/", Resources: "/resources/", About: "/about/", Search: "/search/" };
   for (const [key, path] of Object.entries(navPaths)) {
-    const link = document.querySelector<HTMLAnchorElement>(`[data-nav-key="${key}"]`);
     const label = Object.entries(t.nav).find(([name]) => name === key)?.[1];
-    if (link && label) {
-      link.textContent = label;
+    document.querySelectorAll<HTMLAnchorElement>(`[data-nav-key="${key}"]`).forEach((link) => {
+      if (!label) throw new Error(`Missing localized navigation label: ${key}`);
+      link.textContent = link.classList.contains("chrome-brand") ? "Learning Atlas" : label;
       link.href = withBase(localizePath(path, locale));
-    }
+    });
   }
   document.querySelector("[data-site-chrome]")?.setAttribute("aria-label", t.navLabel);
   const brand = document.querySelector<HTMLAnchorElement>(".chrome-brand, .stage-wordmark");
@@ -43,6 +43,10 @@ function setupNotFoundLocale() {
   }
   document.querySelector("[data-theme-toggle]")?.setAttribute("aria-label", t.theme);
   replace("[data-menu-toggle]", t.menu);
+  replace("[data-chrome-menu-toggle]", t.menu);
+  replace("[data-chrome-menu-title]", locale === "en" ? "Site index" : "站点索引");
+  replace("[data-chrome-privacy]", t.footerOne);
+  document.querySelector("[data-chrome-close]")?.setAttribute("aria-label", locale === "en" ? "Close" : "关闭");
   if (locale === "en") {
     replace("[data-notfound-title]", "This path does not have a lesson yet.");
     replace("[data-notfound-description]", "Return to the knowledge map or use site search.");
@@ -207,6 +211,7 @@ function setupMotion() {
       button.disabled = reduced;
       button.setAttribute("aria-pressed", String(paused || reduced));
       button.textContent = reduced ? (button.dataset.labelReduced || "") : paused ? (button.dataset.labelPlay || "") : (button.dataset.labelPause || "");
+      button.setAttribute("aria-label", button.textContent);
     });
   };
   const applyPreference = () => {
@@ -985,7 +990,8 @@ function setupAmbientBackground() {
   document.querySelectorAll<HTMLElement>("[data-ambient-background]").forEach((ambient) => {
     const canvas = ambient.querySelector<HTMLCanvasElement>("[data-ambient-canvas]");
     const context = canvas?.getContext("2d") ?? null;
-    if (!canvas || !context) return;
+    if (!canvas) return;
+    if (!context) console.warn("Learning Atlas ambient canvas is unavailable; CSS perspective floor remains active.");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
     let raf = 0;
@@ -998,6 +1004,9 @@ function setupAmbientBackground() {
     let scroll = window.scrollY;
     const paused = () => document.documentElement.dataset.motion === "paused" || reduced.matches;
     const draw = () => {
+      ambient.style.setProperty("--ambient-x", `${cameraX.toFixed(2)}px`);
+      ambient.style.setProperty("--ambient-y", `${cameraY.toFixed(2)}px`);
+      if (!context) return;
       const box = ambient.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const nextWidth = Math.max(1, Math.floor(box.width * dpr));
@@ -1013,7 +1022,7 @@ function setupAmbientBackground() {
       const styles = getComputedStyle(ambient);
       context.strokeStyle = styles.getPropertyValue("--cp-border").trim();
       context.lineWidth = 1;
-      const scrollOffset = (scroll % 240) * 0.06;
+      const scrollOffset = paused() ? 0 : (scroll % 240) * 0.06;
       for (const segment of perspectiveGrid(box.width, box.height, 14, 8)) {
         context.beginPath();
         context.moveTo(segment.x1 + cameraX * 0.18, segment.y1 + cameraY * 0.12 + scrollOffset);
@@ -1025,8 +1034,6 @@ function setupAmbientBackground() {
       context.moveTo(box.width * 0.1 + cameraX * 0.15, box.height * 0.45 + cameraY * 0.12);
       context.lineTo(box.width * 0.9 + cameraX * 0.15, box.height * 0.45 + cameraY * 0.12);
       context.stroke();
-      ambient.style.setProperty("--ambient-x", `${cameraX.toFixed(2)}px`);
-      ambient.style.setProperty("--ambient-y", `${cameraY.toFixed(2)}px`);
     };
     const stop = () => {
       if (raf) cancelAnimationFrame(raf);
@@ -1054,6 +1061,11 @@ function setupAmbientBackground() {
     const start = () => {
       if (!raf && !document.hidden) raf = requestAnimationFrame(frame);
     };
+    const reset = () => {
+      pointerX = pointerY = cameraX = cameraY = 0;
+      stop();
+      draw();
+    };
     window.addEventListener("pointermove", (event) => {
       if (event.pointerType !== "mouse" || !fine.matches || paused()) return;
       pointerX = (event.clientX / Math.max(1, window.innerWidth) - 0.5) * 42;
@@ -1067,13 +1079,14 @@ function setupAmbientBackground() {
     }, { passive: true });
     window.addEventListener("resize", draw, { passive: true });
     document.addEventListener("visibilitychange", () => { if (document.hidden) stop(); else draw(); });
-    document.addEventListener("atlas:motion-change", () => {
-      pointerX = pointerY = cameraX = cameraY = 0;
-      stop();
-      draw();
+    window.addEventListener("blur", reset);
+    document.documentElement.addEventListener("pointerleave", () => {
+      pointerX = pointerY = 0;
+      start();
     });
-    reduced.addEventListener("change", draw);
-    fine.addEventListener("change", draw);
+    document.addEventListener("atlas:motion-change", reset);
+    reduced.addEventListener("change", reset);
+    fine.addEventListener("change", reset);
     draw();
   });
 }

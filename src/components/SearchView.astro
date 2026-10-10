@@ -1,6 +1,7 @@
 ---
 import type { Locale } from "@/i18n";
-interface Props { locale: Locale; items: any[] }
+import type { SearchItem } from "@/lib/viewTypes";
+interface Props { locale: Locale; items: readonly SearchItem[] }
 const { locale, items } = Astro.props;
 const isEn = locale === "en";
 const copy = { eyebrow: isEn ? "Static search" : "静态搜索", title: isEn ? "Search the site" : "搜索全站", lead: isEn ? "Search lesson bodies, public project cases, and learning resources. Multiple terms run locally on this page." : "搜索课程正文、公开项目案例与学习资源。多个关键词在当前页面内本地匹配。", label: isEn ? "Search query" : "搜索关键词", placeholder: isEn ? "Try RAG, AZ-700, Blob, MLOps…" : "输入 RAG、AZ-700、Blob、MLOps…", nojs: isEn ? "JavaScript is disabled; all lessons, cases, and resources are still listed below." : "JavaScript 未开启，以下仍可浏览全部课程、案例和资源。", empty: isEn ? "No matches. Try shorter keywords or clear the search." : "没有匹配结果。试试更短的关键词，或清空搜索。" };

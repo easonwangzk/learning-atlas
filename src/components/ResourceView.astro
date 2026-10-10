@@ -1,6 +1,7 @@
 ---
 import type { Locale } from "@/i18n";
-interface Props { locale: Locale; resources: any[] }
+import type { Resource } from "@/lib/viewTypes";
+interface Props { locale: Locale; resources: readonly Resource[] }
 const { locale, resources } = Astro.props;
 const isEn = locale === "en";
 const groups = [

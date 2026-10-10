@@ -3,7 +3,8 @@ import { tracks, trackText } from "@/data/tracks";
 import { withBase } from "@/lib/paths";
 import { lessonRoute, lessonProgressId } from "@/lib/lessons";
 import { certificationLabel, localizePath, type Locale } from "@/i18n";
-interface Props { locale: Locale; lessons: any[] }
+import type { Lesson } from "@/lib/viewTypes";
+interface Props { locale: Locale; lessons: readonly Lesson[] }
 const { locale, lessons } = Astro.props;
 const isEn = locale === "en";
 const copy = {

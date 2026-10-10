@@ -2,7 +2,8 @@
 import ProjectArtwork from "@/components/ProjectArtwork.astro";
 import { withBase } from "@/lib/paths";
 import { type Locale } from "@/i18n";
-interface Props { locale: Locale; project: any; previous: any; next: any }
+import type { Project } from "@/lib/viewTypes";
+interface Props { locale: Locale; project: Project; previous: Project; next: Project }
 const { locale, project, previous, next } = Astro.props;
 const isEn = locale === "en";
 const copy = { repo: isEn ? "Open public repository" : "查看公开仓库", flow: project.slug === "recommendation-algorithm" ? (isEn ? "Suggested reading order (not a repository architecture claim)" : "建议阅读顺序（非仓库架构声明）") : (isEn ? "Architecture reading map (based on repository description)" : "架构阅读图（基于仓库描述）"), learn: isEn ? "What to study" : "值得学习的设计", limits: isEn ? "Boundaries" : "适用边界", related: isEn ? "Related learning" : "相关学习", note: isEn ? "Cases help read technical design; runtime, data, and model setup remain in the original repositories." : "案例用于理解技术设计；应用运行、数据和模型配置请以原仓库说明为准。", all: isEn ? "All projects" : "全部项目" };

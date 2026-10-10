@@ -1,7 +1,8 @@
 ---
 import { withBase } from "@/lib/paths";
 import { certificationLabel, localizePath, type Locale } from "@/i18n";
-interface Props { locale: Locale; lesson: any; lessonId: string; trackLabel: string; previous?: any; next?: any }
+import type { Lesson, LessonLink } from "@/lib/viewTypes";
+interface Props { locale: Locale; lesson: Lesson; lessonId: string; trackLabel: string; previous?: LessonLink; next?: LessonLink }
 const { locale, lesson, lessonId, trackLabel, previous, next } = Astro.props;
 const isEn = locale === "en";
 const copy = {
@@ -25,7 +26,7 @@ const outline = isEn
       <h1>{lesson.data.title}</h1>
       <p class="lead">{lesson.data.summary}</p>
       <div class="tag-row">{lesson.data.tags.map((tag: string) => <span class="chip">{tag}</span>)}</div>
-      <details class="exam-note" open>
+      <details class="exam-note">
         <summary>{copy.boundary}</summary>
         <p>{copy.boundaryText}</p>
       </details>

@@ -2,10 +2,11 @@
 import ProjectArtwork from "@/components/ProjectArtwork.astro";
 import { withBase } from "@/lib/paths";
 import { localizePath, type Locale } from "@/i18n";
-interface Props { locale: Locale; projects: any[] }
+import type { Project } from "@/lib/viewTypes";
+interface Props { locale: Locale; projects: readonly Project[] }
 const { locale, projects } = Astro.props;
 const isEn = locale === "en";
-const topics = ["all", ...Array.from(new Set(projects.flatMap((project) => project.topics)))] as string[];
+const topics = ["all", ...Array.from(new Set(projects.flatMap((project) => [...project.topics])))];
 const copy = { eyebrow: isEn ? "Public cases" : "公开案例", title: isEn ? "Projects" : "项目案例", lead: isEn ? "A quiet index of public GitHub repositories, README-based boundaries, architecture reading paths, and learning takeaways." : "公开 GitHub 仓库的克制索引：保留 README 边界、架构阅读顺序和学习要点。", search: isEn ? "Search projects" : "搜索项目", featured: isEn ? "Featured" : "精选", index: isEn ? "Index" : "索引", all: isEn ? "All" : "全部", clear: isEn ? "Clear filters" : "清空筛选", open: isEn ? "Open case" : "打开案例", empty: isEn ? "No matching projects. Reset filters or try another keyword." : "没有匹配项目。请重置筛选或换一个关键词。" };
 ---
 <section class="atlas-page atlas-projects">

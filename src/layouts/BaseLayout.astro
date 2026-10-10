@@ -121,7 +121,7 @@ const pageTitle = title === "Learning Atlas" ? title : `${title} · Learning Atl
     <Atmosphere locale={locale} pageKind={pageKind} active={!scene} />
     <div class:list={["site-shell", scene && "scene-shell"]} data-shell="atlas" data-page-kind={pageKind}>
       <a class="skip-link" href="#content">{t.skip}</a>
-      {!scene ? <SiteChrome locale={locale} current={current} otherPath={otherPath} pageKind={pageKind} crumbs={crumbs} contextLabel={contextLabel} /> : <span class="visually-hidden" data-site-chrome data-page-kind={pageKind}>Stage chrome</span>}
+      {!scene && <SiteChrome locale={locale} current={current} otherPath={otherPath} pageKind={pageKind} crumbs={crumbs} contextLabel={contextLabel} />}
       <main id="content">
         <slot />
       </main>

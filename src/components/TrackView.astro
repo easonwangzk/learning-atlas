@@ -2,7 +2,8 @@
 import { withBase } from "@/lib/paths";
 import { lessonRoute, lessonProgressId } from "@/lib/lessons";
 import { certificationLabel, localizePath, type Locale } from "@/i18n";
-interface Props { locale: Locale; track: any; text: any; lessons: any[]; allTracks: readonly any[] }
+import type { Lesson, Track, TrackText } from "@/lib/viewTypes";
+interface Props { locale: Locale; track: Track; text: TrackText; lessons: readonly Lesson[]; allTracks: readonly Track[] }
 const { locale, track, text, lessons, allTracks } = Astro.props;
 const isEn = locale === "en";
 const ids = lessons.map(lessonProgressId);

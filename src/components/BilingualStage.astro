@@ -55,7 +55,7 @@ const nav = [
   <div class="stage-floor" aria-hidden="true"></div>
   <div class="stage-vignette" aria-hidden="true"></div>
 
-  <nav class="stage-chrome stage-top-left" aria-label={isEn ? "Stage home" : "展台首页"}>
+  <nav class="stage-chrome stage-top-left" data-site-chrome data-page-kind="home" aria-label={isEn ? "Stage home" : "展台首页"}>
     <a class="stage-wordmark" href={withBase(isEn ? "/en/" : "/")}>{copy.brand}</a>
   </nav>
   <div class="stage-chrome stage-top-right">
