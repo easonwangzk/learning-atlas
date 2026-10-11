@@ -18,7 +18,7 @@ interface Props {
 const { locale, projects, tracks, lessonIds, resourceCount } = Astro.props;
 const isEn = locale === "en";
 const path = (href: string) => withBase(isEn ? `/en${href}` : href);
-const switchPath = withBase(isEn ? "/" : "/en/");
+const switchPath = withBase(isEn ? "/projects/showcase/" : "/en/projects/showcase/");
 const copy = {
   brand: "Learning Atlas",
   h1: isEn ? "Learning Atlas project stage" : "Learning Atlas 项目展台",
@@ -51,8 +51,9 @@ const nav = [...primaryNavigation, ...secondaryNavigation].map((entry) => [entry
   <div class="stage-floor" aria-hidden="true"></div>
   <div class="stage-vignette" aria-hidden="true"></div>
 
-  <nav class="stage-chrome stage-top-left" data-site-chrome data-page-kind="home" aria-label={isEn ? "Stage home" : "展台首页"}>
+  <nav class="stage-chrome stage-top-left" data-site-chrome data-page-kind="showcase" aria-label={isEn ? "Showcase navigation" : "作品展台导航"}>
     <a class="stage-wordmark" href={withBase(isEn ? "/en/" : "/")}>{copy.brand}</a>
+    <a class="stage-link showcase-parent-link" href={path("/projects/")}>{isEn ? "Projects" : "项目案例"}</a>
   </nav>
   <div class="stage-chrome stage-top-right">
     <button class="stage-link" type="button" data-dialog-open="profile-panel" aria-haspopup="dialog" aria-controls="profile-panel" aria-expanded="false">{copy.profile}</button>

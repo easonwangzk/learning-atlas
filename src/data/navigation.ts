@@ -25,7 +25,9 @@ export const primaryNavigation: readonly NavigationEntry[] = [
     { key: "az-700", label: { zh: "AZ-700：网络专项", en: "AZ-700: Network specialty" }, path: "/certifications/az-700/", purpose: { zh: "核心网络、连接、交付、私有访问与安全", en: "Core networking, connectivity, delivery, private access, and security" } },
     { key: "az-305", label: { zh: "AZ-305：架构设计与权衡", en: "AZ-305: Architecture design and tradeoffs" }, path: "/certifications/az-305/", purpose: { zh: "治理、数据、连续性与基础设施决策", en: "Governance, data, continuity, and infrastructure decisions" } }
   ] },
-  { key: "Projects", label: { zh: "项目案例", en: "Projects" }, path: "/projects/", purpose: { zh: "从公开代码理解实际设计取舍", en: "Read design tradeoffs in public code" }, children: [] },
+  { key: "Projects", label: { zh: "项目案例", en: "Projects" }, path: "/projects/", purpose: { zh: "从公开代码理解实际设计取舍", en: "Read design tradeoffs in public code" }, children: [
+    { key: "showcase", label: { zh: "互动作品展台", en: "Interactive showcase" }, path: "/projects/showcase/", purpose: { zh: "横向浏览公开项目作品", en: "Explore public projects in the interactive gallery" } }
+  ] },
   { key: "Labs", label: { zh: "实践实验", en: "Labs" }, path: "/labs/", purpose: { zh: "本地运行教学实验，查看结果与图表", en: "Run teaching exercises locally and inspect results" }, children: [
     { key: "compute-capacity", label: { zh: "计算容量", en: "Compute capacity" }, path: "/labs/compute-capacity/", purpose: { zh: "RPS 与 CPU 工作量估算副本数", en: "Estimate replicas from RPS and CPU work" } },
     { key: "storage-recovery", label: { zh: "恢复时间线", en: "Recovery timeline" }, path: "/labs/storage-recovery/", purpose: { zh: "RPO/RTO 与备份恢复阶段", en: "RPO/RTO and recovery phases" } },

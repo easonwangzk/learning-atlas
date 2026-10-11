@@ -2525,6 +2525,31 @@ html:not([data-js="true"]) [data-motion-toggle] {
 .reading-rail .text-link { white-space: normal; overflow-wrap: anywhere; }
 .chart-legend text { font-size: 10px; }
 @media (max-width: 48rem) { .labs-index { grid-template-columns: 1fr; } .map-node-link { font-size: 0.72rem; padding: 0.25rem; } .map-node-link span { width: 2rem; height: 2rem; } }
+
+.home-container { max-width: 64rem; }
+.home-introduction { max-width: 46rem; margin-bottom: 2.25rem; }
+.home-introduction h1 { font-size: clamp(2.6rem, 5vw, 4.25rem); line-height: 1.12; margin-block: 0.5rem 1rem; letter-spacing: -0.04em; }
+.home-introduction .lead { font-size: 1.08rem; line-height: 1.8; margin-bottom: 0.5rem; }
+.home-guidance { color: var(--cp-text-muted); font-size: 0.95rem; }
+.home-directory h2 { font-size: 1.05rem; letter-spacing: 0; margin-bottom: 1rem; }
+.home-directory ol { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2rem; }
+.home-directory-entry { border-top: 1px solid var(--cp-border); padding-block: 1rem; min-width: 0; }
+.home-directory-entry > a:first-child { display: grid; grid-template-columns: 2rem minmax(0, 1fr) auto; gap: 0.5rem; align-items: start; color: var(--cp-text); text-decoration: none; }
+.home-directory-entry strong { font-size: 1.05rem; font-weight: 500; }
+.home-directory-number { color: var(--cp-text-muted); font-size: 0.82rem; padding-top: 0.15rem; }
+.home-directory-purpose { display: block; color: var(--cp-text-muted); font-size: 0.85rem; margin-top: 0.25rem; }
+.home-showcase-link { display: inline-block; margin-top: 0.5rem; margin-left: 2.5rem; color: var(--cp-text-muted); font-size: 0.82rem; text-decoration: none; }
+.home-supporting-links { display: flex; gap: 1.25rem; font-size: 0.85rem; padding-top: 0.75rem; }
+.home-supporting-links a { color: var(--cp-text-muted); }
+.chrome-dialog .navigation-section > a, .stage-menu .navigation-section > a { padding-block: 0.65rem; }
+.chrome-dialog .navigation-utilities, .stage-menu .navigation-utilities { padding-block: 0.75rem 0; }
+@media (max-width: 640px) {
+  .home-directory ol { grid-template-columns: 1fr; gap: 0; }
+  .home-introduction { margin-bottom: 1.5rem; }
+}
+@media (max-width: 719px), (pointer: coarse) {
+  .showcase-parent-link { position: absolute; top: 1.6rem; left: 0; white-space: nowrap; }
+}
 [data-roadmap-next] { display: inline-block; max-width: 100%; white-space: normal; }
 .map-detail, .lab-panel { border: 0.0625rem solid var(--cp-border); border-radius: 16px; background: var(--cp-panel-strong); padding: 1rem; }
 .lab-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 0.75rem; align-items: end; }

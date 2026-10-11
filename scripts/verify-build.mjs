@@ -14,7 +14,7 @@ function walk(dir) {
 }
 
 const htmlFiles = walk(dist).filter((file) => file.endsWith(".html"));
-assert.equal(htmlFiles.length, 102, `expected the full bilingual static site, got ${htmlFiles.length}`);
+assert.equal(htmlFiles.length, 104, `expected the full bilingual static site, got ${htmlFiles.length}`);
 const pages = new Map(htmlFiles.map((file) => [file, readFileSync(file, "utf8")]));
 const outputPaths = htmlFiles.map((file) => relative(dist, file).split(sep).join("/"));
 const familyCounts = {
@@ -24,7 +24,8 @@ const familyCounts = {
   tracks: outputPaths.filter((path) => /^(?:en\/)?learn\/[^/]+\/index\.html$/.test(path)).length,
   lessons: outputPaths.filter((path) => /^(?:en\/)?learn\/[^/]+\/[^/]+\/index\.html$/.test(path)).length,
   certifications: outputPaths.filter((path) => /^(?:en\/)?certifications\/(?:index\.html|[^/]+\/index\.html)$/.test(path)).length,
-  projects: outputPaths.filter((path) => /^(?:en\/)?projects\/(?:index\.html|[^/]+\/index\.html)$/.test(path)).length,
+  projects: outputPaths.filter((path) => /^(?:en\/)?projects\/(?:index\.html|[^/]+\/index\.html)$/.test(path) && !/projects\/showcase\//.test(path)).length,
+  showcase: outputPaths.filter((path) => /^(?:en\/)?projects\/showcase\/index\.html$/.test(path)).length,
   labs: outputPaths.filter((path) => /^(?:en\/)?labs\/(?:index\.html|[^/]+\/index\.html)$/.test(path)).length,
   notes: outputPaths.filter((path) => /^(?:en\/)?notes\/index\.html$/.test(path)).length,
   roadmap: outputPaths.filter((path) => /^(?:en\/)?roadmap\/index\.html$/.test(path)).length,
@@ -41,6 +42,7 @@ assert.deepEqual(familyCounts, {
   lessons: 36,
   certifications: 8,
   projects: 14,
+  showcase: 2,
   labs: 14,
   notes: 2,
   roadmap: 2,
@@ -109,8 +111,15 @@ assert.equal(locations.length, htmlFiles.length - 2, "All pages except localized
 locations.forEach((location) => targetFile(new URL(location)));
 assert.match(readFileSync(join(dist, "robots.txt"), "utf8"), /learning-atlas\/sitemap\.xml/);
 for (const home of [readFileSync(join(dist, "index.html"), "utf8"), readFileSync(join(dist, "en", "index.html"), "utf8")]) {
-  assert.match(home, /data-stage-track/);
-  assert.match(home, /data-stage-canvas/);
-  assert.doesNotMatch(home, /hero-title|data-gallery-track/);
+  assert.match(home, /class="home-introduction"/);
+  assert.match(home, /class="home-directory"/);
+  assert.doesNotMatch(home, /data-stage-track|data-stage-canvas|home-stage-body/);
+  assert.match(home, /projects\/showcase\//);
 }
+for (const file of ["projects", join("en", "projects")]) {
+  const showcase = readFileSync(join(dist, file, "showcase", "index.html"), "utf8");
+  assert.match(showcase, /data-stage-track/);
+  assert.match(showcase, /data-stage-canvas/);
+}
+for (const [file, html] of pages) assert.doesNotMatch(html, /class="navigation-children"/, `${file}: menus must remain flat`);
 console.log(`Verified ${htmlFiles.length} pages and ${references} local links/assets.`);

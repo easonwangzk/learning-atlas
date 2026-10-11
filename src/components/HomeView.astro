@@ -1,0 +1,43 @@
+---
+import type { Locale } from "@/i18n";
+import { primaryNavigation, secondaryNavigation, localizeNavPath } from "@/data/navigation";
+import { withBase } from "@/lib/paths";
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const isEn = locale === "en";
+const path = (value: string) => withBase(localizeNavPath(value, locale));
+---
+<section class="atlas-page home-page">
+  <div class="atlas-container home-container">
+    <header class="home-introduction">
+      <p class="eyebrow">{isEn ? "A personal learning notebook" : "个人学习与实践笔记"}</p>
+      <h1>Learning Atlas</h1>
+      <p class="lead">{isEn
+        ? "I'm Zikai Wang (Eason). This is a place for my Azure cloud and AI architecture notes, public projects, and local experiments."
+        : "我是 Zikai Wang（Eason）。这里记录 Azure 云与 AI 架构的学习笔记、公开项目和本地实验。"}</p>
+      <p class="home-guidance">{isEn
+        ? "Explore the relationships in Knowledge Map, follow a course in Learn, or pick a section below."
+        : "想理解知识关系，先看知识地图；想按步骤学习，进入系统学习。也可以直接选择下方栏目。"}</p>
+    </header>
+    <nav class="home-directory" aria-labelledby="home-directory-title">
+      <h2 id="home-directory-title">{isEn ? "Directory" : "目录"}</h2>
+      <ol>
+        {primaryNavigation.map((entry, index) => (
+          <li class="home-directory-entry">
+            <a href={path(entry.path)}>
+              <span class="home-directory-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+              <span><strong>{entry.label[locale]}</strong><span class="home-directory-purpose">{entry.purpose[locale]}</span></span>
+              <span aria-hidden="true">↗</span>
+            </a>
+            {entry.key === "Projects" && <a class="home-showcase-link" href={path("/projects/showcase/")}>
+              {isEn ? "Interactive project showcase" : "互动作品展台"} →
+            </a>}
+          </li>
+        ))}
+      </ol>
+    </nav>
+    <nav class="home-supporting-links" aria-label={isEn ? "Supporting tools" : "辅助工具"}>
+      {secondaryNavigation.map((entry) => <a href={path(entry.path)}>{entry.label[locale]}</a>)}
+    </nav>
+  </div>
+</section>

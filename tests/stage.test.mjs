@@ -26,11 +26,14 @@ test("wheel deltas and perspective grid are deterministic", () => {
   assert.ok(grid.at(-1).x1 < 720 && grid.at(-1).x2 > 720);
 });
 
-test("home stage replaces the old hero and keeps accessible navigation", () => {
+test("home is an introduction and the interactive stage lives under Projects", () => {
   const home = readFileSync("src/pages/index.astro", "utf8");
+  const showcase = readFileSync("src/components/ShowcaseView.astro", "utf8");
   const stage = readFileSync("src/components/BilingualStage.astro", "utf8");
   const css = readFileSync("src/styles/global.css", "utf8");
-  assert.match(home, /<BilingualStage/);
+  assert.match(home, /<HomeView/);
+  assert.doesNotMatch(home, /BilingualStage|scene>/);
+  assert.match(showcase, /<BilingualStage/);
   assert.doesNotMatch(home, /hero-title|开始学习|搜索全站/);
   assert.match(stage, /data-stage-canvas/);
   assert.match(stage, /data-stage-track/);

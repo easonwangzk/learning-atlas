@@ -1,19 +1,7 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import BilingualStage from "@/components/BilingualStage.astro";
-import { tracks } from "@/data/tracks";
-import { getProjects } from "@/data/projects";
-import { getResources } from "@/data/resources";
-import { getCollection } from "astro:content";
-import { lessonLocale, lessonProgressId } from "@/lib/lessons";
-
-const locale = "en";
-const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === locale);
-const lessonIds = lessons.map(lessonProgressId);
-const projects = getProjects(locale);
-const resources = getResources(locale);
+import HomeView from "@/components/HomeView.astro";
 ---
-
-<BaseLayout title="Learning Atlas" description="An English static learning map for compute, storage, networking, databases, AI, and machine learning." current="Home" locale={locale} pageKind="home" scene>
-  <BilingualStage locale={locale} projects={projects} tracks={tracks} lessonIds={lessonIds} resourceCount={resources.length} />
+<BaseLayout title="Learning Atlas" description="Zikai Wang (Eason)'s Azure cloud and AI architecture notes, projects, experiments, and directory." current="Home" locale="en" pageKind="home">
+  <HomeView locale="en" />
 </BaseLayout>

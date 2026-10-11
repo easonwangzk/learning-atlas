@@ -10,15 +10,9 @@ const { locale, current } = Astro.props;
     <section class="navigation-section">
       <a href={withBase(localizeNavPath(entry.path, locale))} data-nav-key={entry.key} aria-current={current === entry.key ? "page" : undefined}>
         <span class="navigation-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-        <span><strong data-nav-label>{entry.label[locale]}</strong><span data-nav-purpose>{entry.purpose[locale]}</span></span>
+        <strong data-nav-label>{entry.label[locale]}</strong>
         <span aria-hidden="true">↗</span>
       </a>
-      {entry.children.length > 0 && (
-        <details class="navigation-children">
-          <summary>{locale === "en" ? "Browse topics" : "展开子栏目"}</summary>
-          {entry.children.map((child) => <a data-nav-child={child.key} href={withBase(localizeNavPath(child.path, locale))}>{child.label[locale]}</a>)}
-        </details>
-      )}
     </section>
   ))}
 </div>
