@@ -3,4 +3,4 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import CertificationsView from "@/components/CertificationsView.astro";
 const locale = "zh";
 ---
-<BaseLayout title="Certifications" description="AZ-104、AZ-700、AZ-305 学习指南映射。" current="Certifications" locale={locale} pageKind="certifications" contextLabel="Certifications"><CertificationsView locale={locale} /></BaseLayout>
+<BaseLayout title="认证路线" description="系统学习中的 AZ-104、AZ-700、AZ-305 学习指南映射。" current="Learn" locale={locale} pageKind="certifications" contextLabel="Learn" crumbs={[{ label: "Learn", href: "/learn/" }, { label: "认证路线" }]}><CertificationsView locale={locale} /></BaseLayout>

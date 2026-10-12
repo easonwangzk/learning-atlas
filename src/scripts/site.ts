@@ -19,7 +19,7 @@ function setupNotFoundLocale() {
     if (element) element.textContent = text;
   };
   replace(".skip-link", t.skip);
-  const navPaths = { Home: "/", Knowledge: "/learn/", KnowledgeMap: "/knowledge-map/", Learn: "/learn/", Certifications: "/certifications/", Projects: "/projects/", Labs: "/labs/", Notes: "/notes/", Roadmap: "/roadmap/", Resources: "/resources/", About: "/about/", Search: "/search/" };
+  const navPaths = { Home: "/", Knowledge: "/learn/", Learn: "/learn/", Projects: "/projects/", Labs: "/labs/", Notes: "/notes/", Roadmap: "/roadmap/", Resources: "/resources/", About: "/about/", Search: "/search/" };
   for (const [key, path] of Object.entries(navPaths)) {
     const label = Object.entries(t.nav).find(([name]) => name === key)?.[1];
     document.querySelectorAll<HTMLAnchorElement>(`[data-nav-key="${key}"]`).forEach((link) => {
@@ -65,9 +65,9 @@ function setupNotFoundLocale() {
   document.querySelector("[data-chrome-close]")?.setAttribute("aria-label", locale === "en" ? "Close" : "关闭");
   if (locale === "en") {
     replace("[data-notfound-title]", "This path does not have a lesson yet.");
-    replace("[data-notfound-description]", "Return to the Knowledge Map or use site search.");
+    replace("[data-notfound-description]", "Return to Learn or use site search.");
     document.querySelector('meta[name="description"]')?.setAttribute("content", "Page not found.");
-    for (const [kind, label] of [["knowledge-map", "Knowledge Map"], ["learn", "Learn"], ["search", "Search"]]) {
+    for (const [kind, label] of [["learn", "Learn"], ["search", "Search"]]) {
       const link = document.querySelector<HTMLAnchorElement>(`[data-notfound-link="${kind}"]`);
       if (link) {
         link.textContent = label;
@@ -276,41 +276,6 @@ function setupMotion() {
     setButtons(paused);
     document.dispatchEvent(new Event("atlas:motion-change"));
   }));
-}
-
-function setupKnowledgeMap() {
-  document.querySelectorAll<HTMLElement>("[data-knowledge-map]").forEach((map) => {
-    const nodes = [...map.querySelectorAll<HTMLAnchorElement>("[data-map-node]")];
-    const details = [...map.querySelectorAll<HTMLElement>("[data-map-detail]")];
-    const set = (slug: string, save = false) => {
-      if (!nodes.some((node) => node.dataset.mapNode === slug)) return;
-      map.dataset.selected = slug;
-      nodes.forEach((node) => node.setAttribute("aria-current", String(node.dataset.mapNode === slug)));
-      details.forEach((detail) => { detail.hidden = detail.dataset.mapDetail !== slug; });
-      if (save) {
-        const url = new URL(location.href);
-        url.hash = slug;
-        history.replaceState(null, "", url);
-      }
-    };
-    nodes.forEach((node, index) => {
-      const slug = node.dataset.mapNode || "";
-      node.addEventListener("focus", () => set(slug, true));
-      node.addEventListener("click", (event) => {
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        event.preventDefault();
-        set(slug, true);
-      });
-      node.addEventListener("keydown", (event) => {
-        if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
-        event.preventDefault();
-        const offset = event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 1;
-        nodes[(index + offset + nodes.length) % nodes.length].focus();
-      });
-    });
-    set(nodes.some((node) => node.dataset.mapNode === location.hash.slice(1)) ? location.hash.slice(1) : "compute");
-    window.addEventListener("hashchange", () => set(location.hash.slice(1)));
-  });
 }
 
 function setupFilters() {
@@ -1173,7 +1138,6 @@ setupMenu();
 setupMotion();
 setupProgress();
 setupLabs();
-setupKnowledgeMap();
 setupFilters();
 setupGlobalSearch();
 setupSearchQuery();

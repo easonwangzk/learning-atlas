@@ -5,4 +5,4 @@ import { certifications, getCertification } from "@/data/certifications";
 export function getStaticPaths() { return certifications.map((cert) => ({ params: { slug: cert.slug } })); }
 const locale = "zh"; const cert = getCertification(Astro.params.slug ?? ""); if (!cert) return Astro.redirect("/404.html");
 ---
-<BaseLayout title={cert.title.zh} description={cert.intro.zh} current="Certifications" locale={locale} pageKind="certifications" contextLabel="Certifications"><CertificationDetailView locale={locale} cert={cert} /></BaseLayout>
+<BaseLayout title={cert.title.zh} description={cert.intro.zh} current="Learn" locale={locale} pageKind="certifications" contextLabel="Learn" crumbs={[{ label: "Learn", href: "/learn/" }, { label: cert.title.zh }]}><CertificationDetailView locale={locale} cert={cert} /></BaseLayout>

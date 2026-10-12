@@ -14,12 +14,11 @@ function walk(dir) {
 }
 
 const htmlFiles = walk(dist).filter((file) => file.endsWith(".html"));
-assert.equal(htmlFiles.length, 104, `expected the full bilingual static site, got ${htmlFiles.length}`);
+assert.equal(htmlFiles.length, 102, `expected the full bilingual static site, got ${htmlFiles.length}`);
 const pages = new Map(htmlFiles.map((file) => [file, readFileSync(file, "utf8")]));
 const outputPaths = htmlFiles.map((file) => relative(dist, file).split(sep).join("/"));
 const familyCounts = {
   home: outputPaths.filter((path) => /^(?:en\/)?index\.html$/.test(path)).length,
-  knowledgeMap: outputPaths.filter((path) => /^(?:en\/)?knowledge-map\/index\.html$/.test(path)).length,
   learn: outputPaths.filter((path) => /^(?:en\/)?learn\/index\.html$/.test(path)).length,
   tracks: outputPaths.filter((path) => /^(?:en\/)?learn\/[^/]+\/index\.html$/.test(path)).length,
   lessons: outputPaths.filter((path) => /^(?:en\/)?learn\/[^/]+\/[^/]+\/index\.html$/.test(path)).length,
@@ -36,7 +35,6 @@ const familyCounts = {
 };
 assert.deepEqual(familyCounts, {
   home: 2,
-  knowledgeMap: 2,
   learn: 2,
   tracks: 12,
   lessons: 36,

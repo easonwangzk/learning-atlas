@@ -12,7 +12,7 @@ export const GET: APIRoute = async () => {
   const projects = getProjects("zh");
   const zhLessons = lessons.filter((lesson) => lessonLocale(lesson) === "zh");
   const enLessons = lessons.filter((lesson) => lessonLocale(lesson) === "en");
-  const shared = ["/knowledge-map/", "/learn/", "/certifications/", "/projects/", "/projects/showcase/", "/labs/", "/notes/", "/roadmap/", "/resources/", "/about/", "/search/"];
+  const shared = ["/learn/", "/certifications/", "/projects/", "/projects/showcase/", "/labs/", "/notes/", "/roadmap/", "/resources/", "/about/", "/search/"];
   const zhPaths = ["/", ...shared, ...tracks.map((track) => `/learn/${track.slug}/`), ...zhLessons.map((lesson) => lessonRoute(lesson, "zh")), ...certifications.map((cert) => `/certifications/${cert.slug}/`), ...projects.map((project) => `/projects/${project.slug}/`), ...labs.map((lab) => `/labs/${lab.slug}/`)];
   const enPaths = ["/en/", ...shared.map((path) => `/en${path}`), ...tracks.map((track) => `/en/learn/${track.slug}/`), ...enLessons.map((lesson) => lessonRoute(lesson, "en")), ...certifications.map((cert) => `/en/certifications/${cert.slug}/`), ...projects.map((project) => `/en/projects/${project.slug}/`), ...labs.map((lab) => `/en/labs/${lab.slug}/`)];
   const paths = [...zhPaths, ...enPaths];

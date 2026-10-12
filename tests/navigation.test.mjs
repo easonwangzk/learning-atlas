@@ -1,13 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { primaryNavigation, secondaryNavigation, localizeNavPath } from "../src/data/navigation.ts";
+import { cornerNavigation, primaryNavigation, secondaryNavigation, localizeNavPath } from "../src/data/navigation.ts";
 import { certifications } from "../src/data/certifications.ts";
-test("primary site hierarchy follows the requested order with distinct map and courses", () => {
+test("directory contains learning content while progress and about stay in the corner", () => {
   assert.deepEqual(primaryNavigation.map((entry) => entry.key),
-    ["KnowledgeMap", "Learn", "Certifications", "Projects", "Labs", "Notes", "Roadmap", "About"]);
-  assert.equal(primaryNavigation[0].path, "/knowledge-map/");
-  assert.equal(primaryNavigation[1].path, "/learn/");
-  assert.deepEqual(primaryNavigation[1].children.map((child) => child.key), ["compute", "storage", "network", "database", "ai", "ml"]);
+    ["Learn", "Projects", "Labs", "Notes"]);
+  assert.equal(primaryNavigation[0].path, "/learn/");
+  assert.deepEqual(primaryNavigation[0].children.map((child) => child.key),
+    ["compute", "storage", "network", "database", "ai", "ml", "az-104", "az-700", "az-305"]);
+  assert.deepEqual(cornerNavigation.map((entry) => entry.key), ["Roadmap", "About"]);
+  assert.equal(cornerNavigation[0].label.zh, "学习进度");
   assert.deepEqual(secondaryNavigation.map((entry) => entry.key), ["Resources", "Search"]);
   for (const entry of primaryNavigation) assert.equal(localizeNavPath(entry.path, "en"), `/en${entry.path}`);
 });

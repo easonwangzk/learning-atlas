@@ -37,7 +37,7 @@ test("home is an introduction and the interactive stage lives under Projects", (
   assert.doesNotMatch(home, /hero-title|开始学习|搜索全站/);
   assert.match(stage, /data-stage-canvas/);
   assert.match(stage, /data-stage-track/);
-  assert.match(stage, /Profile|简介/);
+  assert.match(stage, /cornerNavigation\.map/);
   assert.match(stage, /data-dialog-open="explore-panel"/);
   assert.match(css, /\.scene-body/);
   assert.match(css, /height: 100dvh/);

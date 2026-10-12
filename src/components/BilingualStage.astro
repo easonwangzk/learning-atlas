@@ -3,26 +3,21 @@ import ProjectArtwork from "@/components/ProjectArtwork.astro";
 import type { Locale } from "@/i18n";
 import { withBase } from "@/lib/paths";
 import type { getProjects } from "@/data/projects";
-import { tracks as allTracks, trackText } from "@/data/tracks";
-import { primaryNavigation, secondaryNavigation, localizeNavPath } from "@/data/navigation";
+import { cornerNavigation, primaryNavigation, secondaryNavigation, localizeNavPath } from "@/data/navigation";
 import NavigationIndex from "@/components/NavigationIndex.astro";
 
 interface Props {
   locale: Locale;
   projects: ReturnType<typeof getProjects>;
-  tracks: readonly (typeof allTracks)[number][];
-  lessonIds: string[];
-  resourceCount: number;
 }
 
-const { locale, projects, tracks, lessonIds, resourceCount } = Astro.props;
+const { locale, projects } = Astro.props;
 const isEn = locale === "en";
 const path = (href: string) => withBase(isEn ? `/en${href}` : href);
 const switchPath = withBase(isEn ? "/projects/showcase/" : "/en/projects/showcase/");
 const copy = {
   brand: "Learning Atlas",
   h1: isEn ? "Learning Atlas project stage" : "Learning Atlas 项目展台",
-  profile: isEn ? "Profile" : "简介",
   close: isEn ? "Close" : "关闭",
   featured: isEn ? "Featured" : "精选",
   full: isEn ? "Full" : "全览",
@@ -34,13 +29,8 @@ const copy = {
   next: isEn ? "Next project" : "下一个项目",
   skip: isEn ? "Open case study" : "打开案例",
   noJs: isEn ? "Direct links remain available without JavaScript." : "即使未开启 JavaScript，也可直接打开这些链接。",
-  profileTitle: isEn ? "A quiet map for cloud and AI learning." : "一张克制的云与 AI 学习地图。",
-  profileBody: isEn
-    ? "Eight primary sections: Knowledge Map, Learn, Certifications, Projects, Labs, Notes, Roadmap, and About. Progress remains in this browser only."
-    : "知识地图、系统学习、认证路线、项目案例、实践实验、知识笔记、学习路线图与关于作者。进度只保存在当前浏览器。",
   menuTitle: isEn ? "Explore the atlas" : "浏览学习地图",
-  indexTitle: isEn ? "Full project index" : "项目全览",
-  progress: isEn ? "Completed" : "完成"
+  indexTitle: isEn ? "Full project index" : "项目全览"
 };
 const nav = [...primaryNavigation, ...secondaryNavigation].map((entry) => [entry.label[locale], withBase(localizeNavPath(entry.path, locale)), entry.purpose[locale]]) as [string, string, string][];
 ---
@@ -56,7 +46,7 @@ const nav = [...primaryNavigation, ...secondaryNavigation].map((entry) => [entry
     <a class="stage-link showcase-parent-link" href={path("/projects/")}>{isEn ? "Projects" : "项目案例"}</a>
   </nav>
   <div class="stage-chrome stage-top-right">
-    <button class="stage-link" type="button" data-dialog-open="profile-panel" aria-haspopup="dialog" aria-controls="profile-panel" aria-expanded="false">{copy.profile}</button>
+    {cornerNavigation.map((entry) => <a class="stage-link" href={withBase(localizeNavPath(entry.path, locale))}>{entry.label[locale]}</a>)}
     <a class="stage-link" href={switchPath} data-lang-switch>{isEn ? "中文" : "English"}</a>
     <button class="stage-link" type="button" data-motion-toggle aria-pressed="false" data-label-pause={copy.motionPause} data-label-play={copy.motionPlay} data-label-reduced={copy.motionReduced}>{copy.motionPause}</button>
   </div>
@@ -65,7 +55,6 @@ const nav = [...primaryNavigation, ...secondaryNavigation].map((entry) => [entry
     <button class="stage-link" type="button" data-stage-mode="full" aria-pressed="false">{copy.full}</button>
   </div>
   <div class="stage-chrome stage-bottom-right">
-    <a class="stage-link" href={path("/knowledge-map/")}>{isEn ? "Knowledge Map" : "知识地图"}</a>
     <button class="stage-link" type="button" data-dialog-open="explore-panel" aria-haspopup="dialog" aria-controls="explore-panel" aria-expanded="false">{copy.explore}</button>
   </div>
 
@@ -102,28 +91,6 @@ const nav = [...primaryNavigation, ...secondaryNavigation].map((entry) => [entry
   </div>
 
   <noscript><nav class="stage-noscript" aria-label={copy.menuTitle}>{nav.map(([label, href]) => <a href={href}>{label}</a>)}</nav></noscript>
-
-  <dialog class="stage-dialog" id="profile-panel" data-stage-dialog aria-labelledby="profile-title">
-    <form method="dialog">
-      <button class="stage-close" aria-label={copy.close}>×</button>
-    </form>
-    <p class="eyebrow">{copy.profile}</p>
-    <h2 id="profile-title">{copy.profileTitle}</h2>
-    <p>{copy.profileBody}</p>
-    <p class="stage-progress">{copy.progress} <span data-progress-count={lessonIds.join(",")}>0/{lessonIds.length}</span></p>
-    <p data-progress-warning role="status"></p>
-    <ul class="stage-track-list">
-      {tracks.map((track) => {
-        const text = trackText(track, locale);
-        return <li><a href={withBase(isEn ? `/en/learn/${track.slug}/` : `/learn/${track.slug}/`)}>{text.title}</a><span>{text.kicker}</span></li>;
-      })}
-    </ul>
-    <div class="stage-dialog-actions">
-      <a class="stage-pill" href={path("/knowledge-map/")}>{isEn ? "Knowledge Map" : "知识地图"}</a><a class="stage-pill" href={path("/learn/")}>{isEn ? "18 lessons" : "18 篇课程"}</a><a class="stage-pill" href={path("/labs/")}>{isEn ? "6 labs" : "6 个实验"}</a><a class="stage-pill" href={path("/notes/")}>{isEn ? "Notes" : "笔记"}</a>
-      <a class="stage-pill" href={path("/projects/")}>{isEn ? `${projects.length} cases` : `${projects.length} 个案例`}</a>
-      <a class="stage-pill" href={path("/resources/")}>{isEn ? `${resourceCount} resources` : `${resourceCount} 条资源`}</a>
-    </div>
-  </dialog>
 
   <dialog class="stage-dialog stage-menu" id="explore-panel" data-stage-dialog aria-labelledby="explore-title">
     <form method="dialog">

@@ -12,10 +12,10 @@ const nextLesson = [...lessons].sort((a, b) => tracks.findIndex((track) => track
 <section class="atlas-page">
   <div class="atlas-container">
     <header class="atlas-intro" data-reveal>
-      <p class="eyebrow">{isEn ? "Roadmap" : "学习路线图"}</p><h1>{isEn ? "Progress and next step" : "学习进度与下一步"}</h1>
+      <p class="eyebrow">{isEn ? "Progress" : "学习进度"}</p><h1>{isEn ? "Learning progress and next step" : "学习进度与下一步"}</h1>
       <p class="lead">{isEn ? "Choose one next lesson from your unfinished work. Progress is stored in this browser only and is shared with course pages." : "根据未完成的课程明确一个下一步。进度只保存在当前浏览器，与课程页共享。"}</p>
       <p><strong data-progress-count={ids.join(",")}>0/{ids.length}</strong> {isEn ? "lessons complete" : "篇课程已完成"}</p>
-      <a class="text-button" data-roadmap-next data-review-href={withBase(localizePath("/certifications/", locale))} href={withBase(lessonRoute(nextLesson, locale))}>
+      <a class="text-button" data-roadmap-next data-review-href={`${withBase(localizePath("/learn/", locale))}#certifications`} href={withBase(lessonRoute(nextLesson, locale))}>
         {isEn ? "Next: " : "下一步："}{nextLesson.data.title}
       </a>
       <p data-roadmap-message role="status"></p><p data-progress-warning role="status"></p>

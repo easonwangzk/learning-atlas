@@ -2440,7 +2440,7 @@ html:not([data-js="true"]) [data-motion-toggle] {
 }
 
 @media (max-width: 760px) {
-  .site-shell:not(.scene-shell) main { padding-top: 5rem; }
+  .site-shell:not(.scene-shell) main { padding-top: 6.25rem; }
   .chrome-brand { top: 0.65rem; left: 0.75rem; }
   .chrome-top-right { top: 0.45rem; right: 0.45rem; }
   .chrome-bottom-left { left: 0.6rem; bottom: 0.45rem; max-width: calc(100vw - 1.2rem); }

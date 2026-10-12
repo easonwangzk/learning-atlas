@@ -6,4 +6,4 @@ import { lessonLocale } from "@/lib/lessons";
 const locale = "en";
 const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === locale).sort((a,b)=>a.data.track.localeCompare(b.data.track)||a.data.order-b.data.order);
 ---
-<BaseLayout title="Roadmap" description="Progress and next step." current="Roadmap" locale={locale} pageKind="roadmap" contextLabel="Roadmap"><RoadmapView locale={locale} lessons={lessons} /></BaseLayout>
+<BaseLayout title="Progress" description="Browser-local learning progress and next step." current="Roadmap" locale={locale} pageKind="roadmap" contextLabel="Roadmap"><RoadmapView locale={locale} lessons={lessons} /></BaseLayout>

@@ -5,7 +5,7 @@ export const defaultLocale: Locale = "zh";
 export const ui = {
   zh: {
     lang: "zh-CN", dir: "ltr", localeName: "中文", switchLabel: "English", skip: "跳到主要内容", navLabel: "全站导航", menu: "菜单", theme: "切换明暗主题", motionPause: "暂停动画", motionPlay: "播放动画", motionReduced: "已减少动画",
-    nav: { Home: "首页", Knowledge: "系统学习", KnowledgeMap: "知识地图", Learn: "系统学习", Certifications: "认证路线", Projects: "项目案例", Labs: "实践实验", Notes: "知识笔记", Roadmap: "学习路线图", Resources: "资料索引", About: "关于作者", Search: "全站搜索" },
+    nav: { Home: "首页", Knowledge: "系统学习", Learn: "系统学习", Projects: "项目案例", Labs: "实践实验", Notes: "知识笔记", Roadmap: "学习进度", Resources: "资料索引", About: "关于作者", Search: "全站搜索" },
     footerOne: "静态学习网站。进度只保存在浏览器本地；无后端、无外部模型调用、无跨设备同步。", footerTwo: "个人学习笔记与公开项目索引，非 Microsoft、OpenAI 或其他机构的官方课程。", aboutSource: "关于与来源", read: "阅读", open: "打开", drag: "拖动",
     countItems: (visible: number, total: number) => `${visible} / ${total} 项`, countResults: (visible: number) => `${visible} 条结果`,
     progressReadError: "无法读取本地进度：存储不可用或数据格式错误。原记录未删除；内容仍可阅读。", progressSaveError: "进度未能保存到本浏览器，仅在当前页面暂存，刷新后可能丢失。", progressSyncError: "另一页面的进度数据格式错误，当前进度未被覆盖。", progressDone: "已完成：点击取消", progressTodo: "标记本课完成", progressReset: "确定清空本浏览器的 Learning Atlas 完成进度？", themeSaveError: "主题已切换，但浏览器未允许保存偏好。", motionSaveError: "动画偏好未能保存，当前页面设置仍然有效。", motionReadError: "无法读取动画偏好，当前按系统设置显示。",
@@ -14,7 +14,7 @@ export const ui = {
   },
   en: {
     lang: "en", dir: "ltr", localeName: "English", switchLabel: "中文", skip: "Skip to main content", navLabel: "Site navigation", menu: "Menu", theme: "Toggle color theme", motionPause: "Pause motion", motionPlay: "Resume motion", motionReduced: "Reduced motion",
-    nav: { Home: "Home", Knowledge: "Learn", KnowledgeMap: "Knowledge Map", Learn: "Learn", Certifications: "Certifications", Projects: "Projects", Labs: "Labs", Notes: "Notes", Roadmap: "Roadmap", Resources: "Resources", About: "About", Search: "Search" },
+    nav: { Home: "Home", Knowledge: "Learn", Learn: "Learn", Projects: "Projects", Labs: "Labs", Notes: "Notes", Roadmap: "Progress", Resources: "Resources", About: "About", Search: "Search" },
     footerOne: "A static learning site. Progress is stored only in this browser; no backend, model calls, or cross-device sync.", footerTwo: "Personal study notes and public project indexes, not official courses from Microsoft, OpenAI, or other organizations.", aboutSource: "About and sources", read: "Read", open: "Open", drag: "Drag",
     countItems: (visible: number, total: number) => `${visible} / ${total} items`, countResults: (visible: number) => `${visible} results`,
     progressReadError: "Local progress could not be read because storage is unavailable or malformed. Existing records were not deleted; content remains readable.", progressSaveError: "Progress could not be saved in this browser and is only temporary until refresh.", progressSyncError: "Progress from another page was malformed, so the current state was not overwritten.", progressDone: "Completed: click to undo", progressTodo: "Mark this lesson complete", progressReset: "Clear all Learning Atlas completion progress in this browser?", themeSaveError: "Theme changed, but this browser did not allow saving the preference.", motionSaveError: "Motion preference could not be saved. The current page setting still applies.", motionReadError: "The saved motion preference could not be read; the system preference is being used.",

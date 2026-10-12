@@ -1,12 +1,13 @@
 import type { Locale } from "@/i18n";
 
-export type PrimaryNavKey = "KnowledgeMap" | "Learn" | "Certifications" | "Projects" | "Labs" | "Notes" | "Roadmap" | "About";
+export type PrimaryNavKey = "Learn" | "Projects" | "Labs" | "Notes";
+export type CornerNavKey = "Roadmap" | "About";
 export type SecondaryNavKey = "Resources" | "Search";
-export type NavKey = "Home" | PrimaryNavKey | SecondaryNavKey | "Knowledge";
+export type NavKey = "Home" | PrimaryNavKey | CornerNavKey | SecondaryNavKey | "Knowledge";
 
 type Localized = Readonly<Record<Locale, string>>;
 export type NavigationChild = Readonly<{ key: string; label: Localized; path: string; purpose: Localized }>;
-export type NavigationEntry = Readonly<{ key: PrimaryNavKey | SecondaryNavKey; label: Localized; path: string; purpose: Localized; children: readonly NavigationChild[] }>;
+export type NavigationEntry = Readonly<{ key: PrimaryNavKey | CornerNavKey | SecondaryNavKey; label: Localized; path: string; purpose: Localized; children: readonly NavigationChild[] }>;
 
 const trackChildren: readonly NavigationChild[] = [
   { key: "compute", label: { zh: "计算", en: "Compute" }, path: "/learn/compute/", purpose: { zh: "VM、容器与无服务器取舍", en: "VM, container, and serverless tradeoffs" } },
@@ -18,9 +19,7 @@ const trackChildren: readonly NavigationChild[] = [
 ];
 
 export const primaryNavigation: readonly NavigationEntry[] = [
-  { key: "KnowledgeMap", label: { zh: "知识地图", en: "Knowledge Map" }, path: "/knowledge-map/", purpose: { zh: "先看六条知识线如何连接", en: "See how the six learning lines connect" }, children: [] },
-  { key: "Learn", label: { zh: "系统学习", en: "Learn" }, path: "/learn/", purpose: { zh: "再按云基础与 AI / ML 路径读课程", en: "Follow cloud foundations and AI / ML courses" }, children: trackChildren },
-  { key: "Certifications", label: { zh: "认证路线", en: "Certifications" }, path: "/certifications/", purpose: { zh: "对照官方大纲与本站覆盖缺口", en: "Compare official objectives and site coverage gaps" }, children: [
+  { key: "Learn", label: { zh: "系统学习", en: "Learn" }, path: "/learn/", purpose: { zh: "课程、实验与认证路线集中在这里", en: "Courses, labs, and certification routes in one place" }, children: [...trackChildren,
     { key: "az-104", label: { zh: "AZ-104：部署与管理", en: "AZ-104: Deploy and manage" }, path: "/certifications/az-104/", purpose: { zh: "管理员视角的身份、存储、计算、网络与监控", en: "Administrator view of identity, storage, compute, network, and monitoring" } },
     { key: "az-700", label: { zh: "AZ-700：网络专项", en: "AZ-700: Network specialty" }, path: "/certifications/az-700/", purpose: { zh: "核心网络、连接、交付、私有访问与安全", en: "Core networking, connectivity, delivery, private access, and security" } },
     { key: "az-305", label: { zh: "AZ-305：架构设计与权衡", en: "AZ-305: Architecture design and tradeoffs" }, path: "/certifications/az-305/", purpose: { zh: "治理、数据、连续性与基础设施决策", en: "Governance, data, continuity, and infrastructure decisions" } }
@@ -36,8 +35,11 @@ export const primaryNavigation: readonly NavigationEntry[] = [
     { key: "ai-retrieval", label: { zh: "检索指标", en: "Retrieval metrics" }, path: "/labs/ai-retrieval/", purpose: { zh: "Recall@k 与 MRR 的玩具评估", en: "Toy Recall@k and MRR evaluation" } },
     { key: "ml-confusion-matrix", label: { zh: "混淆矩阵", en: "Confusion matrix" }, path: "/labs/ml-confusion-matrix/", purpose: { zh: "Precision、Recall、F1、Accuracy", en: "Precision, recall, F1, and accuracy" } }
   ] },
-  { key: "Notes", label: { zh: "知识笔记", en: "Notes" }, path: "/notes/", purpose: { zh: "查术语、读短笔记、避开常见误区", en: "Look up terms, short notes, and common pitfalls" }, children: [] },
-  { key: "Roadmap", label: { zh: "学习路线图", en: "Roadmap" }, path: "/roadmap/", purpose: { zh: "查看自己的进度，明确下一课", en: "Check your progress and choose the next lesson" }, children: [] },
+  { key: "Notes", label: { zh: "知识笔记", en: "Notes" }, path: "/notes/", purpose: { zh: "查术语、读短笔记、避开常见误区", en: "Look up terms, short notes, and common pitfalls" }, children: [] }
+];
+
+export const cornerNavigation: readonly NavigationEntry[] = [
+  { key: "Roadmap", label: { zh: "学习进度", en: "Progress" }, path: "/roadmap/", purpose: { zh: "查看自己的进度，明确下一课", en: "Check your progress and choose the next lesson" }, children: [] },
   { key: "About", label: { zh: "关于作者", en: "About" }, path: "/about/", purpose: { zh: "个人介绍、公开账号与本站边界", en: "Author, public profiles, and site boundaries" }, children: [] }
 ];
 
@@ -46,7 +48,7 @@ export const secondaryNavigation: readonly NavigationEntry[] = [
   { key: "Search", label: { zh: "全站搜索", en: "Search" }, path: "/search/", purpose: { zh: "搜索课程、项目、实验和笔记", en: "Search lessons, projects, labs, and notes" }, children: [] }
 ];
 
-export const allNavigation = [...primaryNavigation, ...secondaryNavigation] as const;
+export const allNavigation = [...primaryNavigation, ...cornerNavigation, ...secondaryNavigation] as const;
 
 export function navLabel(key: NavKey, locale: Locale): string {
   if (key === "Home") return locale === "en" ? "Home" : "首页";

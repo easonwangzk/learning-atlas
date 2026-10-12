@@ -1,9 +1,0 @@
----
-import BaseLayout from "@/layouts/BaseLayout.astro";
-import KnowledgeMapView from "@/components/KnowledgeMapView.astro";
-import { getCollection } from "astro:content";
-import { lessonLocale } from "@/lib/lessons";
-const locale = "en";
-const lessons = (await getCollection("lessons")).filter((lesson) => lessonLocale(lesson) === locale);
----
-<BaseLayout title="Knowledge Map" description="Interactive map for six learning lines." current="KnowledgeMap" locale={locale} pageKind="knowledge-map" contextLabel="KnowledgeMap"><KnowledgeMapView locale={locale} lessons={lessons} /></BaseLayout>

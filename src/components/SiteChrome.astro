@@ -1,7 +1,7 @@
 ---
 import { withBase } from "@/lib/paths";
 import { localizePath, ui, type Locale } from "@/i18n";
-import { allNavigation, primaryNavigation, localizeNavPath } from "@/data/navigation";
+import { allNavigation, cornerNavigation, primaryNavigation, localizeNavPath } from "@/data/navigation";
 import NavigationIndex from "@/components/NavigationIndex.astro";
 interface Crumb { label: string; href?: string }
 interface Props { locale: Locale; current?: string; otherPath: string; pageKind?: string; crumbs?: Crumb[]; contextLabel?: string }
@@ -16,7 +16,12 @@ const displayContext = contextLabel ? displayLabel(contextLabel) : undefined;
 ---
 <nav class="site-chrome" data-site-chrome data-page-kind={pageKind} aria-label={t.navLabel}>
   <a class="chrome-brand" href={withBase(home)} data-nav-key="Home" aria-current={current === "Home" ? "page" : undefined}>Learning Atlas</a>
-  <div class="chrome-cluster chrome-top-right"><a class="chrome-link lang-switch" href={withBase(otherPath)} data-lang-switch>{t.switchLabel}</a><button class="chrome-link" type="button" data-motion-toggle aria-pressed="false" data-label-pause={t.motionPause} data-label-play={t.motionPlay} data-label-reduced={t.motionReduced}>{t.motionPause}</button><button class="chrome-link" type="button" data-dialog-open={menuId} data-chrome-menu-toggle aria-haspopup="dialog" aria-controls={menuId} aria-expanded="false">{t.menu}</button></div>
+  <div class="chrome-cluster chrome-top-right">
+    {cornerNavigation.map((entry) => <a class="chrome-link chrome-corner-link" href={withBase(localizeNavPath(entry.path, locale))} data-nav-key={entry.key} aria-current={current === entry.key ? "page" : undefined}>{entry.label[locale]}</a>)}
+    <a class="chrome-link lang-switch" href={withBase(otherPath)} data-lang-switch>{t.switchLabel}</a>
+    <button class="chrome-link" type="button" data-motion-toggle aria-pressed="false" data-label-pause={t.motionPause} data-label-play={t.motionPlay} data-label-reduced={t.motionReduced}>{t.motionPause}</button>
+    <button class="chrome-link" type="button" data-dialog-open={menuId} data-chrome-menu-toggle aria-haspopup="dialog" aria-controls={menuId} aria-expanded="false">{t.menu}</button>
+  </div>
   <div class="chrome-context chrome-bottom-left">{displayContext && <span>{displayContext}</span>}{crumbs.map((crumb) => crumb.href ? <a href={withBase(crumb.href)}>{displayLabel(crumb.label)}</a> : <span>{displayLabel(crumb.label)}</span>)}</div>
   <div class="chrome-cluster chrome-bottom-right"><a class="chrome-link" href={withBase(localizePath("/search/", locale))} data-nav-key="Search" aria-current={current === "Search" ? "page" : undefined}>{t.nav.Search}</a></div>
   <dialog class="chrome-dialog" id={menuId} data-stage-dialog aria-labelledby={`${menuId}-title`}>
